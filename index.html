@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Agenda Famille</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF2F5;
+    --surface: #FFFFFF;
+    --surface-soft: #F5F7F9;
+    --ink: #23262B;
+    --ink-soft: #6B7280;
+    --line: #DDE3E8;
+    --shadow: 0 1px 2px rgba(35,38,43,.06), 0 4px 14px rgba(35,38,43,.06);
+    --palette-1: #3B6EA5; --palette-2: #E8735C; --palette-3: #3FA796;
+    --palette-4: #C4547A; --palette-5: #D9A441; --palette-6: #6A5DAD;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg:#171A1E; --surface:#21252B; --surface-soft:#262B32; --ink:#ECEEF1; --ink-soft:#9AA1AB; --line:#33393F;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#171A1E; --surface:#21252B; --surface-soft:#262B32; --ink:#ECEEF1; --ink-soft:#9AA1AB; --line:#33393F;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; overflow-x:hidden; width:100%; }
+  body { background: var(--bg); color: var(--ink); font-family:'Karla',sans-serif; min-height:100vh; -webkit-tap-highlight-color:transparent; }
+  h1,h2,h3,.display { font-family:'Quicksand',sans-serif; }
+  #app { max-width:640px; width:100%; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+
+  #onboarding { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; text-align:center; gap:18px; }
+  #onboarding .icon { font-size:40px; }
+  #onboarding h1 { font-size:24px; font-weight:700; margin:0; }
+  #onboarding p { color:var(--ink-soft); margin:0; max-width:320px; line-height:1.5; }
+  .field { width:100%; max-width:320px; text-align:left; }
+  .field label { display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px; font-weight:600; }
+  .field input[type="text"], .field input[type="password"] { width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; }
+  .field input[type="text"]:focus, .field input[type="password"]:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
+  .swatches { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+  .swatch { width:34px; height:34px; border-radius:50%; border:3px solid transparent; cursor:pointer; }
+  .swatch.selected { border-color:var(--ink); }
+  .btn-primary { width:100%; max-width:320px; padding:13px; border-radius:12px; border:none; cursor:pointer; background:var(--ink); color:var(--surface); font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; }
+  .btn-primary:disabled { opacity:.4; cursor:not-allowed; }
+
+  header { display:flex; align-items:center; justify-content:space-between; padding:10px 8px; gap:4px; position:sticky; top:0; background:var(--bg); z-index:5; }
+  .month-nav { display:flex; align-items:center; gap:0; flex:1; min-width:0; }
+  .month-nav button { flex-shrink:0; background:none; border:none; color:var(--ink); font-size:16px; padding:5px 5px; cursor:pointer; border-radius:8px; }
+  .month-nav button:hover { background:var(--surface-soft); }
+  .month-title { font-size:15px; font-weight:700; flex:1; min-width:0; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .header-actions { display:flex; align-items:center; gap:3px; flex-shrink:0; }
+  .icon-btn { width:30px; height:30px; border-radius:50%; border:none; background:var(--surface); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; color:var(--ink); flex-shrink:0; }
+  .icon-btn.active { background:var(--ink); color:var(--surface); }
+  .avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-family:'Quicksand',sans-serif; cursor:pointer; border:none; font-size:12px; flex-shrink:0; }
+
+  .legend { display:flex; gap:8px; padding:0 16px 10px; flex-wrap:wrap; }
+  .legend-chip { display:flex; align-items:center; gap:6px; padding:5px 10px 5px 6px; border-radius:999px; background:var(--surface); box-shadow:var(--shadow); font-size:13px; cursor:pointer; border:none; color:var(--ink); font-family:'Karla',sans-serif; font-weight:600; }
+  .legend-chip.off { opacity:.35; }
+  .dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .select-bar { margin:0 16px 10px; padding:10px 12px; border-radius:12px; background:var(--surface); box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13.5px; font-weight:600; }
+  .select-bar button { background:none; border:none; color:var(--palette-2); font-weight:700; font-size:13px; cursor:pointer; }
+
+  .weekdays { display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); padding:0 16px; margin-bottom:4px; }
+  .weekdays span { text-align:center; font-size:11px; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .grid { display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:5px; padding:0 16px 100px; }
+  .day-cell { background:var(--surface); border-radius:12px; min-height:98px; min-width:0; overflow:hidden; padding:5px 4px; display:flex; flex-direction:column; gap:2px; cursor:pointer; border:1.5px solid transparent; box-shadow:var(--shadow); position:relative; }
+  .day-cell.other-month { opacity:.35; box-shadow:none; background:transparent; }
+  .day-cell.today { border-color:var(--ink); }
+  .day-cell.picked { border-color:var(--palette-3); background: color-mix(in srgb, var(--palette-3) 12%, var(--surface)); }
+  .pick-mark { position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:var(--palette-3); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; }
+  .day-num { font-size:12px; font-weight:700; padding-left:2px; }
+  .ev-line { height:16px; line-height:15px; border-radius:6px; padding:0 5px; font-size:9.5px; font-weight:700; color:var(--ink); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; border:1.4px solid transparent; }
+  .ev-line-text { display:inline-block; white-space:nowrap; }
+  .ev-line.marquee { text-overflow:clip; }
+  .ev-line.marquee .ev-line-text { animation: evMarquee var(--marquee-dur,6s) ease-in-out infinite; }
+  @keyframes evMarquee {
+    0%, 15% { transform: translateX(0); }
+    50%, 60% { transform: translateX(var(--marquee-dist,0)); }
+    90%, 100% { transform: translateX(0); }
+  }
+  .more { font-size:9.5px; color:var(--ink-soft); padding-left:2px; font-weight:600; }
+
+  .fab-row { position:fixed; bottom:22px; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:0 24px; gap:14px; z-index:10; pointer-events:none; }
+  .fab-row > * { pointer-events:auto; }
+  .fab { width:58px; height:58px; border-radius:50%; background:var(--ink); color:var(--surface); border:none; font-size:26px; box-shadow:0 6px 18px rgba(0,0,0,.25); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .fab.apply { background:var(--palette-3); font-size:15px; width:auto; padding:0 22px; font-family:'Quicksand',sans-serif; font-weight:700; }
+  .fab-undo { width:58px; height:58px; border-radius:50%; background:var(--surface); color:var(--ink); border:none; font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,.15); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .fab-undo:disabled { opacity:.3; cursor:not-allowed; }
+  .view-toggle-wrap { position:relative; flex-shrink:0; }
+  .fab-view { width:58px; height:58px; border-radius:50%; background:var(--surface); color:var(--ink); border:none; font-size:20px; font-weight:700; font-family:'Quicksand',sans-serif; box-shadow:0 4px 12px rgba(0,0,0,.15); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .view-menu { position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .view-opt { width:46px; height:46px; border-radius:50%; background:var(--surface); color:var(--ink); border:none; font-size:16px; font-weight:700; font-family:'Quicksand',sans-serif; box-shadow:0 4px 12px rgba(0,0,0,.18); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .view-opt.active { background:var(--ink); color:var(--surface); }
+
+  .scrim { position:fixed; inset:0; background:rgba(20,22,26,.42); z-index:20; display:flex; align-items:flex-end; justify-content:center; }
+  .scrim.center { align-items:center; padding:16px; }
+  .sheet { background:var(--surface); width:100%; max-width:640px; border-radius:20px 20px 0 0; max-height:86vh; overflow-y:auto; padding:18px 18px 28px; }
+  .scrim.center .sheet { border-radius:20px; max-height:88vh; }
+  .sheet-handle { width:36px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 14px; }
+  .sheet-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .sheet-header h2 { margin:0; font-size:18px; }
+  .sheet-close { background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer; padding:4px; }
+
+  .event-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:12px; margin-bottom:6px; background:var(--surface-soft); }
+  .event-stripe { width:6px; align-self:stretch; border-radius:3px; }
+  .event-info { flex:1; min-width:0; }
+  .event-title { font-weight:700; font-size:14.5px; }
+  .event-meta { font-size:12px; color:var(--ink-soft); }
+  .event-del { background:none; border:none; color:var(--ink-soft); font-size:16px; cursor:pointer; padding:4px 6px; }
+  .empty-note { color:var(--ink-soft); font-size:14px; text-align:center; padding:18px 0; }
+
+  .form-row { margin-bottom:14px; }
+  .form-row label { display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+  .form-row input, .form-row select { width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:15px; }
+  .time-row { display:flex; gap:10px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { padding:8px 13px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; color:var(--ink); }
+  .chip.on { border-color:transparent; color:#fff; }
+  .preset-row { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px; }
+  .preset { flex-shrink:0; padding:7px 12px; border-radius:10px; background:var(--surface-soft); border:none; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer; }
+  .bulk-note { background:var(--surface-soft); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+
+  .log-row { padding:10px 4px; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .log-time { color:var(--ink-soft); font-size:12px; }
+
+  .save-btn { width:100%; padding:13px; border-radius:12px; border:none; background:var(--ink); color:var(--surface); font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin-top:4px; }
+  .save-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .who { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .who .avatar { cursor:default; }
+  .switch-btn { margin-left:auto; background:none; border:1.5px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12.5px; cursor:pointer; color:var(--ink); font-weight:700; }
+  .ghost-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--ink); border:1.5px solid var(--line); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
+
+  .time-field { width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
+  .wheel-frame { position:relative; margin: 4px 0 18px; }
+  .wheel-picker { display:flex; align-items:center; justify-content:center; gap:2px; }
+  .wheel-col { height:176px; width:76px; overflow-y:scroll; scroll-snap-type:y mandatory; padding:66px 0; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .wheel-col::-webkit-scrollbar { display:none; }
+  .wheel-item { height:44px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; font-family:'Quicksand',sans-serif; scroll-snap-align:center; color:var(--ink); transition:opacity .1s; }
+  .wheel-colon { font-size:22px; font-weight:700; padding:0 2px; color:var(--ink); }
+  .wheel-highlight { position:absolute; top:50%; left:0; right:0; height:44px; transform:translateY(-50%); border-top:1.5px solid var(--line); border-bottom:1.5px solid var(--line); pointer-events:none; }
+
+  .shell { display:flex; flex-direction:column; flex:1; }
+  .sidebar { display:none; }
+
+  /* Desktop / wide-viewport layout: real browser window, not a phone frame.
+     Triggered by width, not aspect ratio, so it also fires on a tall
+     desktop monitor — the calendar always fills the actual window. */
+  body.is-wide { height:100%; overflow:hidden; }
+  body.is-wide #app { max-width:none; width:100%; height:100vh; height:100dvh; margin:0; overflow:hidden; }
+  body.is-wide .shell { flex-direction:row; min-height:0; height:100%; overflow:hidden; }
+  body.is-wide .sidebar { display:flex; flex-direction:column; align-items:center; gap:12px; width:76px; flex-shrink:0; padding:18px 0; background:var(--surface); box-shadow:var(--shadow); overflow-y:auto; }
+  .side-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .side-label { font-size:9.5px; color:var(--ink-soft); font-weight:700; text-align:center; max-width:60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .side-item.active .side-label { color:var(--ink); }
+  body.is-wide .main-col { flex:1; min-width:0; min-height:0; height:100%; display:flex; flex-direction:column; overflow:hidden; }
+  body.is-wide header { padding:14px 28px 8px; flex-shrink:0; }
+  body.is-wide header .header-actions { display:none; }
+  body.is-wide .month-title { font-size:20px; }
+  body.is-wide .legend, body.is-wide .select-bar { padding:0 28px 10px; flex-shrink:0; }
+  body.is-wide .cal-wrap { flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+  body.is-wide .weekdays { flex-shrink:0; padding:0 28px; }
+  body.is-wide .weekdays span { font-size:12.5px; }
+  body.is-wide .grid { flex:1; min-height:0; display:grid; grid-auto-rows:1fr; gap:10px; padding:0 28px 20px; }
+  body.is-wide .day-cell { min-height:0; height:100%; padding:10px 12px 8px; gap:5px; border-radius:14px; }
+  body.is-wide .day-num { font-size:15px; }
+  body.is-wide .ev-line { font-size:12.5px; height:23px; line-height:22px; border-radius:7px; padding:0 8px; }
+  body.is-wide .more { font-size:12px; }
+  body.is-wide .fab-row { position:static; padding:8px 28px 16px; flex-shrink:0; }
+  body.is-wide .fab, body.is-wide .fab-undo, body.is-wide .fab-view { width:48px; height:48px; font-size:21px; }
+  body.is-wide .view-opt { width:38px; height:38px; font-size:14px; }
+  body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  /* ---------- Supabase ---------- */
+  const SUPABASE_URL = 'https://dobozrtzmzbxfgpcjesq.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_65knnUG6E1RCT95lEW7apg_uta_GZnY';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true }
+  });
+  let rtChannel = null;
+
+  const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
+  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','DOM','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
+  const PRESET_ICON = { 'Matin':'🌅','Soir':'🌆','Soir rouge':'🌃','DOM':'🏠','Consultation':'🩺','Formation':'🎓','RH':'🛌','RTT':'🌴','CA':'✈️','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
+  const PRESET_TIME = {
+    'Matin': { start:'05:45', end:'14:45' },
+    'DOM': { start:'07:30', end:'18:00' },
+    'Centre aéré': { start:'07:30', end:'18:00' },
+    'Soir': { start:'11:00', end:'22:00' },
+    'Soir rouge': { start:'11:00', end:'21:30' },
+    'RH': { start:'', end:'' },
+    'RTT': { start:'', end:'' },
+    'CA': { start:'', end:'' },
+    'Vacances nounou': { start:'', end:'' },
+    'Consultation': { start:'08:00', end:'17:00' },
+    'Formation': { start:'09:00', end:'17:00' },
+    'Tutorat': { start:'09:00', end:'17:00' },
+    'Réunion': { start:'09:00', end:'17:00' }
+  };
+  const ICON_CHOICES = ['','📌','🏠','🩺','🎓','🎉','🚗','🍽️','🛌','⭐','❤️'];
+  const WEEKDAYS = ['L','M','M','J','V','S','D'];
+  const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const MAX_LINES = 4;
+  const VIEW_ICONS = { day:'J', week:'S', month:'M' };
+  const VIEW_LABELS = { day:'Jour', week:'Semaine', month:'Mois' };
+
+  let auth = { session: null, loading: true };
+  let state = {
+    profiles: [], household: null, myProfile: null, activeId: null,
+    events: [], log: [], hidden: loadHidden(), _undo: null
+  };
+  let view = {
+    year: new Date().getFullYear(), month: new Date().getMonth(),
+    openDay: null, sheet: null, editingEvent: null,
+    selectMode:false, selectedDays: [],
+    mode:'month', weekAnchor: null, dayAnchor: null, viewMenuOpen:false,
+    authMode:'signin', hhMode:'create', _authEmail:''
+  };
+
+  /* ---------- Local-only UI prefs (per device, doesn't need sync) ---------- */
+  function loadHidden(){
+    try { return JSON.parse(localStorage.getItem('af_hidden') || '[]'); } catch(e){ return []; }
+  }
+  function persistHidden(){
+    try { localStorage.setItem('af_hidden', JSON.stringify(state.hidden)); } catch(e){}
+  }
+
+  function uid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+      const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  function activeProfile(){ return state.profiles.find(p=>p.id===state.activeId); }
+  function profileById(id){ return state.profiles.find(p=>p.id===id); }
+
+  /* ---------- Supabase data layer ---------- */
+  async function afterLogin(){
+    const { data: prof, error } = await sb.from('profiles').select('*').eq('user_id', auth.session.user.id).maybeSingle();
+    if (error || !prof) { state.myProfile = null; state.household = null; return; }
+    state.myProfile = prof;
+    const { data: hh } = await sb.from('households').select('*').eq('id', prof.household_id).single();
+    state.household = hh;
+    await reloadHouseholdData();
+    subscribeRealtime();
+  }
+  async function reloadHouseholdData(){
+    if (!state.household) return;
+    const hid = state.household.id;
+    const [{ data: profiles }, { data: events }, { data: log }] = await Promise.all([
+      sb.from('profiles').select('*').eq('household_id', hid),
+      sb.from('events').select('*, event_participants(profile_id)').eq('household_id', hid),
+      sb.from('activity_log').select('*').eq('household_id', hid).order('ts', { ascending:false }).limit(200)
+    ]);
+    state.profiles = profiles || [];
+    state.events = (events || []).map(e=>({
+      id: e.id, title: e.title, date: e.date,
+      start: e.start_time || '', end: e.end_time || '', icon: e.icon || '',
+      participants: (e.event_participants || []).map(p=>p.profile_id)
+    }));
+    state.log = (log || []).map(l=>({ id: l.id, who: l.who, action: l.action, ts: new Date(l.ts).getTime() }));
+    state.activeId = state.myProfile ? state.myProfile.id : null;
+  }
+  function subscribeRealtime(){
+    if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
+    if (!state.household) return;
+    const hid = state.household.id;
+    let t = null;
+    const onChange = ()=>{
+      clearTimeout(t);
+      t = setTimeout(async ()=>{ await reloadHouseholdData(); render(); }, 200);
+    };
+    rtChannel = sb.channel('household-'+hid)
+      .on('postgres_changes', { event:'*', schema:'public', table:'events', filter:'household_id=eq.'+hid }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'event_participants' }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'profiles', filter:'household_id=eq.'+hid }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'activity_log', filter:'household_id=eq.'+hid }, onChange)
+      .subscribe();
+  }
+  async function logActivity(action){
+    if (!state.household || !state.myProfile) return;
+    try { await sb.from('activity_log').insert({ household_id: state.household.id, who: state.myProfile.name, action }); } catch(e){}
+  }
+  async function upsertEventDb(ev){
+    const { error } = await sb.from('events').upsert({
+      id: ev.id, household_id: state.household.id, title: ev.title, date: ev.date,
+      start_time: ev.start || null, end_time: ev.end || null, icon: ev.icon || null,
+      created_by: state.myProfile.id
+    });
+    if (error) throw error;
+    await sb.from('event_participants').delete().eq('event_id', ev.id);
+    if (ev.participants.length) {
+      const { error: perr } = await sb.from('event_participants').insert(ev.participants.map(pid=>({ event_id: ev.id, profile_id: pid })));
+      if (perr) throw perr;
+    }
+  }
+  async function deleteEventDb(id){
+    const { error } = await sb.from('events').delete().eq('id', id);
+    if (error) throw error;
+  }
+  async function createHousehold(name, color){
+    const { data: hh, error } = await sb.from('households').insert({}).select().single();
+    if (error) throw error;
+    const { data: prof, error: perr } = await sb.from('profiles').insert({ user_id: auth.session.user.id, household_id: hh.id, name, color }).select().single();
+    if (perr) throw perr;
+    state.household = hh; state.myProfile = prof;
+    await reloadHouseholdData();
+    subscribeRealtime();
+    await logActivity('a créé le foyer');
+    await reloadHouseholdData();
+    render();
+  }
+  async function joinHousehold(code, name, color){
+    const { data: hh, error } = await sb.from('households').select('*').eq('invite_code', code).maybeSingle();
+    if (error) throw error;
+    if (!hh) throw new Error("Code d'invitation introuvable.");
+    const { data: prof, error: perr } = await sb.from('profiles').insert({ user_id: auth.session.user.id, household_id: hh.id, name, color }).select().single();
+    if (perr) throw perr;
+    state.household = hh; state.myProfile = prof;
+    await reloadHouseholdData();
+    subscribeRealtime();
+    await logActivity('a rejoint le foyer');
+    await reloadHouseholdData();
+    render();
+  }
+
+  function snapshot(){
+    state._undo = { events: JSON.parse(JSON.stringify(state.events)), log: JSON.parse(JSON.stringify(state.log)) };
+  }
+  async function undo(){
+    if (!state._undo) return;
+    const prevEvents = state._undo.events;
+    const curEvents = state.events;
+    const prevIds = new Set(prevEvents.map(e=>e.id));
+    const toDelete = curEvents.filter(e=>!prevIds.has(e.id));
+    const toRestore = prevEvents.filter(e=>{
+      const cur = curEvents.find(c=>c.id===e.id);
+      return !cur || JSON.stringify(cur)!==JSON.stringify(e);
+    });
+    state._undo = null;
+    try {
+      for (const e of toDelete) await deleteEventDb(e.id);
+      for (const e of toRestore) await upsertEventDb(e);
+      await logActivity('a annulé la dernière action');
+      await reloadHouseholdData();
+    } catch(e){}
+    render();
+  }
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  }
+  function dstr(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+  function stripeBg(colors){
+    if (!colors.length) colors=['#999'];
+    if (colors.length===1) return colors[0];
+    const n = colors.length, step = 100/n, stops=[];
+    colors.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(135deg, ${stops.join(', ')})`;
+  }
+  function pastelStripeBg(colors){
+    if (!colors.length) colors=['#999'];
+    const tinted = colors.map(c=>`color-mix(in srgb, ${c} 22%, var(--surface))`);
+    if (tinted.length===1) return tinted[0];
+    const n = tinted.length, step = 100/n, stops=[];
+    tinted.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(135deg, ${stops.join(', ')})`;
+  }
+  function todayStr(){ const t=new Date(); return dstr(t.getFullYear(),t.getMonth(),t.getDate()); }
+  function isWide(){ return document.body.classList.contains('is-wide'); }
+
+  function render(){
+    const root = document.getElementById('app');
+    root.innerHTML = '';
+    if (auth.loading) { root.appendChild(renderLoading()); return; }
+    if (!auth.session) { root.appendChild(renderAuthScreen()); return; }
+    if (!state.myProfile) { root.appendChild(renderHouseholdSetup()); return; }
+    const shell = document.createElement('div'); shell.className='shell';
+    shell.appendChild(renderSidebar());
+    const main = document.createElement('div'); main.className='main-col';
+    main.appendChild(renderHeader());
+    main.appendChild(renderLegend());
+    main.appendChild(renderCalendar());
+    main.appendChild(renderFabRow());
+    shell.appendChild(main);
+    root.appendChild(shell);
+    if (view.sheet==='day') root.appendChild(renderDaySheet());
+    if (view.sheet==='form') root.appendChild(renderEventForm());
+    if (view.sheet==='log') root.appendChild(renderLogSheet());
+    if (view.sheet==='switch') root.appendChild(renderSwitchSheet());
+    if (view.sheet==='search') root.appendChild(renderSearchSheet());
+    initMarquees();
+  }
+
+  function initMarquees(){
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.ev-line').forEach(line=>{
+        const text = line.querySelector('.ev-line-text');
+        if (!text) return;
+        const overflow = text.scrollWidth - line.clientWidth;
+        if (overflow > 2) {
+          const dist = -(overflow + 4);
+          line.style.setProperty('--marquee-dist', dist + 'px');
+          const dur = Math.max(3.5, Math.abs(dist) / 16);
+          line.style.setProperty('--marquee-dur', dur + 's');
+          line.classList.add('marquee');
+        } else {
+          line.classList.remove('marquee');
+        }
+      });
+    });
+  }
+
+  /* ---------- Loading ---------- */
+  function renderLoading(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    wrap.innerHTML = `<div class="icon">📅</div><p>Chargement…</p>`;
+    return wrap;
+  }
+
+  /* ---------- Auth (sign up / sign in) ---------- */
+  function renderAuthScreen(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    const mode = view.authMode || 'signin';
+    wrap.innerHTML = `
+      <div class="icon">📅</div>
+      <h1>${mode==='signup' ? 'Créer un compte' : 'Se connecter'}</h1>
+      <p>${mode==='signup' ? 'Un compte par personne, pour un agenda toujours synchronisé entre vous.' : 'Connecte-toi pour retrouver ton agenda familial.'}</p>
+      <div class="field"><label for="auth-email">Email</label><input id="auth-email" type="text" placeholder="toi@exemple.com" value="${escapeAttr(view._authEmail||'')}" autocomplete="email"></div>
+      <div class="field"><label for="auth-pass">Mot de passe</label><input id="auth-pass" type="password" placeholder="••••••••" autocomplete="${mode==='signup'?'new-password':'current-password'}"></div>
+      <div id="auth-error" style="color:${view._authNoticeOk?'var(--palette-3)':'var(--palette-4)'};font-size:13px;min-height:16px;max-width:320px;">${escapeHtml(view._authNotice||'')}</div>
+      <button class="btn-primary" id="auth-submit">${mode==='signup' ? 'Créer mon compte' : 'Se connecter'}</button>
+      <button class="btn-primary" id="auth-toggle" style="background:transparent;color:var(--ink-soft);box-shadow:none;">${mode==='signup' ? 'J’ai déjà un compte' : 'Créer un compte'}</button>
+    `;
+    view._authNotice = null; view._authNoticeOk = false;
+    wrap.querySelector('#auth-toggle').onclick = ()=>{ view.authMode = mode==='signup' ? 'signin' : 'signup'; render(); };
+    wrap.querySelector('#auth-submit').onclick = async ()=>{
+      const email = wrap.querySelector('#auth-email').value.trim();
+      const pass = wrap.querySelector('#auth-pass').value;
+      const errBox = wrap.querySelector('#auth-error');
+      errBox.style.color = 'var(--palette-4)';
+      errBox.textContent = '';
+      view._authEmail = email;
+      if (!email || !pass) { errBox.textContent = 'Email et mot de passe requis.'; return; }
+      const btn = wrap.querySelector('#auth-submit'); btn.disabled = true;
+      btn.textContent = mode==='signup' ? 'Création…' : 'Connexion…';
+      try {
+        if (mode==='signup') {
+          const { error } = await sb.auth.signUp({ email, password: pass });
+          if (error) throw error;
+          view.authMode = 'signin';
+          view._authNotice = 'Compte créé. Si une confirmation par email est demandée, valide-la puis connecte-toi.';
+          view._authNoticeOk = true;
+          render();
+          return;
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+          if (error) throw error;
+          // Succès : le listener onAuthStateChange prend le relais et ré-affiche l'appli.
+          return;
+        }
+      } catch(err){
+        errBox.style.color = 'var(--palette-4)';
+        errBox.textContent = (err && err.message) ? err.message : 'Erreur inconnue.';
+        btn.disabled = false;
+        btn.textContent = mode==='signup' ? 'Créer mon compte' : 'Se connecter';
+      }
+    };
+    return wrap;
+  }
+
+  /* ---------- Household setup (create / join) ---------- */
+  function renderHouseholdSetup(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    const mode = view.hhMode || 'create';
+    let chosenColor = PALETTE[0];
+    wrap.innerHTML = `
+      <div class="icon">🏡</div>
+      <h1>${mode==='join' ? 'Rejoindre un foyer' : 'Créer votre foyer'}</h1>
+      <p>${mode==='join' ? "Entre le code d'invitation donné par l'autre parent." : "Tu es la première personne du foyer. L'autre parent pourra te rejoindre ensuite avec un code."}</p>
+      <div class="field"><label for="hh-name">Ton prénom</label><input id="hh-name" type="text" placeholder="ex. Léo" maxlength="20"></div>
+      <div class="field"><label>Ta couleur</label><div class="swatches" id="swatches"></div></div>
+      ${mode==='join' ? `<div class="field"><label for="hh-code">Code d'invitation</label><input id="hh-code" type="text" placeholder="ex. A3F9K2" maxlength="12" style="text-transform:uppercase"></div>` : ''}
+      <div id="hh-error" style="color:var(--palette-4);font-size:13px;min-height:16px;max-width:320px;"></div>
+      <button class="btn-primary" id="hh-submit">${mode==='join' ? 'Rejoindre' : 'Créer le foyer'}</button>
+      <button class="btn-primary" id="hh-toggle" style="background:transparent;color:var(--ink-soft);box-shadow:none;">${mode==='join' ? 'Créer un nouveau foyer à la place' : "J'ai un code d'invitation"}</button>
+      <button class="btn-primary" id="hh-signout" style="background:transparent;color:var(--ink-soft);box-shadow:none;">Se déconnecter</button>
+    `;
+    const sw = wrap.querySelector('#swatches');
+    PALETTE.forEach(c=>{
+      const s = document.createElement('div');
+      s.className='swatch' + (c===chosenColor?' selected':'');
+      s.style.background=c;
+      s.onclick=()=>{ chosenColor=c; [...sw.children].forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+      sw.appendChild(s);
+    });
+    wrap.querySelector('#hh-toggle').onclick = ()=>{ view.hhMode = mode==='join' ? 'create' : 'join'; render(); };
+    wrap.querySelector('#hh-signout').onclick = async ()=>{ await sb.auth.signOut(); };
+    wrap.querySelector('#hh-submit').onclick = async ()=>{
+      const name = wrap.querySelector('#hh-name').value.trim();
+      const errBox = wrap.querySelector('#hh-error');
+      errBox.textContent = '';
+      if (!name) { errBox.textContent = 'Ton prénom est requis.'; return; }
+      const btn = wrap.querySelector('#hh-submit'); btn.disabled = true;
+      try {
+        if (mode==='join') {
+          const code = wrap.querySelector('#hh-code').value.trim().toUpperCase();
+          if (!code) { errBox.textContent = "Code d'invitation requis."; btn.disabled=false; return; }
+          await joinHousehold(code, name, chosenColor);
+        } else {
+          await createHousehold(name, chosenColor);
+        }
+      } catch(err){
+        errBox.textContent = err.message || 'Erreur.';
+        btn.disabled = false;
+      }
+    };
+    return wrap;
+  }
+
+  function renderSidebar(){
+    const bar = document.createElement('div'); bar.className='sidebar';
+    const p = activeProfile();
+    bar.innerHTML = `
+      <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">📅</div><span class="side-label">Agenda</span></div>
+      <div class="side-item" id="side-today"><div class="icon-btn" style="font-size:13px;">📍</div><span class="side-label">Auj.</span></div>
+      <div class="side-item" id="side-search"><div class="icon-btn">🔍</div><span class="side-label">Recherche</span></div>
+      <div class="side-item" id="side-select"><div class="icon-btn${view.selectMode?' active':''}">${view.selectMode?'✕':'☑'}</div><span class="side-label">Sélection</span></div>
+      <div class="side-item" id="side-log"><div class="icon-btn">🕓</div><span class="side-label">Journal</span></div>
+      <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
+    `;
+    bar.querySelector('#side-today').onclick=()=>{
+      const t = new Date();
+      view.year = t.getFullYear(); view.month = t.getMonth();
+      view.weekAnchor = todayStr(); view.dayAnchor = todayStr();
+      render();
+    };
+    bar.querySelector('#side-search').onclick=()=>{ view.sheet='search'; render(); };
+    bar.querySelector('#side-select').onclick=()=>{ view.selectMode=!view.selectMode; view.selectedDays=[]; render(); };
+    bar.querySelector('#side-log').onclick=()=>{ view.sheet='log'; render(); };
+    bar.querySelector('#side-profile').onclick=()=>{ view.sheet='switch'; render(); };
+    return bar;
+  }
+
+  /* ---------- Header ---------- */
+  function headerLabel(){
+    if (view.mode==='week') {
+      const mon = mondayOf(view.weekAnchor || todayStr());
+      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      const fmt = (d)=> d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0,3);
+      return `${fmt(mon)} – ${fmt(sun)}`;
+    }
+    if (view.mode==='day') {
+      const d = new Date((view.dayAnchor||todayStr())+'T00:00:00');
+      return d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
+    }
+    return `${MONTHS[view.month]} ${view.year}`;
+  }
+  function navPrev(){
+    if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), -7); }
+    else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), -1); }
+    else { view.month--; if(view.month<0){view.month=11; view.year--;} }
+    render();
+  }
+  function navNext(){
+    if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), 7); }
+    else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), 1); }
+    else { view.month++; if(view.month>11){view.month=0; view.year++;} }
+    render();
+  }
+  function renderHeader(){
+    const h = document.createElement('header');
+    const p = activeProfile();
+    h.innerHTML = `
+      <div class="month-nav">
+        <button id="prev-m" aria-label="Précédent">←</button>
+        <div class="month-title" style="text-transform:capitalize">${headerLabel()}</div>
+        <button id="next-m" aria-label="Suivant">→</button>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="go-today" aria-label="Aujourd'hui" style="font-size:13px;">📍</button>
+        <button class="icon-btn" id="open-search" aria-label="Rechercher">🔍</button>
+        <button class="icon-btn${view.selectMode?' active':''}" id="toggle-select" aria-label="Sélection multiple">${view.selectMode?'✕':'☑'}</button>
+        <button class="avatar" id="open-switch" style="background:${p.color}">${p.name[0].toUpperCase()}</button>
+      </div>
+    `;
+    h.querySelector('#go-today').onclick=()=>{
+      const t = new Date();
+      view.year = t.getFullYear(); view.month = t.getMonth();
+      view.weekAnchor = todayStr(); view.dayAnchor = todayStr();
+      render();
+    };
+    h.querySelector('#open-search').onclick=()=>{ view.sheet='search'; render(); };
+    h.querySelector('#prev-m').onclick=navPrev;
+    h.querySelector('#next-m').onclick=navNext;
+    h.querySelector('#toggle-select').onclick=()=>{ view.selectMode = !view.selectMode; view.selectedDays=[]; render(); };
+    h.querySelector('#open-switch').onclick=()=>{ view.sheet='switch'; render(); };
+    return h;
+  }
+
+  /* ---------- Legend / select bar ---------- */
+  function renderLegend(){
+    if (view.selectMode) {
+      const bar = document.createElement('div');
+      bar.className='select-bar';
+      const n = view.selectedDays.length;
+      bar.innerHTML = `<span>${n ? n+' jour'+(n>1?'s':'')+' sélectionné'+(n>1?'s':'') : 'Touchez des jours à sélectionner'}</span>`;
+      if (n) {
+        const clearBtn = document.createElement('button'); clearBtn.textContent='Vider';
+        clearBtn.onclick = ()=>{ view.selectedDays=[]; render(); };
+        bar.appendChild(clearBtn);
+      }
+      return bar;
+    }
+    const wrap = document.createElement('div');
+    wrap.className='legend';
+    state.profiles.forEach(p=>{
+      const off = state.hidden.includes(p.id);
+      const chip = document.createElement('button');
+      chip.className='legend-chip' + (off?' off':'');
+      chip.innerHTML = `<span class="dot" style="background:${p.color}"></span>${p.name}`;
+      chip.onclick = ()=>{
+        if (off) state.hidden = state.hidden.filter(id=>id!==p.id);
+        else state.hidden.push(p.id);
+        persistHidden(); render();
+      };
+      wrap.appendChild(chip);
+    });
+    return wrap;
+  }
+
+  /* ---------- Calendar ---------- */
+  function eventsFor(dateStr){
+    return state.events.filter(e=>e.date===dateStr && e.participants.some(id=>!state.hidden.includes(id)));
+  }
+  function addDays(dateStr, n){
+    const d = new Date(dateStr+'T00:00:00');
+    d.setDate(d.getDate()+n);
+    return dstr(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function mondayOf(dateStr){
+    const d = new Date(dateStr+'T00:00:00');
+    const offset = (d.getDay()+6)%7;
+    d.setDate(d.getDate()-offset);
+    return d;
+  }
+  function buildDayCell(ds, otherMonth, maxLines){
+    const todayS = todayStr();
+    const picked = view.selectedDays.includes(ds);
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (otherMonth?' other-month':'') + (ds===todayS?' today':'') + (picked?' picked':'');
+    const evs = eventsFor(ds);
+    let linesHtml = '';
+    evs.slice(0,maxLines).forEach(e=>{
+      const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+      linesHtml += `<div class="ev-line" style="background:${pastelStripeBg(cols)};border-color:${cols[0]||'#999'}"><span class="ev-line-text">${e.icon?e.icon+' ':''}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
+    });
+    const dnum = Number(ds.slice(8,10));
+    cell.innerHTML = `<div class="day-num">${dnum}</div>${linesHtml}${evs.length>maxLines?`<div class="more">+${evs.length-maxLines} autre${evs.length-maxLines>1?'s':''}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
+    cell.onclick = ()=>{
+      if (view.selectMode) {
+        if (picked) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
+        else view.selectedDays.push(ds);
+        render();
+        return;
+      }
+      if (!evs.length) { openEventForm(null, ds); return; }
+      view.openDay = ds; view.sheet='day'; render();
+    };
+    return cell;
+  }
+
+  function renderCalendar(){
+    if (view.mode==='week') return renderWeekView();
+    if (view.mode==='day') return renderDayView();
+    return renderMonthView();
+  }
+
+  function renderMonthView(){
+    const wrap = document.createElement('div');
+    wrap.className='cal-wrap';
+    const wd = document.createElement('div'); wd.className='weekdays';
+    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    wrap.appendChild(wd);
+
+    const grid = document.createElement('div'); grid.className='grid';
+    const first = new Date(view.year, view.month, 1);
+    let startOffset = (first.getDay()+6)%7;
+    const daysInMonth = new Date(view.year, view.month+1, 0).getDate();
+    const prevDays = new Date(view.year, view.month, 0).getDate();
+
+    const cells = [];
+    for (let i=startOffset; i>0; i--) cells.push({ d: prevDays-i+1, other:true, m: view.month-1 });
+    for (let d=1; d<=daysInMonth; d++) cells.push({ d, other:false, m: view.month });
+    while (cells.length % 7 !== 0 || cells.length < 35) cells.push({ d: cells.length - (startOffset+daysInMonth) + 1, other:true, m: view.month+1 });
+
+    cells.forEach(c=>{
+      let y=view.year, m=c.m;
+      if (m<0){ m=11; y--; } else if (m>11){ m=0; y++; }
+      const ds = dstr(y,m,c.d);
+      grid.appendChild(buildDayCell(ds, c.other, isWide() ? 8 : MAX_LINES));
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function renderWeekView(){
+    const wrap = document.createElement('div');
+    wrap.className='cal-wrap';
+    const wd = document.createElement('div'); wd.className='weekdays';
+    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    wrap.appendChild(wd);
+
+    const grid = document.createElement('div'); grid.className='grid';
+    const mon = mondayOf(view.weekAnchor || todayStr());
+    for (let i=0;i<7;i++){
+      const d = new Date(mon); d.setDate(mon.getDate()+i);
+      const ds = dstr(d.getFullYear(), d.getMonth(), d.getDate());
+      grid.appendChild(buildDayCell(ds, false, isWide() ? 18 : MAX_LINES*2));
+    }
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function renderDayView(){
+    const wrap = document.createElement('div');
+    wrap.className='cal-wrap';
+    wrap.style.padding = '4px 16px 24px';
+    wrap.style.overflowY = 'auto';
+    const ds = view.dayAnchor || todayStr();
+    const evs = state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id))).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+    if (!evs.length) {
+      const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement ce jour-là. Touchez + pour en ajouter un.';
+      wrap.appendChild(p);
+    }
+    evs.forEach(e=>{
+      const row = document.createElement('div'); row.className='event-row';
+      const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+      const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+      row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
+        <div class="event-info">
+          <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
+          <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
+        </div>
+        <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
+      row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
+      row.querySelector('.event-del').onclick = async ()=>{
+        snapshot();
+        try {
+          await deleteEventDb(e.id);
+          await logActivity(`a supprimé « ${e.title} »`);
+          await reloadHouseholdData();
+        } catch(err){ alert('Erreur : '+err.message); }
+        render();
+      };
+      wrap.appendChild(row);
+    });
+    return wrap;
+  }
+
+  /* ---------- Floating buttons ---------- */
+  function renderFabRow(){
+    const row = document.createElement('div'); row.className='fab-row';
+    if (view.selectMode) {
+      const n = view.selectedDays.length;
+      const applyBtn = document.createElement('button');
+      applyBtn.className='fab apply';
+      applyBtn.textContent = n ? `Appliquer à ${n} jour${n>1?'s':''}` : 'Sélectionnez des jours';
+      applyBtn.disabled = !n;
+      applyBtn.style.opacity = n?1:.5;
+      applyBtn.onclick = ()=>{ if(n) openEventForm(null, view.selectedDays[0], [...view.selectedDays]); };
+      row.appendChild(applyBtn);
+      return row;
+    }
+
+    const viewWrap = document.createElement('div'); viewWrap.className='view-toggle-wrap';
+    const viewBtn = document.createElement('button');
+    viewBtn.className='fab-view'; viewBtn.textContent = VIEW_ICONS[view.mode]; viewBtn.setAttribute('aria-label','Changer de vue');
+    viewBtn.onclick = ()=>{ view.viewMenuOpen = !view.viewMenuOpen; render(); };
+    viewWrap.appendChild(viewBtn);
+    if (view.viewMenuOpen) {
+      const menu = document.createElement('div'); menu.className='view-menu';
+      ['month','week','day'].forEach(m=>{
+        const b = document.createElement('button');
+        b.className = 'view-opt' + (view.mode===m?' active':'');
+        b.textContent = VIEW_ICONS[m];
+        b.setAttribute('aria-label', VIEW_LABELS[m]);
+        b.onclick = ()=>{
+          view.mode = m; view.viewMenuOpen = false;
+          if (m==='week' && !view.weekAnchor) view.weekAnchor = todayStr();
+          if (m==='day' && !view.dayAnchor) view.dayAnchor = todayStr();
+          render();
+        };
+        menu.appendChild(b);
+      });
+      viewWrap.appendChild(menu);
+    }
+    row.appendChild(viewWrap);
+
+    const fab = document.createElement('button');
+    fab.className='fab'; fab.textContent='+'; fab.setAttribute('aria-label','Ajouter un événement');
+    fab.onclick = ()=>openEventForm(null, view.mode==='day'?(view.dayAnchor||todayStr()):todayStr());
+    row.appendChild(fab);
+
+    const undoBtn = document.createElement('button');
+    undoBtn.className='fab-undo'; undoBtn.textContent='↺'; undoBtn.setAttribute('aria-label','Annuler la dernière action');
+    undoBtn.disabled = !state._undo;
+    undoBtn.onclick = undo;
+    row.appendChild(undoBtn);
+    return row;
+  }
+
+  /* ---------- Day sheet ---------- */
+  function renderDaySheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const ds = view.openDay;
+    const d = new Date(ds+'T00:00:00');
+    const label = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
+    const evs = state.events.filter(e=>e.date===ds).sort((a,b)=> (a.start||'').localeCompare(b.start||''));
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2 style="text-transform:capitalize">${label}</h2><button class="sheet-close" id="close-day">✕</button></div>
+      <div id="day-events"></div>
+      <button class="save-btn" id="add-day-event">+ Ajouter un événement</button>`;
+    const list = sheet.querySelector('#day-events');
+    if (!evs.length) {
+      const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement ce jour-là.';
+      list.appendChild(p);
+    }
+    evs.forEach(e=>{
+      const row = document.createElement('div'); row.className='event-row';
+      const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+      const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+      row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
+        <div class="event-info">
+          <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
+          <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
+        </div>
+        <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
+      row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
+      row.querySelector('.event-del').onclick = async ()=>{
+        snapshot();
+        try {
+          await deleteEventDb(e.id);
+          await logActivity(`a supprimé « ${e.title} »`);
+          await reloadHouseholdData();
+        } catch(err){ alert('Erreur : '+err.message); }
+        render();
+      };
+      list.appendChild(row);
+    });
+    sheet.querySelector('#close-day').onclick = ()=>{ view.sheet=null; render(); };
+    sheet.querySelector('#add-day-event').onclick = ()=>openEventForm(null, ds);
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Event form ---------- */
+  function openEventForm(event, dateStr, bulkDates){
+    view.editingEvent = event ? {...event, participants:[...event.participants]} : {
+      id: uid(), title:'', date: dateStr, start:'', end:'', icon:'', participants: state.activeId?[state.activeId]:[]
+    };
+    view._bulkDates = bulkDates || null;
+    view.sheet='form';
+    render();
+  }
+  function renderEventForm(){
+    const scrim = document.createElement('div'); scrim.className='scrim center';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet = view.selectMode?null:(view.openDay?'day':null); render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const ev = view.editingEvent;
+    const isNew = !state.events.some(x=>x.id===ev.id);
+    const bulk = view._bulkDates;
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>${bulk?`Nouvel événement (${bulk.length} jours)`:(isNew?'Nouvel événement':'Modifier')}</h2><button class="sheet-close" id="close-form">✕</button></div>
+      ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
+      <div class="preset-row" id="presets"></div>
+      <div class="form-row"><label>Titre</label><input type="text" id="f-title" placeholder="ex. Anniversaire de Mamie" value="${escapeAttr(ev.title)}"></div>
+      <div class="form-row"><label>Icône</label><div class="chips" id="f-icons"></div></div>
+      ${bulk?'':`<div class="form-row"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
+      <div class="form-row time-row">
+        <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
+        <div style="flex:1"><label>Fin</label><button type="button" class="time-field" id="f-end-btn">${ev.end||'--:--'}</button></div>
+      </div>
+      <div class="form-row"><label>Qui participe ?</label><div class="chips" id="f-participants"></div></div>
+      <button class="save-btn" id="f-save">Enregistrer</button>
+    `;
+    const iconWrap = sheet.querySelector('#f-icons');
+    function drawIcons(){
+      iconWrap.innerHTML='';
+      ICON_CHOICES.forEach(ic=>{
+        const on = (ev.icon||'')===ic;
+        const b = document.createElement('button'); b.type='button';
+        b.className='chip'+(on?' on':''); b.style.background = on?'var(--ink)':'var(--surface)';
+        b.style.borderColor = on?'var(--ink)':'var(--line)';
+        b.style.fontSize='16px';
+        b.textContent = ic || '∅';
+        b.onclick = ()=>{ ev.icon = ic; drawIcons(); };
+        iconWrap.appendChild(b);
+      });
+    }
+    drawIcons();
+    const presetsWrap = sheet.querySelector('#presets');
+    SHIFT_PRESETS.forEach(name=>{
+      const b = document.createElement('button'); b.className='preset'; b.textContent=name;
+      b.onclick = ()=>{
+        sheet.querySelector('#f-title').value = name;
+        ev.icon = PRESET_ICON[name]||'';
+        drawIcons();
+        const t = PRESET_TIME[name];
+        if (t) {
+          ev.start = t.start; ev.end = t.end;
+          sheet.querySelector('#f-start-btn').textContent = ev.start || '--:--';
+          sheet.querySelector('#f-end-btn').textContent = ev.end || '--:--';
+        }
+      };
+      presetsWrap.appendChild(b);
+    });
+    const partWrap = sheet.querySelector('#f-participants');
+    function drawChips(){
+      partWrap.innerHTML='';
+      state.profiles.forEach(p=>{
+        const on = ev.participants.includes(p.id);
+        const c = document.createElement('button'); c.type='button';
+        c.className='chip'+(on?' on':''); c.style.background = on?p.color:'var(--surface)';
+        c.style.borderColor = on?p.color:'var(--line)';
+        c.innerHTML = `<span class="dot" style="background:${on?'#fff':p.color}"></span>${p.name}`;
+        c.onclick = ()=>{
+          if (on) ev.participants = ev.participants.filter(id=>id!==p.id);
+          else ev.participants.push(p.id);
+          drawChips();
+        };
+        partWrap.appendChild(c);
+      });
+    }
+    drawChips();
+    sheet.querySelector('#f-start-btn').onclick = ()=>{
+      openTimeWheel(ev.start, (val)=>{ ev.start = val; sheet.querySelector('#f-start-btn').textContent = val || '--:--'; });
+    };
+    sheet.querySelector('#f-end-btn').onclick = ()=>{
+      openTimeWheel(ev.end, (val)=>{ ev.end = val; sheet.querySelector('#f-end-btn').textContent = val || '--:--'; });
+    };
+    sheet.querySelector('#close-form').onclick = ()=>{ view.sheet = view.selectMode?null:(view.openDay?'day':null); render(); };
+    sheet.querySelector('#f-save').onclick = async ()=>{
+      const title = sheet.querySelector('#f-title').value.trim();
+      if (!title) { sheet.querySelector('#f-title').focus(); return; }
+      ev.title = title;
+      if (!ev.participants.length && state.activeId) ev.participants=[state.activeId];
+      const btn = sheet.querySelector('#f-save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
+      snapshot();
+      try {
+        if (bulk) {
+          for (const ds of bulk) {
+            await upsertEventDb({ id: uid(), title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', participants: [...ev.participants] });
+          }
+          await logActivity(`a ajouté « ${title} » sur ${bulk.length} jours`);
+          view.selectMode = false; view.selectedDays = [];
+        } else {
+          ev.date = sheet.querySelector('#f-date').value || ev.date;
+          const existed = state.events.some(x=>x.id===ev.id);
+          await upsertEventDb(ev);
+          await logActivity(existed ? `a modifié « ${title} »` : `a ajouté « ${title} »`);
+        }
+        await reloadHouseholdData();
+        view.sheet = null;
+      } catch(err){
+        alert("Erreur d'enregistrement : "+err.message);
+      }
+      render();
+    };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Log sheet ---------- */
+  function renderLogSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Journal</h2><button class="sheet-close" id="close-log">✕</button></div>
+      <div id="log-list"></div>`;
+    const list = sheet.querySelector('#log-list');
+    if (!state.log.length) {
+      const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucune activité pour le moment.';
+      list.appendChild(p);
+    }
+    state.log.forEach(l=>{
+      const row = document.createElement('div'); row.className='log-row';
+      row.innerHTML = `<b>${escapeHtml(l.who)}</b> ${escapeHtml(l.action)}<div class="log-time">${fmtTime(l.ts)}</div>`;
+      list.appendChild(row);
+    });
+    sheet.querySelector('#close-log').onclick = ()=>{ view.sheet=null; render(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Search sheet ---------- */
+  function renderSearchSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Rechercher</h2><button class="sheet-close" id="close-search">✕</button></div>
+      <div class="form-row"><input type="text" id="search-input" placeholder="Titre d'un événement..." autofocus></div>
+      <div id="search-results"></div>`;
+    const resultsWrap = sheet.querySelector('#search-results');
+    function runSearch(q){
+      resultsWrap.innerHTML = '';
+      const query = q.trim().toLowerCase();
+      if (!query) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Tape un mot-clé pour chercher dans tous les événements.'; resultsWrap.appendChild(p); return; }
+      const matches = state.events.filter(e=>e.title.toLowerCase().includes(query)).sort((a,b)=>a.date.localeCompare(b.date));
+      if (!matches.length) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement trouvé.'; resultsWrap.appendChild(p); return; }
+      matches.forEach(e=>{
+        const row = document.createElement('div'); row.className='event-row';
+        const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+        const d = new Date(e.date+'T00:00:00');
+        const dateLabel = d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
+        row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
+          <div class="event-info">
+            <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
+            <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
+          </div>`;
+        row.onclick = ()=>{ view.openDay = e.date; view.sheet='day'; render(); };
+        resultsWrap.appendChild(row);
+      });
+    }
+    runSearch('');
+    sheet.querySelector('#search-input').oninput = (e)=>runSearch(e.target.value);
+    sheet.querySelector('#close-search').onclick = ()=>{ view.sheet=null; render(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Account sheet ---------- */
+  function renderSwitchSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const code = state.household ? state.household.invite_code : '';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Mon compte</h2><button class="sheet-close" id="close-sw">✕</button></div>
+      <div id="who-list"></div>
+      <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
+      <button class="ghost-btn" id="copy-code">Copier le code</button>
+      <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
+      <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
+    const list = sheet.querySelector('#who-list');
+    state.profiles.forEach(p=>{
+      const row = document.createElement('div'); row.className='who';
+      row.innerHTML = `<div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span>${escapeHtml(p.name)}</span>`;
+      if (state.myProfile && p.id===state.myProfile.id) {
+        const badge = document.createElement('span'); badge.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);font-weight:700;'; badge.textContent='Toi';
+        row.appendChild(badge);
+      }
+      list.appendChild(row);
+    });
+    sheet.querySelector('#close-sw').onclick = ()=>{ view.sheet=null; render(); };
+    sheet.querySelector('#copy-code').onclick = async ()=>{
+      try { await navigator.clipboard.writeText(code); } catch(e){}
+    };
+    sheet.querySelector('#open-log-btn').onclick = ()=>{ view.sheet='log'; render(); };
+    sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Custom time wheel picker ---------- */
+  const WHEEL_HOURS = Array.from({length:24},(_,i)=>i);
+  const WHEEL_MINUTES = [0,5,10,15,20,25,30,35,40,45,50,55];
+  const WHEEL_ITEM_H = 44;
+
+  const WHEEL_REPEAT = 9;
+  function wheelOpacity(col, idx){
+    [...col.children].forEach((el,i)=>{ el.style.opacity = i===idx?'1':'.35'; });
+  }
+  function fillWheelCol(col, values, selIdx, onSettle){
+    const n = values.length;
+    const mid = Math.floor(WHEEL_REPEAT/2);
+    let html = '';
+    for (let r=0; r<WHEEL_REPEAT; r++){
+      values.forEach(v=>{ html += `<div class="wheel-item">${String(v).padStart(2,'0')}</div>`; });
+    }
+    col.innerHTML = html;
+    const total = n*WHEEL_REPEAT;
+    let curIdx = mid*n + selIdx;
+    col.scrollTop = curIdx * WHEEL_ITEM_H;
+    wheelOpacity(col, curIdx);
+    let t=null;
+    col.addEventListener('scroll', ()=>{
+      if (t) clearTimeout(t);
+      t = setTimeout(()=>{
+        let idx = Math.round(col.scrollTop / WHEEL_ITEM_H);
+        idx = Math.max(0, Math.min(total-1, idx));
+        if (col.scrollTop !== idx*WHEEL_ITEM_H) col.scrollTo({top: idx*WHEEL_ITEM_H, behavior:'smooth'});
+        wheelOpacity(col, idx);
+        const realVal = values[((idx % n)+n)%n];
+        onSettle(realVal);
+        if (idx < n*1.5 || idx > total - n*1.5) {
+          setTimeout(()=>{
+            const newIdx = mid*n + (((idx % n)+n)%n);
+            col.scrollTop = newIdx * WHEEL_ITEM_H;
+            wheelOpacity(col, newIdx);
+          }, 260);
+        }
+      }, 130);
+    });
+  }
+
+  function openTimeWheel(currentValue, onConfirm){
+    let h = 8, m = 0;
+    if (currentValue) {
+      const parts = currentValue.split(':');
+      h = parseInt(parts[0],10) || 0;
+      m = Math.round((parseInt(parts[1],10)||0)/5)*5;
+      if (m>55) m=55;
+    }
+    let curH = h, curM = m;
+    const hIdx = WHEEL_HOURS.indexOf(h);
+    const mIdx = WHEEL_MINUTES.indexOf(m);
+
+    const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>Choisir l'heure</h2><button class="sheet-close" id="wp-close">✕</button></div>
+      <div class="wheel-frame">
+        <div class="wheel-highlight"></div>
+        <div class="wheel-picker">
+          <div class="wheel-col" id="wp-hour"></div>
+          <div class="wheel-colon">:</div>
+          <div class="wheel-col" id="wp-min"></div>
+        </div>
+      </div>
+      <button class="ghost-btn" id="wp-clear">Aucune heure</button>
+      <button class="save-btn" id="wp-set">Définir</button>
+    `;
+    fillWheelCol(sheet.querySelector('#wp-hour'), WHEEL_HOURS, hIdx, (v)=>{ curH=v; });
+    fillWheelCol(sheet.querySelector('#wp-min'), WHEEL_MINUTES, mIdx, (v)=>{ curM=v; });
+    sheet.querySelector('#wp-close').onclick = ()=>scrim.remove();
+    sheet.querySelector('#wp-clear').onclick = ()=>{ onConfirm(''); scrim.remove(); };
+    sheet.querySelector('#wp-set').onclick = ()=>{
+      onConfirm(`${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}`);
+      scrim.remove();
+    };
+    scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
+    scrim.appendChild(sheet);
+    document.body.appendChild(scrim);
+  }
+
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  function updateLayout(){
+    // Width-based, not aspect-based: a real browser window gets the
+    // full desktop layout whether it's wide-short or narrow-tall.
+    document.body.classList.toggle('is-wide', window.innerWidth >= 780);
+    render();
+  }
+  let layoutTimer = null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(layoutTimer);
+    layoutTimer = setTimeout(updateLayout, 120);
+  });
+  window.addEventListener('orientationchange', updateLayout);
+  document.body.classList.toggle('is-wide', window.innerWidth >= 780);
+
+  /* ---------- Boot ---------- */
+  async function boot(){
+    render();
+    const { data: { session } } = await sb.auth.getSession();
+    auth.session = session; auth.loading = false;
+    if (session) { try { await afterLogin(); } catch(e){} }
+    render();
+    sb.auth.onAuthStateChange((event, session)=>{
+      auth.session = session;
+      if (session) {
+        afterLogin().then(render).catch(()=>render());
+      } else {
+        if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
+        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = [];
+        render();
+      }
+    });
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
