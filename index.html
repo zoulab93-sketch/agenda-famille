@@ -1167,8 +1167,14 @@
   function updateLayout(){
     // Width-based, not aspect-based: a real browser window gets the
     // full desktop layout whether it's wide-short or narrow-tall.
-    document.body.classList.toggle('is-wide', window.innerWidth >= 780);
-    render();
+    // Only re-render when the wide/narrow classification actually
+    // changes — a height-only resize (e.g. a mobile virtual keyboard
+    // opening) must NOT re-render, or it wipes the DOM and steals
+    // focus from whatever field the person just tapped.
+    const wide = window.innerWidth >= 780;
+    const changed = document.body.classList.contains('is-wide') !== wide;
+    document.body.classList.toggle('is-wide', wide);
+    if (changed) render();
   }
   let layoutTimer = null;
   window.addEventListener('resize', ()=>{
@@ -1186,7 +1192,9 @@
     if (session) { try { await afterLogin(); } catch(e){} }
     render();
     sb.auth.onAuthStateChange((event, session)=>{
+      const hadSession = !!auth.session, hasSession = !!session;
       auth.session = session;
+      if (!hadSession && !hasSession) return; // no real change (e.g. redundant initial fire) — don't steal focus with a needless re-render
       if (session) {
         afterLogin().then(render).catch(()=>render());
       } else {
