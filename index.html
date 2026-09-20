@@ -182,6 +182,22 @@
   body.is-wide .fab, body.is-wide .fab-undo, body.is-wide .fab-view { width:48px; height:48px; font-size:21px; }
   body.is-wide .view-opt { width:38px; height:38px; font-size:14px; }
   body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
+
+  /* Transition douce ("pfitt") lors du changement de mois/semaine/jour,
+     via swipe ou via les flèches — remplace le changement instantané
+     par un léger glissement + fondu dans la direction du geste. */
+  ::view-transition-old(cal-root), ::view-transition-new(cal-root) {
+    animation-duration: .22s;
+    animation-timing-function: cubic-bezier(.22,.61,.36,1);
+  }
+  html[data-nav-dir="next"]::view-transition-old(cal-root) { animation-name: cal-out-left; }
+  html[data-nav-dir="next"]::view-transition-new(cal-root)  { animation-name: cal-in-right; }
+  html[data-nav-dir="prev"]::view-transition-old(cal-root) { animation-name: cal-out-right; }
+  html[data-nav-dir="prev"]::view-transition-new(cal-root)  { animation-name: cal-in-left; }
+  @keyframes cal-out-left  { to   { transform: translateX(-22px); opacity: 0; } }
+  @keyframes cal-in-right  { from { transform: translateX(22px);  opacity: 0; } }
+  @keyframes cal-out-right { to   { transform: translateX(22px);  opacity: 0; } }
+  @keyframes cal-in-left   { from { transform: translateX(-22px); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -416,6 +432,7 @@
     main.appendChild(renderHeader());
     main.appendChild(renderLegend());
     const calEl = renderCalendar();
+    if ('viewTransitionName' in calEl.style) calEl.style.viewTransitionName = 'cal-root';
     attachSwipeNav(calEl);
     main.appendChild(calEl);
     main.appendChild(renderFabRow());
@@ -597,13 +614,24 @@
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), -7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), -1); }
     else { view.month--; if(view.month<0){view.month=11; view.year--;} }
-    render();
+    renderWithTransition('prev');
   }
   function navNext(){
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), 7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), 1); }
     else { view.month++; if(view.month>11){view.month=0; view.year++;} }
-    render();
+    renderWithTransition('next');
+  }
+  /* Anime le changement de vue avec l'API View Transitions du navigateur
+     quand elle est disponible (Chrome/Android récents) ; sinon, on
+     retombe simplement sur un rendu instantané sans animation. */
+  function renderWithTransition(dir){
+    if (!document.startViewTransition) { render(); return; }
+    document.documentElement.setAttribute('data-nav-dir', dir);
+    const t = document.startViewTransition(()=>{ render(); });
+    t.finished.catch(()=>{}).finally(()=>{
+      document.documentElement.removeAttribute('data-nav-dir');
+    });
   }
   function renderHeader(){
     const h = document.createElement('header');
