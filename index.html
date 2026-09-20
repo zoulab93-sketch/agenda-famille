@@ -77,7 +77,7 @@
   .weekdays span { text-align:center; font-size:11px; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
   .grid { display:grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap:5px; padding:0 16px 100px; }
   .day-cell { background:var(--surface); border-radius:12px; min-height:98px; min-width:0; overflow:hidden; padding:5px 4px; display:flex; flex-direction:column; gap:2px; cursor:pointer; border:1.5px solid transparent; box-shadow:var(--shadow); position:relative; }
-  .day-cell.other-month { opacity:.35; box-shadow:none; background:transparent; }
+  .day-cell.other-month { opacity:.4; }
   .day-cell.today { border-color:var(--ink); }
   .day-cell.picked { border-color:var(--palette-3); background: color-mix(in srgb, var(--palette-3) 12%, var(--surface)); }
   .pick-mark { position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:var(--palette-3); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; }
@@ -184,20 +184,14 @@
   body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
 
   /* Transition douce ("pfitt") lors du changement de mois/semaine/jour,
-     via swipe ou via les flèches — remplace le changement instantané
-     par un léger glissement + fondu dans la direction du geste. */
-  ::view-transition-old(cal-root), ::view-transition-new(cal-root) {
-    animation-duration: .22s;
-    animation-timing-function: cubic-bezier(.22,.61,.36,1);
-  }
-  html[data-nav-dir="next"]::view-transition-old(cal-root) { animation-name: cal-out-left; }
-  html[data-nav-dir="next"]::view-transition-new(cal-root)  { animation-name: cal-in-right; }
-  html[data-nav-dir="prev"]::view-transition-old(cal-root) { animation-name: cal-out-right; }
-  html[data-nav-dir="prev"]::view-transition-new(cal-root)  { animation-name: cal-in-left; }
-  @keyframes cal-out-left  { to   { transform: translateX(-22px); opacity: 0; } }
-  @keyframes cal-in-right  { from { transform: translateX(22px);  opacity: 0; } }
-  @keyframes cal-out-right { to   { transform: translateX(22px);  opacity: 0; } }
-  @keyframes cal-in-left   { from { transform: translateX(-22px); opacity: 0; } }
+     via swipe ou via les flèches. Volontairement légère : seule la carte
+     du calendrier anime (opacity + transform, GPU), rien d'autre sur la
+     page — pour rester fluide même sur un téléphone modeste. */
+  .cal-wrap { transition: opacity .14s ease, transform .14s ease; }
+  .cal-wrap.nav-out-next { opacity:0; transform:translateX(-14px); }
+  .cal-wrap.nav-out-prev { opacity:0; transform:translateX(14px); }
+  .cal-wrap.nav-in-next  { opacity:0; transform:translateX(14px); }
+  .cal-wrap.nav-in-prev  { opacity:0; transform:translateX(-14px); }
 </style>
 </head>
 <body>
@@ -432,7 +426,6 @@
     main.appendChild(renderHeader());
     main.appendChild(renderLegend());
     const calEl = renderCalendar();
-    if ('viewTransitionName' in calEl.style) calEl.style.viewTransitionName = 'cal-root';
     attachSwipeNav(calEl);
     main.appendChild(calEl);
     main.appendChild(renderFabRow());
@@ -622,16 +615,27 @@
     else { view.month++; if(view.month>11){view.month=0; view.year++;} }
     renderWithTransition('next');
   }
-  /* Anime le changement de vue avec l'API View Transitions du navigateur
-     quand elle est disponible (Chrome/Android récents) ; sinon, on
-     retombe simplement sur un rendu instantané sans animation. */
+  /* Anime le changement de vue "à la main" avec de simples transitions
+     CSS opacity/transform sur la carte du calendrier uniquement (pas
+     l'API View Transitions du navigateur, qui capture toute la page en
+     image et s'est révélée saccadée sur mobile). Fondu-glissement sortant
+     très bref, puis rendu, puis fondu-glissement entrant dans le sens
+     du geste. */
   function renderWithTransition(dir){
-    if (!document.startViewTransition) { render(); return; }
-    document.documentElement.setAttribute('data-nav-dir', dir);
-    const t = document.startViewTransition(()=>{ render(); });
-    t.finished.catch(()=>{}).finally(()=>{
-      document.documentElement.removeAttribute('data-nav-dir');
-    });
+    const oldEl = document.querySelector('.cal-wrap');
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!oldEl || reduceMotion) { render(); return; }
+    oldEl.classList.add(dir==='next' ? 'nav-out-next' : 'nav-out-prev');
+    setTimeout(()=>{
+      render();
+      const newEl = document.querySelector('.cal-wrap');
+      if (!newEl) return;
+      const inClass = dir==='next' ? 'nav-in-next' : 'nav-in-prev';
+      newEl.classList.add(inClass);
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{ newEl.classList.remove(inClass); });
+      });
+    }, 110);
   }
   function renderHeader(){
     const h = document.createElement('header');
