@@ -114,13 +114,26 @@
   .sheet-header h2 { margin:0; font-size:18px; }
   .sheet-close { background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer; padding:4px; }
 
-  .event-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:12px; margin-bottom:6px; background:var(--surface-soft); }
-  .event-stripe { width:6px; align-self:stretch; border-radius:3px; }
+  /* La carte d'un événement porte directement les couleurs de ses
+     participants, en bandes diagonales (le fond est posé en JS via
+     stripeBg). Les bandes gardent leur éclat d'origine et seul le texte
+     est posé sur une petite plaque sombre : c'est ce qui le rend lisible
+     même sur le jaune, sur lequel du blanc seul ne tenait pas. */
+  .event-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:12px; margin-bottom:6px; color:#fff; }
   .event-info { flex:1; min-width:0; }
-  .event-title { font-weight:700; font-size:14.5px; }
-  .event-meta { font-size:12px; color:var(--ink-soft); }
-  .event-del { background:none; border:none; color:var(--ink-soft); font-size:16px; cursor:pointer; padding:4px 6px; }
+  .event-plate { display:inline-block; max-width:100%; background:rgba(14,16,19,.58); border-radius:9px; padding:5px 10px; }
+  .event-title { font-weight:700; font-size:14.5px; color:#fff; }
+  .event-meta { font-size:12px; color:rgba(255,255,255,.88); }
+  .event-del { background:none; border:none; color:rgba(255,255,255,.85); font-size:16px; cursor:pointer; padding:4px 6px; }
   .empty-note { color:var(--ink-soft); font-size:14px; text-align:center; padding:18px 0; }
+  /* Bandeau discret en bas de l'écran : sert à dire qu'une
+     synchronisation Google n'a pas abouti, sans bloquer l'app. */
+  .toast { position:fixed; left:50%; bottom:96px; transform:translate(-50%, 14px); z-index:40;
+           max-width:min(92vw,520px); background:var(--ink); color:var(--surface);
+           font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:12px;
+           box-shadow:0 6px 20px rgba(0,0,0,.3); opacity:0; pointer-events:none;
+           transition:opacity .18s ease, transform .18s ease; text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%, 0); }
 
   .form-row { margin-bottom:14px; }
   .form-row label { display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
@@ -132,6 +145,11 @@
   .preset-row { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px; }
   .preset { flex-shrink:0; padding:7px 12px; border-radius:10px; background:var(--surface-soft); border:none; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer; }
   .bulk-note { background:var(--surface-soft); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+  .reminder-note { font-size:12px; color:var(--ink-soft); margin-top:7px; }
+  /* Petite pastille "⏰ 15 min" posée sur la carte d'un événement qui a
+     un rappel. Fond sombre translucide pour rester lisible quelle que
+     soit la couleur des participants derrière. */
+  .rem-badge { flex-shrink:0; font-size:11px; font-weight:700; color:#fff; background:rgba(16,18,21,.45); border-radius:999px; padding:3px 8px; white-space:nowrap; }
 
   .log-row { padding:10px 4px; border-bottom:1px solid var(--line); font-size:13.5px; }
   .log-time { color:var(--ink-soft); font-size:12px; }
@@ -202,6 +220,16 @@
   /* ---------- Supabase ---------- */
   const SUPABASE_URL = 'https://dobozrtzmzbxfgpcjesq.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_65knnUG6E1RCT95lEW7apg_uta_GZnY';
+
+  /* ---------- Google Agenda ----------
+     Colle ici l'identifiant client OAuth récupéré dans Google Cloud
+     (il ressemble à 1234567890-abcdef.apps.googleusercontent.com).
+     Cet identifiant est public, il n'y a aucun risque à le laisser dans
+     le fichier — c'est le "secret client", lui, qui reste côté serveur,
+     dans les secrets Supabase. Tant que cette ligne est vide, l'app
+     fonctionne normalement, sans la synchronisation Google.
+     Marche à suivre complète : voir guide_google.md */
+  const GOOGLE_CLIENT_ID = '';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true }
   });
@@ -226,6 +254,21 @@
     'Réunion': { start:'09:00', end:'17:00' }
   };
   const ICON_CHOICES = ['','📌','🏠','🩺','🎓','🎉','🚗','🍽️','🛌','⭐','❤️'];
+  // Rappels proposés, en minutes avant le début de l'événement.
+  // NULL = aucun rappel. Ces valeurs sont exactement celles que Google
+  // Agenda attend, ce qui évite toute conversion au moment de la
+  // synchronisation.
+  const REMINDER_CHOICES = [
+    { min: null, label: 'Aucun' },
+    { min: 15,   label: '15 min' },
+    { min: 30,   label: '30 min' },
+    { min: 60,   label: '1 h' },
+    { min: 1440, label: '24 h' }
+  ];
+  function reminderLabel(min){
+    const found = REMINDER_CHOICES.find(r=>r.min===min);
+    return found && found.min !== null ? found.label : '';
+  }
   const WEEKDAYS = ['L','M','M','J','V','S','D'];
   const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const MAX_LINES = 4;
@@ -235,7 +278,8 @@
   let auth = { session: null, loading: true };
   let state = {
     profiles: [], household: null, myProfile: null, activeId: null,
-    events: [], log: [], hidden: loadHidden(), _undo: null
+    events: [], log: [], hidden: loadHidden(), _undo: null,
+    googleLinked: false, googleEmail: ''
   };
   let view = {
     year: new Date().getFullYear(), month: new Date().getMonth(),
@@ -285,10 +329,23 @@
     state.events = (events || []).map(e=>({
       id: e.id, title: e.title, date: e.date,
       start: e.start_time || '', end: e.end_time || '', icon: e.icon || '',
+      reminder: (e.reminder_min === null || e.reminder_min === undefined) ? null : Number(e.reminder_min),
+      googleId: e.google_event_id || null,
       participants: (e.event_participants || []).map(p=>p.profile_id)
     }));
     state.log = (log || []).map(l=>({ id: l.id, who: l.who, action: l.action, ts: new Date(l.ts).getTime() }));
     state.activeId = state.myProfile ? state.myProfile.id : null;
+
+    // Le foyer est-il relié à Google ? On ne demande que les colonnes
+    // inoffensives : le jeton lui-même est hors de portée du navigateur,
+    // la base refuserait de le donner.
+    try {
+      const { data: link } = await sb.from('google_link')
+        .select('household_id, connected_email, connected_at')
+        .eq('household_id', hid).maybeSingle();
+      state.googleLinked = !!link;
+      state.googleEmail = link ? (link.connected_email || '') : '';
+    } catch(e){ state.googleLinked = false; state.googleEmail = ''; }
   }
   function subscribeRealtime(){
     if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
@@ -314,6 +371,7 @@
     const { error } = await sb.from('events').upsert({
       id: ev.id, household_id: state.household.id, title: ev.title, date: ev.date,
       start_time: ev.start || null, end_time: ev.end || null, icon: ev.icon || null,
+      reminder_min: (ev.reminder === null || ev.reminder === undefined) ? null : ev.reminder,
       created_by: state.myProfile.id
     });
     if (error) throw error;
@@ -368,6 +426,93 @@
     await reloadHouseholdData();
   }
 
+  /* ---------- Pont vers Google Agenda ----------
+     Toute la mécanique OAuth vit dans la fonction serveur : ici on ne
+     fait que l'appeler. La synchronisation ne doit jamais empêcher
+     d'utiliser l'app — un événement enregistré dans le foyer reste
+     enregistré même si Google est injoignable — mais elle ne doit pas
+     non plus échouer sans rien dire, d'où le petit bandeau. */
+  function appRedirectUri(){
+    // Toujours la forme "dossier", même si l'URL affiche index.html :
+    // Google exige que l'adresse de retour corresponde au caractère près
+    // à celle déclarée dans la console.
+    return location.origin + location.pathname.replace(/index\.html$/, '');
+  }
+  function googleConfigured(){ return !!GOOGLE_CLIENT_ID; }
+
+  function startGoogleConnect(){
+    const state_ = uid();
+    try { sessionStorage.setItem('af_gstate', state_); } catch(e){}
+    const params = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: appRedirectUri(),
+      response_type: 'code',
+      scope: 'https://www.googleapis.com/auth/calendar',
+      access_type: 'offline',   // pour obtenir un jeton durable
+      prompt: 'consent',        // sans ça, Google ne renvoie le jeton durable qu'une seule fois
+      state: state_
+    });
+    location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+  }
+
+  async function finishGoogleConnect(){
+    const url = new URL(location.href);
+    const code = url.searchParams.get('code');
+    const returnedState = url.searchParams.get('state');
+    const oauthError = url.searchParams.get('error');
+    if (!code && !oauthError) return false;
+
+    // On nettoie l'adresse tout de suite : le code ne sert qu'une fois,
+    // et il n'a rien à faire dans l'historique du navigateur.
+    history.replaceState({}, '', appRedirectUri());
+
+    if (oauthError) { toast("Connexion Google annulée."); return false; }
+
+    let expected = null;
+    try { expected = sessionStorage.getItem('af_gstate'); sessionStorage.removeItem('af_gstate'); } catch(e){}
+    if (!expected || expected !== returnedState) { toast("Retour Google inattendu, connexion abandonnée."); return false; }
+
+    try {
+      const { data, error } = await sb.functions.invoke('google-calendar', {
+        body: { action:'connect', code, redirect_uri: appRedirectUri() }
+      });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+      toast('Google Agenda connecté' + (data && data.email ? ' (' + data.email + ')' : '') + '.');
+      return true;
+    } catch(err){
+      toast('Connexion Google impossible : ' + ((err && err.message) || 'erreur inconnue'));
+      return false;
+    }
+  }
+
+  async function syncToGoogle(action, payload){
+    if (!state.googleLinked) return;   // foyer non connecté : rien à faire
+    try {
+      const { data, error } = await sb.functions.invoke('google-calendar', { body: { action, ...payload } });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+    } catch(err){
+      // L'événement est déjà sauvegardé dans le foyer : on prévient sans
+      // bloquer, plutôt que de faire croire que tout s'est bien passé.
+      toast("L'événement est enregistré, mais Google Agenda n'a pas suivi.");
+      console.warn('Synchronisation Google :', err);
+    }
+  }
+
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div'); el.id='toast'; el.className='toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.classList.remove('show'); }, 4200);
+  }
+
   function snapshot(){
     state._undo = { events: JSON.parse(JSON.stringify(state.events)), log: JSON.parse(JSON.stringify(state.log)) };
   }
@@ -381,13 +526,27 @@
       const cur = curEvents.find(c=>c.id===e.id);
       return !cur || JSON.stringify(cur)!==JSON.stringify(e);
     });
+    // On met l'historique de côté plutôt que de le jeter : si l'annulation
+    // échoue (réseau coupé, règle de sécurité), on le remet en place pour
+    // que le bouton reste utilisable, et on le dit clairement — sinon
+    // l'écran se redessine comme si tout allait bien et l'action est
+    // perdue en silence.
+    const keptUndo = state._undo;
     state._undo = null;
     try {
+      const googleIdsToDrop = toDelete.map(e=>e.googleId).filter(Boolean);
       for (const e of toDelete) await deleteEventDb(e.id);
       for (const e of toRestore) await upsertEventDb(e);
       await logActivity('a annulé la dernière action');
       await reloadHouseholdData();
-    } catch(e){}
+      // L'annulation doit se répercuter chez Google, sinon l'agenda
+      // partagé garde une version que plus personne ne voit dans l'app.
+      googleIdsToDrop.forEach(gid=>syncToGoogle('remove', { google_event_id: gid }));
+      toRestore.forEach(e=>syncToGoogle('push', { event_id: e.id }));
+    } catch(err){
+      state._undo = keptUndo;
+      alert("L'annulation n'a pas pu être enregistrée : " + ((err && err.message) || 'erreur inconnue') + "\nRéessaie dans un instant.");
+    }
     render();
   }
   function fmtTime(ts){
@@ -986,19 +1145,22 @@
       const row = document.createElement('div'); row.className='event-row';
       const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
       const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
-      row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
-        <div class="event-info">
+      row.style.background = stripeBg(cols);
+      row.innerHTML = `<div class="event-info"><div class="event-plate">
           <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
-        </div>
+        </div></div>
+        ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
         <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
       row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
       row.querySelector('.event-del').onclick = async ()=>{
         snapshot();
+        const googleId = e.googleId; // à retenir avant que la ligne disparaisse
         try {
           await deleteEventDb(e.id);
           await logActivity(`a supprimé « ${e.title} »`);
           await reloadHouseholdData();
+          syncToGoogle('remove', { google_event_id: googleId });
         } catch(err){ alert('Erreur : '+err.message); }
         render();
       };
@@ -1067,7 +1229,15 @@
     const ds = view.openDay;
     const d = new Date(ds+'T00:00:00');
     const label = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
-    const evs = state.events.filter(e=>e.date===ds).sort((a,b)=> (a.start||'').localeCompare(b.start||''));
+    // Même filtre que la grille du mois et que la vue « Jour » : ce que la
+    // légende masque n'apparaît pas ici non plus. On compte quand même les
+    // événements masqués pour le signaler en bas de la fiche, sinon un jour
+    // pourrait sembler vide à tort.
+    const allOfDay = state.events.filter(e=>e.date===ds);
+    const evs = allOfDay
+      .filter(e=>e.participants.some(id=>!state.hidden.includes(id)))
+      .sort((a,b)=> (a.start||'').localeCompare(b.start||''));
+    const hiddenCount = allOfDay.length - evs.length;
     sheet.innerHTML = `<div class="sheet-handle"></div>
       <div class="sheet-header"><h2 style="text-transform:capitalize">${label}</h2><button class="sheet-close" id="close-day">✕</button></div>
       <div id="day-events"></div>
@@ -1081,24 +1251,37 @@
       const row = document.createElement('div'); row.className='event-row';
       const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
       const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
-      row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
-        <div class="event-info">
+      row.style.background = stripeBg(cols);
+      row.innerHTML = `<div class="event-info"><div class="event-plate">
           <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
-        </div>
+        </div></div>
+        ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
         <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
       row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
       row.querySelector('.event-del').onclick = async ()=>{
         snapshot();
+        const googleId = e.googleId; // à retenir avant que la ligne disparaisse
         try {
           await deleteEventDb(e.id);
           await logActivity(`a supprimé « ${e.title} »`);
           await reloadHouseholdData();
+          syncToGoogle('remove', { google_event_id: googleId });
         } catch(err){ alert('Erreur : '+err.message); }
         render();
       };
       list.appendChild(row);
     });
+    if (hiddenCount) {
+      const note = document.createElement('div');
+      note.className = 'empty-note';
+      note.style.fontSize = '12.5px';
+      note.style.padding = evs.length ? '6px 0 2px' : '0 0 8px';
+      note.textContent = hiddenCount > 1
+        ? `${hiddenCount} autres événements sont masqués par le filtre de la légende.`
+        : `1 autre événement est masqué par le filtre de la légende.`;
+      list.appendChild(note);
+    }
     sheet.querySelector('#close-day').onclick = ()=>{ view.sheet=null; render(); };
     sheet.querySelector('#add-day-event').onclick = ()=>openEventForm(null, ds);
     scrim.appendChild(sheet);
@@ -1108,7 +1291,8 @@
   /* ---------- Event form ---------- */
   function openEventForm(event, dateStr, bulkDates){
     view.editingEvent = event ? {...event, participants:[...event.participants]} : {
-      id: uid(), title:'', date: dateStr, start:'', end:'', icon:'', participants: state.activeId?[state.activeId]:[]
+      id: uid(), title:'', date: dateStr, start:'', end:'', icon:'', reminder: null,
+      participants: state.activeId?[state.activeId]:[]
     };
     view._bulkDates = bulkDates || null;
     view.sheet='form';
@@ -1132,6 +1316,7 @@
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
         <div style="flex:1"><label>Fin</label><button type="button" class="time-field" id="f-end-btn">${ev.end||'--:--'}</button></div>
       </div>
+      <div class="form-row"><label>⏰ Rappel</label><div class="chips" id="f-reminder"></div><div id="f-reminder-note" class="reminder-note"></div></div>
       <div class="form-row"><label>Qui participe ?</label><div class="chips" id="f-participants"></div></div>
       <button class="save-btn" id="f-save">Enregistrer</button>
     `;
@@ -1166,6 +1351,30 @@
       };
       presetsWrap.appendChild(b);
     });
+    // Rappel : aucun, ou un délai avant le début de l'événement. La
+    // valeur est stockée en minutes, comme l'attend Google Agenda.
+    const remWrap = sheet.querySelector('#f-reminder');
+    const remNote = sheet.querySelector('#f-reminder-note');
+    function drawReminders(){
+      remWrap.innerHTML = '';
+      REMINDER_CHOICES.forEach(r=>{
+        const on = (ev.reminder ?? null) === r.min;
+        const btn = document.createElement('button'); btn.type='button';
+        btn.className = 'chip' + (on?' on':'');
+        btn.style.background = on ? 'var(--ink)' : 'var(--surface)';
+        btn.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
+        btn.textContent = r.label;
+        btn.onclick = ()=>{ ev.reminder = r.min; drawReminders(); };
+        remWrap.appendChild(btn);
+      });
+      // Sans heure de début, Google déclenche le rappel à partir de
+      // minuit : on le dit plutôt que de laisser croire à un bug.
+      remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
+        ? "Sans heure de début, le rappel se comptera à partir de minuit."
+        : '';
+    }
+    drawReminders();
+
     const partWrap = sheet.querySelector('#f-participants');
     function drawChips(){
       partWrap.innerHTML='';
@@ -1185,7 +1394,11 @@
     }
     drawChips();
     sheet.querySelector('#f-start-btn').onclick = ()=>{
-      openTimeWheel(ev.start, (val)=>{ ev.start = val; sheet.querySelector('#f-start-btn').textContent = val || '--:--'; });
+      openTimeWheel(ev.start, (val)=>{
+        ev.start = val;
+        sheet.querySelector('#f-start-btn').textContent = val || '--:--';
+        drawReminders(); // la note sur "à partir de minuit" dépend de l'heure de début
+      });
     };
     sheet.querySelector('#f-end-btn').onclick = ()=>{
       openTimeWheel(ev.end, (val)=>{ ev.end = val; sheet.querySelector('#f-end-btn').textContent = val || '--:--'; });
@@ -1199,9 +1412,12 @@
       const btn = sheet.querySelector('#f-save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
       snapshot();
       try {
+        const pushedIds = [];
         if (bulk) {
           for (const ds of bulk) {
-            await upsertEventDb({ id: uid(), title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', participants: [...ev.participants] });
+            const newId = uid();
+            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, participants: [...ev.participants] });
+            pushedIds.push(newId);
           }
           await logActivity(`a ajouté « ${title} » sur ${bulk.length} jours`);
           view.selectMode = false; view.selectedDays = [];
@@ -1210,8 +1426,12 @@
           const existed = state.events.some(x=>x.id===ev.id);
           await upsertEventDb(ev);
           await logActivity(existed ? `a modifié « ${title} »` : `a ajouté « ${title} »`);
+          pushedIds.push(ev.id);
         }
         await reloadHouseholdData();
+        // Envoi vers Google en arrière-plan : l'enregistrement dans le
+        // foyer est déjà fait, on ne fait pas attendre l'utilisateur.
+        pushedIds.forEach(id=>syncToGoogle('push', { event_id: id }));
         view.sheet = null;
       } catch(err){
         alert("Erreur d'enregistrement : "+err.message);
@@ -1266,11 +1486,12 @@
         const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
         const d = new Date(e.date+'T00:00:00');
         const dateLabel = d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
-        row.innerHTML = `<div class="event-stripe" style="background:${stripeBg(cols)}"></div>
-          <div class="event-info">
+        row.style.background = stripeBg(cols);
+        row.innerHTML = `<div class="event-info"><div class="event-plate">
             <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
             <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
-          </div>`;
+          </div></div>
+          ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}`;
         row.onclick = ()=>{ view.openDay = e.date; view.sheet='day'; render(); };
         resultsWrap.appendChild(row);
       });
@@ -1300,8 +1521,10 @@
       </div>
       <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
       <button class="ghost-btn" id="add-guest-btn">➕ Ajouter ce profil</button>
+      <div id="google-box" style="margin-top:18px;"></div>
       <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
+    renderGoogleBox(sheet.querySelector('#google-box'));
     const list = sheet.querySelector('#who-list');
     state.profiles.forEach(p=>{
       const row = document.createElement('div'); row.className='who';
@@ -1353,6 +1576,88 @@
     sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
     scrim.appendChild(sheet);
     return scrim;
+  }
+
+  /* ---------- Bloc "Google Agenda" de la fiche compte ----------
+     Google sert de copie de secours : tout ce qui est saisi dans l'app
+     est recopié dans un agenda Google partagé, qui survivra même si la
+     base de données disparaît. D'où le bouton de sauvegarde complète :
+     sans lui, seuls les événements créés APRÈS la connexion seraient
+     protégés. */
+  function renderGoogleBox(box){
+    box.innerHTML = '';
+    const note = document.createElement('div');
+    note.className = 'bulk-note';
+    note.style.marginBottom = '10px';
+
+    if (!googleConfigured()) {
+      note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Pas encore configurée. Il manque l'identifiant client dans le fichier de l'app — voir <b>guide_google.md</b>.<br><br>Adresse de retour à déclarer dans Google Cloud :<br><code style="font-size:12px;word-break:break-all;">${escapeHtml(appRedirectUri())}</code>`;
+      box.appendChild(note);
+      return;
+    }
+
+    if (!state.googleLinked) {
+      note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Non connectée. Une fois reliée, chaque événement du foyer est recopié dans un agenda Google « Agenda Famille », qui te restera même s'il arrivait malheur à la base.`;
+      box.appendChild(note);
+      const btn = document.createElement('button');
+      btn.className = 'ghost-btn'; btn.textContent = '🔗 Connecter Google Agenda';
+      btn.onclick = startGoogleConnect;
+      box.appendChild(btn);
+      return;
+    }
+
+    const total = state.events.length;
+    const saved = state.events.filter(e=>e.googleId).length;
+    note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Connectée${state.googleEmail?' — '+escapeHtml(state.googleEmail):''}.<br><b>${saved}</b> événement${saved>1?'s':''} sur <b>${total}</b> déjà recopié${saved>1?'s':''} dans Google.`;
+    box.appendChild(note);
+
+    if (saved < total) {
+      const back = document.createElement('button');
+      back.className = 'ghost-btn';
+      back.textContent = `⬆ Sauvegarder les ${total-saved} événements manquants`;
+      back.onclick = ()=>runBackfill(back);
+      box.appendChild(back);
+    }
+
+    const off = document.createElement('button');
+    off.className = 'ghost-btn';
+    off.textContent = 'Déconnecter Google Agenda';
+    off.onclick = async ()=>{
+      if (!confirm("Déconnecter Google Agenda ?\n\nLes événements déjà recopiés restent dans ton agenda Google, mais l'app cessera de l'alimenter.")) return;
+      try {
+        const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'disconnect' } });
+        if (error) throw error;
+        if (data && data.error) throw new Error(data.error);
+        await reloadHouseholdData();
+        toast('Google Agenda déconnecté.');
+        render();
+      } catch(err){ toast('Déconnexion impossible : ' + ((err&&err.message)||'erreur')); }
+    };
+    box.appendChild(off);
+  }
+
+  async function runBackfill(btn){
+    btn.disabled = true;
+    let done = 0;
+    try {
+      // Le serveur traite par lots : on rappelle tant qu'il en reste,
+      // en affichant l'avancement plutôt qu'un bouton figé.
+      for (let pass=0; pass<200; pass++) {
+        btn.textContent = `Sauvegarde en cours… ${done} envoyé${done>1?'s':''}`;
+        const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'push_all', limit:40 } });
+        if (error) throw error;
+        if (data && data.error) throw new Error(data.error);
+        done += (data && data.done) || 0;
+        if (data && data.failures && data.failures.length) console.warn('Non envoyés :', data.failures);
+        if (!data || !data.remaining || !data.done) break;
+      }
+      await reloadHouseholdData();
+      toast(`Sauvegarde terminée : ${done} événement${done>1?'s':''} envoyé${done>1?'s':''} dans Google.`);
+      render();
+    } catch(err){
+      btn.disabled = false;
+      toast('Sauvegarde interrompue : ' + ((err&&err.message)||'erreur'));
+    }
   }
 
   /* ---------- Custom time wheel picker ---------- */
@@ -1466,6 +1771,13 @@
     const { data: { session } } = await sb.auth.getSession();
     auth.session = session; auth.loading = false;
     if (session) { try { await afterLogin(); } catch(e){} }
+    // Retour de Google après autorisation : on échange le code avant le
+    // premier affichage utile, pour que la fiche compte montre déjà
+    // l'état connecté.
+    if (session && location.search.includes('code=')) {
+      const linked = await finishGoogleConnect();
+      if (linked) { try { await reloadHouseholdData(); } catch(e){} }
+    }
     render();
     sb.auth.onAuthStateChange((event, session)=>{
       const hadSession = !!auth.session, hasSession = !!session;
