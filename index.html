@@ -343,6 +343,21 @@
     await reloadHouseholdData();
     render();
   }
+  async function createGuestProfile(name, color){
+    // Profil "invité" : pas de compte, pas d'email, juste une entrée dans
+    // le foyer (utile pour les enfants) qu'on peut ajouter aux événements
+    // comme n'importe quel autre membre.
+    const { error } = await sb.from('profiles').insert({ household_id: state.household.id, name, color });
+    if (error) throw error;
+    await logActivity(`a ajouté le profil « ${name} »`);
+    await reloadHouseholdData();
+  }
+  async function deleteGuestProfile(profile){
+    const { error } = await sb.from('profiles').delete().eq('id', profile.id);
+    if (error) throw error;
+    await logActivity(`a supprimé le profil « ${profile.name} »`);
+    await reloadHouseholdData();
+  }
 
   function snapshot(){
     state._undo = { events: JSON.parse(JSON.stringify(state.events)), log: JSON.parse(JSON.stringify(state.log)) };
@@ -1092,6 +1107,13 @@
       <div id="who-list"></div>
       <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
       <button class="ghost-btn" id="copy-code">Copier le code</button>
+      <div class="field" style="margin-top:16px;">
+        <label for="guest-name">Ajouter un profil enfant (sans compte ni email)</label>
+        <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
+        <div class="swatches" id="guest-swatches"></div>
+      </div>
+      <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
+      <button class="ghost-btn" id="add-guest-btn">➕ Ajouter ce profil</button>
       <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     const list = sheet.querySelector('#who-list');
@@ -1101,12 +1123,45 @@
       if (state.myProfile && p.id===state.myProfile.id) {
         const badge = document.createElement('span'); badge.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);font-weight:700;'; badge.textContent='Toi';
         row.appendChild(badge);
+      } else if (!p.user_id) {
+        const badge = document.createElement('span'); badge.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);'; badge.textContent='Invité';
+        row.appendChild(badge);
+        const del = document.createElement('button');
+        del.textContent='✕'; del.setAttribute('aria-label','Supprimer ce profil');
+        del.style.cssText='margin-left:8px;background:none;border:none;color:var(--palette-4);font-size:14px;cursor:pointer;padding:2px 4px;';
+        del.onclick = async (e)=>{
+          e.stopPropagation();
+          if (!confirm(`Supprimer le profil « ${p.name} » ? Il sera retiré des événements où il apparaît.`)) return;
+          try { await deleteGuestProfile(p); render(); }
+          catch(err){ alert('Erreur : '+err.message); }
+        };
+        row.appendChild(del);
       }
       list.appendChild(row);
+    });
+    let guestColor = PALETTE[state.profiles.length % PALETTE.length];
+    const gsw = sheet.querySelector('#guest-swatches');
+    PALETTE.forEach(c=>{
+      const s = document.createElement('div');
+      s.className='swatch' + (c===guestColor?' selected':'');
+      s.style.background=c;
+      s.onclick=()=>{ guestColor=c; [...gsw.children].forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+      gsw.appendChild(s);
     });
     sheet.querySelector('#close-sw').onclick = ()=>{ view.sheet=null; render(); };
     sheet.querySelector('#copy-code').onclick = async ()=>{
       try { await navigator.clipboard.writeText(code); } catch(e){}
+    };
+    sheet.querySelector('#add-guest-btn').onclick = async ()=>{
+      const nameInput = sheet.querySelector('#guest-name');
+      const errBox = sheet.querySelector('#guest-error');
+      const name = nameInput.value.trim();
+      errBox.textContent = '';
+      if (!name) { errBox.textContent = 'Le prénom est requis.'; return; }
+      try {
+        await createGuestProfile(name, guestColor);
+        view.sheet='switch'; render();
+      } catch(err){ errBox.textContent = err.message || 'Erreur.'; }
     };
     sheet.querySelector('#open-log-btn').onclick = ()=>{ view.sheet='log'; render(); };
     sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
