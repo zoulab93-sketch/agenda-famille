@@ -806,13 +806,33 @@
     let tracking = false;  // un doigt est posé, direction pas encore tranchée
     let dragging = false;  // geste capturé comme un swipe horizontal
     let viewport = null, curEl = null, prevCard = null, nextCard = null, width = 1;
+    let pendingDx = 0, rafId = 0;
+
+    // Les mises à jour de position ne sont écrites qu'une fois par frame
+    // (via requestAnimationFrame), jamais directement dans le handler de
+    // touchmove : sur un écran 90/120 Hz, le tactile peut envoyer plus
+    // d'événements que l'écran ne peut afficher, et écrire le style à
+    // chaque événement ne fait que gaspiller du travail sans rien
+    // afficher de plus fluide. translate3d (et non translateX/calc) pour
+    // rester strictement sur le thread de composition GPU.
+    function scheduleFrame(dx){
+      pendingDx = dx;
+      if (rafId) return;
+      rafId = requestAnimationFrame(()=>{
+        rafId = 0;
+        curEl.style.transform = `translate3d(${pendingDx}px,0,0)`;
+        prevCard.style.transform = `translate3d(${pendingDx - width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${pendingDx + width}px,0,0)`;
+      });
+    }
 
     function cleanup(){
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
       if (prevCard) { prevCard.remove(); prevCard = null; }
       if (nextCard) { nextCard.remove(); nextCard = null; }
       if (curEl) {
         curEl.style.position = ''; curEl.style.top = ''; curEl.style.left = ''; curEl.style.width = '';
-        curEl.style.transform = ''; curEl.style.transition = '';
+        curEl.style.transform = ''; curEl.style.transition = ''; curEl.style.willChange = '';
       }
       if (viewport) viewport.style.minHeight = '';
       viewport = curEl = null;
@@ -842,23 +862,22 @@
         width = viewport.offsetWidth || 1;
         viewport.style.minHeight = viewport.offsetHeight + 'px';
         curEl.style.position = 'absolute'; curEl.style.top = '0'; curEl.style.left = '0'; curEl.style.width = '100%';
-        curEl.style.transition = 'none';
+        curEl.style.transition = 'none'; curEl.style.willChange = 'transform';
         prevCard = buildNeighborCard(-1);
         nextCard = buildNeighborCard(1);
         [prevCard, nextCard].forEach(c=>{
-          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = '100%'; c.style.transition = 'none';
+          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = '100%';
+          c.style.transition = 'none'; c.style.willChange = 'transform';
         });
-        prevCard.style.transform = 'translateX(-100%)';
-        nextCard.style.transform = 'translateX(100%)';
+        prevCard.style.transform = `translate3d(${-width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${width}px,0,0)`;
         viewport.appendChild(prevCard);
         viewport.appendChild(nextCard);
         initMarquees();
       }
       if (!dragging) return;
       e.preventDefault(); // on a le geste : plus de scroll vertical pendant le glissement
-      curEl.style.transform = `translateX(${dx}px)`;
-      prevCard.style.transform = `translateX(calc(-100% + ${dx}px))`;
-      nextCard.style.transform = `translateX(calc(100% + ${dx}px))`;
+      scheduleFrame(dx);
     }, { passive:false });
 
     function settle(e){
@@ -866,6 +885,7 @@
       tracking = false;
       if (!dragging) return;
       dragging = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
       const touch = (e.changedTouches && e.changedTouches[0]) || null;
       const dx = touch ? touch.clientX - startX : 0;
       const dt = Math.max(1, Date.now() - startT);
@@ -878,12 +898,12 @@
       const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
       [curEl, prevCard, nextCard].forEach(x=>{ x.style.transition = `transform ${dur} ${ease}`; });
       if (complete) {
-        curEl.style.transform = `translateX(${goingPrev ? '100%' : '-100%'})`;
-        (goingPrev ? prevCard : nextCard).style.transform = 'translateX(0)';
+        curEl.style.transform = `translate3d(${goingPrev ? width : -width}px,0,0)`;
+        (goingPrev ? prevCard : nextCard).style.transform = 'translate3d(0,0,0)';
       } else {
-        curEl.style.transform = 'translateX(0)';
-        prevCard.style.transform = 'translateX(-100%)';
-        nextCard.style.transform = 'translateX(100%)';
+        curEl.style.transform = 'translate3d(0,0,0)';
+        prevCard.style.transform = `translate3d(${-width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${width}px,0,0)`;
       }
       navBusy = true;
       let done = false;
