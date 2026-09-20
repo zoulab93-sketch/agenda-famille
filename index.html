@@ -146,6 +146,11 @@
   .preset { flex-shrink:0; padding:7px 12px; border-radius:10px; background:var(--surface-soft); border:none; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer; }
   .bulk-note { background:var(--surface-soft); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
   .reminder-note { font-size:12px; color:var(--ink-soft); margin-top:7px; }
+  /* Séparateur de section : un filet qui s'efface sur les bords, plus
+     doux qu'un trait net d'un bord à l'autre. Sert à aérer la fiche
+     "Mon compte", qui empile plusieurs sujets sans rapport entre eux. */
+  .section-sep { border:0; height:1px; background:linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent); margin:26px 0 18px; }
+  .section-title { font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 12px 2px; }
   /* Petite pastille "⏰ 15 min" posée sur la carte d'un événement qui a
      un rappel. Fond sombre translucide pour rester lisible quelle que
      soit la couleur des participants derrière. */
@@ -229,7 +234,7 @@
      dans les secrets Supabase. Tant que cette ligne est vide, l'app
      fonctionne normalement, sans la synchronisation Google.
      Marche à suivre complète : voir guide_google.md */
-  const GOOGLE_CLIENT_ID = '857111387956-f802mf2mcopn2konkfealj5auvq62aia.apps.googleusercontent.com';
+  const GOOGLE_CLIENT_ID = '';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true }
   });
@@ -1514,14 +1519,20 @@
       <div id="who-list"></div>
       <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
       <button class="ghost-btn" id="copy-code">Copier le code</button>
-      <div class="field" style="margin-top:16px;">
+
+      <hr class="section-sep">
+      <div class="section-title">Profils enfants</div>
+      <div class="field">
         <label for="guest-name">Ajouter un profil enfant (sans compte ni email)</label>
         <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
         <div class="swatches" id="guest-swatches"></div>
       </div>
       <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
       <button class="ghost-btn" id="add-guest-btn">➕ Ajouter ce profil</button>
-      <div id="google-box" style="margin-top:18px;"></div>
+      <hr class="section-sep">
+      <div id="google-box"></div>
+
+      <hr class="section-sep">
       <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
@@ -1687,119 +1698,4 @@
       t = setTimeout(()=>{
         let idx = Math.round(col.scrollTop / WHEEL_ITEM_H);
         idx = Math.max(0, Math.min(total-1, idx));
-        if (col.scrollTop !== idx*WHEEL_ITEM_H) col.scrollTo({top: idx*WHEEL_ITEM_H, behavior:'smooth'});
-        wheelOpacity(col, idx);
-        const realVal = values[((idx % n)+n)%n];
-        onSettle(realVal);
-        if (idx < n*1.5 || idx > total - n*1.5) {
-          setTimeout(()=>{
-            const newIdx = mid*n + (((idx % n)+n)%n);
-            col.scrollTop = newIdx * WHEEL_ITEM_H;
-            wheelOpacity(col, newIdx);
-          }, 260);
-        }
-      }, 130);
-    });
-  }
-
-  function openTimeWheel(currentValue, onConfirm){
-    let h = 8, m = 0;
-    if (currentValue) {
-      const parts = currentValue.split(':');
-      h = parseInt(parts[0],10) || 0;
-      m = Math.round((parseInt(parts[1],10)||0)/5)*5;
-      if (m>55) m=55;
-    }
-    let curH = h, curM = m;
-    const hIdx = WHEEL_HOURS.indexOf(h);
-    const mIdx = WHEEL_MINUTES.indexOf(m);
-
-    const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
-    const sheet = document.createElement('div'); sheet.className='sheet';
-    sheet.innerHTML = `
-      <div class="sheet-header"><h2>Choisir l'heure</h2><button class="sheet-close" id="wp-close">✕</button></div>
-      <div class="wheel-frame">
-        <div class="wheel-highlight"></div>
-        <div class="wheel-picker">
-          <div class="wheel-col" id="wp-hour"></div>
-          <div class="wheel-colon">:</div>
-          <div class="wheel-col" id="wp-min"></div>
-        </div>
-      </div>
-      <button class="ghost-btn" id="wp-clear">Aucune heure</button>
-      <button class="save-btn" id="wp-set">Définir</button>
-    `;
-    fillWheelCol(sheet.querySelector('#wp-hour'), WHEEL_HOURS, hIdx, (v)=>{ curH=v; });
-    fillWheelCol(sheet.querySelector('#wp-min'), WHEEL_MINUTES, mIdx, (v)=>{ curM=v; });
-    sheet.querySelector('#wp-close').onclick = ()=>scrim.remove();
-    sheet.querySelector('#wp-clear').onclick = ()=>{ onConfirm(''); scrim.remove(); };
-    sheet.querySelector('#wp-set').onclick = ()=>{
-      onConfirm(`${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}`);
-      scrim.remove();
-    };
-    scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
-    scrim.appendChild(sheet);
-    document.body.appendChild(scrim);
-  }
-
-  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function escapeAttr(s){ return escapeHtml(s); }
-
-  function updateLayout(){
-    // Width-based, not aspect-based: a real browser window gets the
-    // full desktop layout whether it's wide-short or narrow-tall.
-    // Only re-render when the wide/narrow classification actually
-    // changes — a height-only resize (e.g. a mobile virtual keyboard
-    // opening) must NOT re-render, or it wipes the DOM and steals
-    // focus from whatever field the person just tapped.
-    const wide = window.innerWidth >= 780;
-    const changed = document.body.classList.contains('is-wide') !== wide;
-    document.body.classList.toggle('is-wide', wide);
-    if (changed) render();
-  }
-  let layoutTimer = null;
-  window.addEventListener('resize', ()=>{
-    clearTimeout(layoutTimer);
-    layoutTimer = setTimeout(updateLayout, 120);
-  });
-  window.addEventListener('orientationchange', updateLayout);
-  document.body.classList.toggle('is-wide', window.innerWidth >= 780);
-
-  /* ---------- Boot ---------- */
-  async function boot(){
-    render();
-    const { data: { session } } = await sb.auth.getSession();
-    auth.session = session; auth.loading = false;
-    if (session) { try { await afterLogin(); } catch(e){} }
-    // Retour de Google après autorisation : on échange le code avant le
-    // premier affichage utile, pour que la fiche compte montre déjà
-    // l'état connecté.
-    if (session && location.search.includes('code=')) {
-      const linked = await finishGoogleConnect();
-      if (linked) { try { await reloadHouseholdData(); } catch(e){} }
-    }
-    render();
-    sb.auth.onAuthStateChange((event, session)=>{
-      const hadSession = !!auth.session, hasSession = !!session;
-      auth.session = session;
-      if (!hadSession && !hasSession) return; // no real change (e.g. redundant initial fire) — don't steal focus with a needless re-render
-      if (session) {
-        afterLogin().then(render).catch(()=>render());
-      } else {
-        if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
-        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = [];
-        render();
-      }
-    });
-  }
-  boot();
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
-  }
-})();
-</script>
-</body>
-</html>
+        if (col.scrollTop !== idx*WHEEL_ITEM_H) col.scrollTo({top: idx*WHEEL_
