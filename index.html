@@ -189,7 +189,7 @@
      façon carrousel — pas un fondu séparé avec un trou entre les deux.
      N'anime que la carte du calendrier (transform, GPU) pour rester
      fluide même sur un téléphone modeste. */
-  .cal-viewport { position:relative; overflow:hidden; }
+  .cal-viewport { position:relative; overflow:hidden; touch-action:pan-y; }
   body.is-wide .cal-viewport { flex:1; min-height:0; display:flex; flex-direction:column; }
 </style>
 </head>
@@ -604,18 +604,18 @@
     }
     return `${MONTHS[view.month]} ${view.year}`;
   }
-  function navPrev(){
+  function stepPrev(){
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), -7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), -1); }
     else { view.month--; if(view.month<0){view.month=11; view.year--;} }
-    renderWithTransition('prev');
   }
-  function navNext(){
+  function stepNext(){
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), 7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), 1); }
     else { view.month++; if(view.month>11){view.month=0; view.year++;} }
-    renderWithTransition('next');
   }
+  function navPrev(){ stepPrev(); renderWithTransition('prev'); }
+  function navNext(){ stepNext(); renderWithTransition('next'); }
   /* Anime le changement de vue avec un vrai glissement "carrousel" :
      l'ancien et le nouveau mois sont tous les deux dans le DOM en même
      temps, côte à côte, et se déplacent ensemble — pas un fondu qui
@@ -784,30 +784,125 @@
     return renderMonthView();
   }
 
-  /* Swipe tactile gauche/droite pour naviguer entre mois/semaines/jours,
-     sans gêner le défilement vertical (on exige un mouvement nettement
-     plus horizontal que vertical, et assez rapide pour être un vrai swipe). */
+  /* Swipe tactile gauche/droite pour naviguer entre mois/semaines/jours :
+     la carte suit le doigt en direct (comme Google Agenda) — l'ancien et
+     le nouveau mois sont visibles et bougent ensemble pendant tout le
+     geste, sans coupure ni animation "boîte noire" qui ne démarre qu'au
+     relâchement. On exige un mouvement nettement plus horizontal que
+     vertical avant de capturer le geste, pour ne pas gêner le défilement
+     vertical normal de la page. */
+  function buildNeighborCard(dir){
+    // Construit la carte du mois/semaine/jour précédent (dir<0) ou suivant
+    // (dir>0) sans toucher à l'affichage courant : on avance/recule
+    // temporairement la vue, on rend la carte, puis on remet la vue en
+    // place.
+    if (dir < 0) stepPrev(); else stepNext();
+    const el = renderCalendar();
+    if (dir < 0) stepNext(); else stepPrev();
+    return el;
+  }
   function attachSwipeNav(el){
-    let startX = 0, startY = 0, startT = 0, active = false;
+    let startX = 0, startY = 0, startT = 0;
+    let tracking = false;  // un doigt est posé, direction pas encore tranchée
+    let dragging = false;  // geste capturé comme un swipe horizontal
+    let viewport = null, curEl = null, prevCard = null, nextCard = null, width = 1;
+
+    function cleanup(){
+      if (prevCard) { prevCard.remove(); prevCard = null; }
+      if (nextCard) { nextCard.remove(); nextCard = null; }
+      if (curEl) {
+        curEl.style.position = ''; curEl.style.top = ''; curEl.style.left = ''; curEl.style.width = '';
+        curEl.style.transform = ''; curEl.style.transition = '';
+      }
+      if (viewport) viewport.style.minHeight = '';
+      viewport = curEl = null;
+    }
+
     el.addEventListener('touchstart', (e)=>{
-      if (e.touches.length !== 1) { active = false; return; }
+      if (e.touches.length !== 1 || navBusy) { tracking = false; return; }
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       startT = Date.now();
-      active = true;
+      tracking = true;
+      dragging = false;
     }, { passive:true });
-    el.addEventListener('touchend', (e)=>{
-      if (!active) return;
-      active = false;
-      const t = e.changedTouches[0];
+
+    el.addEventListener('touchmove', (e)=>{
+      if (!tracking) return;
+      const t = e.touches[0];
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
-      const dt = Date.now() - startT;
-      if (dt > 600) return;
-      if (Math.abs(dx) < 55) return;
-      if (Math.abs(dx) < Math.abs(dy) * 1.4) return;
-      if (dx > 0) navPrev(); else navNext();
-    }, { passive:true });
+      if (!dragging) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; // pas encore assez de mouvement
+        if (Math.abs(dx) < Math.abs(dy) * 1.2) { tracking = false; return; } // plutôt un scroll vertical, on laisse faire
+        dragging = true;
+        viewport = document.querySelector('.cal-viewport');
+        curEl = viewport ? viewport.querySelector('.cal-wrap') : null;
+        if (!viewport || !curEl) { tracking = false; dragging = false; return; }
+        width = viewport.offsetWidth || 1;
+        viewport.style.minHeight = viewport.offsetHeight + 'px';
+        curEl.style.position = 'absolute'; curEl.style.top = '0'; curEl.style.left = '0'; curEl.style.width = '100%';
+        curEl.style.transition = 'none';
+        prevCard = buildNeighborCard(-1);
+        nextCard = buildNeighborCard(1);
+        [prevCard, nextCard].forEach(c=>{
+          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = '100%'; c.style.transition = 'none';
+        });
+        prevCard.style.transform = 'translateX(-100%)';
+        nextCard.style.transform = 'translateX(100%)';
+        viewport.appendChild(prevCard);
+        viewport.appendChild(nextCard);
+        initMarquees();
+      }
+      if (!dragging) return;
+      e.preventDefault(); // on a le geste : plus de scroll vertical pendant le glissement
+      curEl.style.transform = `translateX(${dx}px)`;
+      prevCard.style.transform = `translateX(calc(-100% + ${dx}px))`;
+      nextCard.style.transform = `translateX(calc(100% + ${dx}px))`;
+    }, { passive:false });
+
+    function settle(e){
+      if (!tracking) return;
+      tracking = false;
+      if (!dragging) return;
+      dragging = false;
+      const touch = (e.changedTouches && e.changedTouches[0]) || null;
+      const dx = touch ? touch.clientX - startX : 0;
+      const dt = Math.max(1, Date.now() - startT);
+      const speed = Math.abs(dx) / dt; // px/ms
+      const goingPrev = dx > 0;
+      // On termine le changement de page si le glissement est assez ample,
+      // ou assez rapide (un petit coup sec compte aussi, pas seulement une
+      // grande amplitude).
+      const complete = Math.abs(dx) > width * 0.32 || speed > 0.55;
+      const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
+      [curEl, prevCard, nextCard].forEach(x=>{ x.style.transition = `transform ${dur} ${ease}`; });
+      if (complete) {
+        curEl.style.transform = `translateX(${goingPrev ? '100%' : '-100%'})`;
+        (goingPrev ? prevCard : nextCard).style.transform = 'translateX(0)';
+      } else {
+        curEl.style.transform = 'translateX(0)';
+        prevCard.style.transform = 'translateX(-100%)';
+        nextCard.style.transform = 'translateX(100%)';
+      }
+      navBusy = true;
+      let done = false;
+      const finish = ()=>{
+        if (done) return; done = true;
+        navBusy = false;
+        if (complete) {
+          if (goingPrev) stepPrev(); else stepNext();
+          render();
+        } else {
+          cleanup();
+        }
+      };
+      curEl.addEventListener('transitionend', finish, { once:true });
+      setTimeout(finish, 320); // filet de sécurité si transitionend ne se déclenche pas
+    }
+
+    el.addEventListener('touchend', settle, { passive:true });
+    el.addEventListener('touchcancel', settle, { passive:true });
   }
 
   function renderMonthView(){
