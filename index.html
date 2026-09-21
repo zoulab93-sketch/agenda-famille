@@ -300,6 +300,16 @@
   body.compact-h .ev-line { height:14px; line-height:11px; font-size:9.5px; padding:0 4px; border-width:1.5px; }
   body.compact-h .weekdays { padding:0 16px; }
   body.compact-h .weekdays span { font-size:10px; }
+
+  /* Paysage : le titre de la période et la légende partagent la même ligne,
+     pour laisser un maximum de hauteur à la frise. */
+  body.compact-h .main-col { display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
+  body.compact-h header { grid-column:1; grid-row:1; padding:4px 8px 4px 16px; }
+  body.compact-h .legend, body.compact-h .select-bar { grid-column:2; grid-row:1; align-self:center; justify-content:flex-end; flex-wrap:nowrap; overflow:hidden; margin:0; padding:0 12px 0 0; }
+  body.compact-h .cal-viewport { grid-column:1 / -1; grid-row:2; }
+  body.compact-h .sidebar { gap:6px; }
+  .wk-col .tl-ev.s { min-height:11px; }
+  .wk-col .tl-ev.s .event-title { font-size:9.5px; line-height:11px; }
 </style>
 </head>
 <body>
@@ -1503,7 +1513,7 @@
     const bottomPad = isWide() ? 12 : 80;
     const avail = scroll.clientHeight - bottomPad;
     if (avail > 0) {
-      dayHH = Math.max(landscapePhone ? 30 : 24, Math.min(60, Math.floor(avail / TL_TOTAL)));
+      dayHH = Math.max(landscapePhone ? 20 : 24, Math.min(60, Math.floor(avail / TL_TOTAL)));
       viewport.querySelectorAll('.day-scroll').forEach(s=>s.style.setProperty('--hh', dayHH + 'px'));
     }
     if (scroll.scrollHeight > scroll.clientHeight + 2) {
@@ -2129,6 +2139,8 @@
 
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function escapeAttr(s){ return escapeHtml(s); }
+
+
 
   function detectLandscapePhone(){
     // On s'appuie sur l'orientation réelle de l'écran (pas sur la taille de
