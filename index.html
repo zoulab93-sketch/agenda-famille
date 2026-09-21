@@ -273,8 +273,7 @@
   .wk-h.today .wk-dd { background:var(--ink); color:var(--surface); border-radius:999px; padding:0 7px; }
   .wk-allday { padding-bottom:6px; max-height:64px; overflow-y:auto; }
   .wk-allcell { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; padding:0 1px; }
-  .wk-chip { border-radius:6px; padding:2px; cursor:pointer; min-width:0; }
-  .wk-chip-t { display:block; background:rgba(14,16,19,.58); color:#fff; border-radius:4px; padding:0 4px; font-size:10px; line-height:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-chip { border:1.6px solid transparent; border-radius:10px; padding:1px 7px; cursor:pointer; min-width:0; color:var(--ink); font-size:11px; line-height:13px; font-weight:700; overflow-wrap:anywhere; }
   .wk-col { position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
   .wk-col.today { background: color-mix(in srgb, var(--ink) 5%, transparent); }
 
@@ -310,6 +309,21 @@
   body.compact-h .sidebar { gap:6px; }
   .wk-col .tl-ev.s { min-height:11px; }
   .wk-col .tl-ev.s .event-title { font-size:9.5px; line-height:11px; }
+
+  /* Cartes de la semaine : pastel, texte sombre, bande de couleur à gauche. */
+  .day-scroll.wk .tl-line { border-top-color: color-mix(in srgb, var(--line) 45%, transparent); }
+  .day-scroll.wk .wk-col { border-left-color: color-mix(in srgb, var(--line) 55%, transparent); }
+  .wk-ev { position:absolute; border-radius:10px; overflow:clip; cursor:pointer; color:var(--ink); padding:3px 4px 3px 10px; }
+  .wk-bar { position:absolute; left:0; top:0; bottom:0; width:5px; }
+  .wk-text { position:sticky; top:2px; min-width:0; }
+  .wk-title { font-size:11px; line-height:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-title.wrap { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .wk-time { font-size:10px; line-height:12px; font-weight:600; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-ev.s .wk-title { font-size:10.5px; line-height:12px; }
+  .wk-ev.xs { padding:0 3px 0 9px; min-height:11px; }
+  .wk-ev.xs .wk-title { font-size:9.5px; line-height:11px; }
+  .wk-avs { position:absolute; right:3px; bottom:3px; display:flex; gap:2px; }
+  .wk-av { width:14px; height:14px; border-radius:50%; color:#fff; font-size:8px; font-weight:700; font-family:'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; }
 </style>
 </head>
 <body>
@@ -1406,6 +1420,56 @@
     card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
     return card;
   }
+
+  // Bande verticale aux couleurs de tous les participants (bord gauche des cartes de la semaine).
+  function vStripe(colors){
+    if (!colors.length) colors = ['#999'];
+    if (colors.length === 1) return colors[0];
+    const n = colors.length, step = 100/n, stops = [];
+    colors.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(to bottom, ${stops.join(', ')})`;
+  }
+  // Carte de la vue Semaine (paysage) : fond pastel, texte sombre, bande de
+  // couleur à gauche, ronds d'initiales en bas à droite. Le titre reste collé
+  // en haut de l'écran (position:sticky) quand la carte déborde de la vue.
+  function makeWkCard(it, ds){
+    const e = it.ev;
+    const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+    const u1 = tlU(it.s), u2 = tlU(it.e), dur = it.e - it.s;
+    const card = document.createElement('div');
+    card.className = 'wk-ev' + (dur < 45 ? ' xs' : (dur < 75 ? ' s' : ''));
+    card.style.background = pastelStripeBg(cols);
+    card.style.top = `calc(var(--hh) * ${u1} + 1px)`;
+    card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 2px)`;
+    card.style.left = `calc(${(it.col/it.n*100).toFixed(3)}% + 1px)`;
+    card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
+    const bar = document.createElement('div'); bar.className = 'wk-bar';
+    bar.style.background = vStripe(cols);
+    card.appendChild(bar);
+    const tall = dur >= 120;
+    const text = document.createElement('div'); text.className = 'wk-text';
+    text.innerHTML = `<div class="wk-title${tall?' wrap':''}">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>`
+      + (dur >= 75 ? `<div class="wk-time">${e.start}${e.end?'–'+e.end:''}</div>` : '');
+    card.appendChild(text);
+    if (tall && it.n === 1 && e.participants.length) {
+      const avs = document.createElement('div'); avs.className = 'wk-avs';
+      e.participants.slice(0,3).forEach(id=>{
+        const pr = profileById(id); if (!pr) return;
+        const a = document.createElement('span'); a.className = 'wk-av';
+        a.style.background = pr.color; a.textContent = pr.name[0].toUpperCase();
+        avs.appendChild(a);
+      });
+      if (e.participants.length > 3) {
+        const more = document.createElement('span'); more.className = 'wk-av';
+        more.style.background = 'var(--ink-soft)'; more.textContent = '+' + (e.participants.length - 3);
+        avs.appendChild(more);
+      }
+      card.appendChild(avs);
+    }
+    card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
+    return card;
+  }
+
   function usesTimeline(){ return view.mode==='day' || (view.mode==='week' && landscapePhone); }
   function minuteFromY(clientY, el){
     const rect = el.getBoundingClientRect();
@@ -1444,8 +1508,8 @@
         list.filter(e=>!e.start).forEach(e=>{
           const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
           const chip = document.createElement('div'); chip.className = 'wk-chip';
-          chip.style.background = stripeBg(cols);
-          chip.innerHTML = `<span class="wk-chip-t">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</span>`;
+          chip.style.background = lineBg(cols);
+          chip.textContent = (e.icon ? e.icon + ' ' : '') + e.title;
           chip.onclick = ()=>openEventForm(e, days[i]);
           cell.appendChild(chip);
         });
@@ -1460,13 +1524,14 @@
     const tl = document.createElement('div'); tl.className = 'tl';
     tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
     tl.innerHTML = tlBackgroundHtml();
+    scroll.classList.add('wk');   // quadrillage plus discret
     const grid = document.createElement('div'); grid.className = 'tl-grid';
     days.forEach((ds,i)=>{
       const col = document.createElement('div');
       col.className = 'wk-col' + (ds===today ? ' today' : '');
       col.style.left = (i/7*100).toFixed(4) + '%';
       col.style.width = (100/7).toFixed(4) + '%';
-      layoutDayEvents(timedItems(perDay[i])).forEach(it=>col.appendChild(makeTlCard(it, ds, true)));
+      layoutDayEvents(timedItems(perDay[i])).forEach(it=>col.appendChild(makeWkCard(it, ds)));
       if (ds === today) {
         const n = new Date();
         const now = document.createElement('div'); now.className = 'tl-now';
