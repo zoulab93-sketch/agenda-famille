@@ -360,27 +360,29 @@
   let landscapePhone = false;   // téléphone tenu à l'horizontale
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
-  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','DOM','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
-  const PRESET_ICON = { 'Matin':'🌅','Soir':'🟢','Soir rouge':'🔴','DOM':'🏠','Consultation':'🔵','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
+  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
+  const PRESET_ICON = { 'Matin':'🌅','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'🔵','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
   /* Pastilles de couleur : ces cinq ronds emoji sont enregistrés tels quels
      dans la base (donc lisibles partout, même dans Google Agenda), mais
      l'app les dessine en pastilles CSS aux couleurs choisies. */
-  const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#1F3A6E' };
+  const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#1F3A6E', '🟣':'#A05CD6' };
   /* Anciennes icônes des modèles : un événement déjà créé avec l'ancienne
      icône ET le titre du modèle s'affiche aussi en pastille, sans rien
      modifier dans la base. Une icône choisie à la main n'est pas touchée. */
-  const LEGACY_PRESET_ICON = { 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
+  const LEGACY_PRESET_ICON = { 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
   function iconHtml(e){
     let ic = e && e.icon ? e.icon : '';
     if (!ic) return '';
     const norm = x=>x.replace(/\uFE0F/g, '');
-    if (LEGACY_PRESET_ICON[e.title] && norm(LEGACY_PRESET_ICON[e.title]) === norm(ic)) ic = PRESET_ICON[e.title];
+    // Titre comparé sans tenir compte des majuscules : "Dom", "DOM", "dom".
+    const key = Object.keys(PRESET_ICON).find(k=>k.toLowerCase() === String(e.title||'').trim().toLowerCase());
+    if (key && LEGACY_PRESET_ICON[key] && norm(LEGACY_PRESET_ICON[key]) === norm(ic)) ic = PRESET_ICON[key];
     if (DOT_COLORS[ic]) return `<span class="pdot" style="background:${DOT_COLORS[ic]}"></span>`;
     return escapeHtml(ic) + ' ';
   }
   const PRESET_TIME = {
     'Matin': { start:'05:45', end:'14:45' },
-    'DOM': { start:'07:30', end:'18:00' },
+    'Dom': { start:'07:30', end:'18:00' },
     'Centre aéré': { start:'07:30', end:'18:00' },
     'Soir': { start:'11:00', end:'22:00' },
     'Soir rouge': { start:'11:00', end:'21:30' },
