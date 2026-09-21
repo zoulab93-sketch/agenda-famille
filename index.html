@@ -332,6 +332,10 @@
   .wk-ev.xs .wk-avs-inline .wk-av { width:8px; height:8px; }
 
   .pdot { display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:-.06em; margin-right:.32em; box-shadow:0 0 0 1px rgba(127,127,127,.55); flex:none; }
+
+  .icon-slot { width:30px; height:30px; flex-shrink:0; }   /* emplacement réservé pour une future icône */
+  .day-cell { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  .wk-h.picked { background: color-mix(in srgb, var(--palette-3) 25%, transparent); border-radius:8px; }
 </style>
 </head>
 <body>
@@ -907,13 +911,12 @@
       <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">📅</div><span class="side-label">Agenda</span></div>
       <div class="side-item" id="side-today"><div class="icon-btn" style="font-size:13px;">📍</div><span class="side-label">Auj.</span></div>
       <div class="side-item" id="side-search"><div class="icon-btn">🔍</div><span class="side-label">Recherche</span></div>
-      <div class="side-item" id="side-select"><div class="icon-btn${view.selectMode?' active':''}">${view.selectMode?'✕':'☑'}</div><span class="side-label">Sélection</span></div>
+      <div class="side-item" aria-hidden="true" style="visibility:hidden"><div class="icon-btn"></div><span class="side-label">&nbsp;</span></div>
       <div class="side-item" id="side-log"><div class="icon-btn">🕓</div><span class="side-label">Journal</span></div>
       <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
     `;
     bar.querySelector('#side-today').onclick=goToday;
     bar.querySelector('#side-search').onclick=()=>{ view.sheet='search'; render(); };
-    bar.querySelector('#side-select').onclick=()=>{ view.selectMode=!view.selectMode; view.selectedDays=[]; render(); };
     bar.querySelector('#side-log').onclick=()=>{ view.sheet='log'; render(); };
     bar.querySelector('#side-profile').onclick=()=>{ view.sheet='switch'; render(); };
     return bar;
@@ -1019,7 +1022,7 @@
       <div class="header-actions">
         <button class="icon-btn" id="go-today" aria-label="Aujourd'hui" style="font-size:13px;">📍</button>
         <button class="icon-btn" id="open-search" aria-label="Rechercher">🔍</button>
-        <button class="icon-btn${view.selectMode?' active':''}" id="toggle-select" aria-label="Sélection multiple">${view.selectMode?'✕':'☑'}</button>
+        <span class="icon-slot" aria-hidden="true"></span>
         <button class="avatar" id="open-switch" style="background:${p.color}">${p.name[0].toUpperCase()}</button>
       </div>
     `;
@@ -1027,7 +1030,6 @@
     h.querySelector('#open-search').onclick=()=>{ view.sheet='search'; render(); };
     h.querySelector('#prev-m').onclick=navPrev;
     h.querySelector('#next-m').onclick=navNext;
-    h.querySelector('#toggle-select').onclick=()=>{ view.selectMode = !view.selectMode; view.selectedDays=[]; render(); };
     h.querySelector('#open-switch').onclick=()=>{ view.sheet='switch'; render(); };
     return h;
   }
@@ -1039,11 +1041,17 @@
       bar.className='select-bar';
       const n = view.selectedDays.length;
       bar.innerHTML = `<span>${n ? n+' jour'+(n>1?'s':'')+' sélectionné'+(n>1?'s':'') : 'Touchez des jours à sélectionner'}</span>`;
+      const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:14px;flex-shrink:0;';
       if (n) {
         const clearBtn = document.createElement('button'); clearBtn.textContent='Vider';
         clearBtn.onclick = ()=>{ view.selectedDays=[]; render(); };
-        bar.appendChild(clearBtn);
+        actions.appendChild(clearBtn);
       }
+      // Seule façon de quitter la sélection maintenant que l'icône a disparu.
+      const cancelBtn = document.createElement('button'); cancelBtn.textContent='Annuler';
+      cancelBtn.onclick = ()=>{ view.selectMode=false; view.selectedDays=[]; render(); };
+      actions.appendChild(cancelBtn);
+      bar.appendChild(actions);
       return bar;
     }
     const wrap = document.createElement('div');
@@ -1078,6 +1086,35 @@
     d.setDate(d.getDate()-offset);
     return d;
   }
+
+  /* ---------- Appui long : entrer en sélection multiple ----------
+     Un appui long (~0,45 s) sur une case de jour lance le mode sélection
+     avec cette case déjà cochée ; ensuite, un simple toucher coche ou
+     décoche. Le mouvement du doigt (défilement, swipe) annule l'appui long. */
+  let ignoreClickUntil = 0;
+  function enterSelectMode(ds){
+    view.selectMode = true;
+    view.selectedDays = [ds];
+    ignoreClickUntil = Date.now() + 700;   // le relâchement du doigt ne doit pas décocher la case
+    try { if (navigator.vibrate) navigator.vibrate(20); } catch(e){}
+    render();
+  }
+  function attachLongPress(el, cb){
+    let timer = null, sx = 0, sy = 0;
+    const clear = ()=>{ if (timer) { clearTimeout(timer); timer = null; } };
+    el.addEventListener('pointerdown', (e)=>{
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      sx = e.clientX; sy = e.clientY;
+      clear();
+      timer = setTimeout(()=>{ timer = null; cb(); }, 450);
+    });
+    el.addEventListener('pointermove', (e)=>{
+      if (timer && (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10)) clear();
+    });
+    ['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t, clear));
+    el.addEventListener('contextmenu', (e)=>e.preventDefault());
+  }
+
   function buildDayCell(ds, otherMonth, maxLines){
     const todayS = todayStr();
     const picked = view.selectedDays.includes(ds);
@@ -1092,6 +1129,7 @@
     const dnum = Number(ds.slice(8,10));
     cell.innerHTML = `<div class="day-num">${dnum}</div>${linesHtml}${evs.length>maxLines?`<div class="more">+${evs.length-maxLines} autre${evs.length-maxLines>1?'s':''}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
     cell.onclick = ()=>{
+      if (Date.now() < ignoreClickUntil) return;
       if (view.selectMode) {
         if (picked) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
         else view.selectedDays.push(ds);
@@ -1101,6 +1139,7 @@
       if (!evs.length) { openEventForm(null, ds); return; }
       view.openDay = ds; view.sheet='day'; render();
     };
+    attachLongPress(cell, ()=>{ if (!view.selectMode) enterSelectMode(ds); });
     return cell;
   }
 
@@ -1528,9 +1567,20 @@
 
     const head = document.createElement('div'); head.className = 'wk-row';
     head.innerHTML = `<span class="wk-gutter"></span>` + days.map((ds,i)=>
-      `<button type="button" class="wk-h${ds===today?' today':''}" data-ds="${ds}"><span class="wk-dn">${WK_NAMES[i]}</span><span class="wk-dd">${Number(ds.slice(8,10))}</span></button>`).join('');
+      `<button type="button" class="wk-h${ds===today?' today':''}${view.selectedDays.includes(ds)?' picked':''}" data-ds="${ds}"><span class="wk-dn">${WK_NAMES[i]}</span><span class="wk-dd">${Number(ds.slice(8,10))}</span></button>`).join('');
     head.querySelectorAll('.wk-h').forEach(b=>{
-      b.onclick = ()=>{ view.dayAnchor = b.dataset.ds; view.mode = 'day'; view._autoSwitched = false; dayScrollTop = null; render(); };
+      const ds = b.dataset.ds;
+      b.onclick = ()=>{
+        if (Date.now() < ignoreClickUntil) return;
+        if (view.selectMode) {
+          if (view.selectedDays.includes(ds)) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
+          else view.selectedDays.push(ds);
+          render();
+          return;
+        }
+        view.dayAnchor = ds; view.mode = 'day'; view._autoSwitched = false; dayScrollTop = null; render();
+      };
+      attachLongPress(b, ()=>{ if (!view.selectMode) enterSelectMode(ds); });
     });
     wrap.appendChild(head);
 
