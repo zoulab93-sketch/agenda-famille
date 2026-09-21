@@ -361,6 +361,2237 @@
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
   const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
+  const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
+  /* Pastilles de couleur : ces ronds emoji sont enregistrés tels quels
+     dans la base (donc lisibles partout, même dans Google Agenda), mais
+     l'app les dessine en pastilles CSS aux couleurs choisies. */
+  const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#5AB0FF', '⚫':'#1B2A6B', '🟣':'#A05CD6' };
+  /* Anciennes icônes des modèles : un événement déjà créé avec l'ancienne
+     icône ET le titre du modèle s'affiche aussi en pastille, sans rien
+     modifier dans la base. Une icône choisie à la main n'est pas touchée. */
+  const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
+  function iconHtml(e){
+    let ic = e && e.icon ? e.icon : '';
+    if (!ic) return '';
+    const norm = x=>x.replace(/\uFE0F/g, '');
+    // Titre comparé sans tenir compte des majuscules : "Dom", "DOM", "dom".
+    const key = Object.keys(PRESET_ICON).find(k=>k.toLowerCase() === String(e.title||'').trim().toLowerCase());
+    if (key && LEGACY_PRESET_ICON[key] && norm(LEGACY_PRESET_ICON[key]) === norm(ic)) ic = PRESET_ICON[key];
+    if (DOT_COLORS[ic]) return `<span class="pdot" style="background:${DOT_COLORS[ic]}"></span>`;
+    return escapeHtml(ic) + ' ';
+  }
+  const PRESET_TIME = {
+    'Matin': { start:'05:45', end:'14:45' },
+    'Dom': { start:'07:30', end:'18:00' },
+    'Centre aéré': { start:'07:30', end:'18:00' },
+    'Soir': { start:'11:00', end:'22:00' },
+    'Soir rouge': { start:'11:00', end:'21:30' },
+    'RH': { start:'', end:'' },
+    'RTT': { start:'', end:'' },
+    'CA': { start:'', end:'' },
+    'Vacances nounou': { start:'', end:'' },
+    'Consultation': { start:'08:00', end:'17:00' },
+    'Formation': { start:'09:00', end:'17:00' },
+    'Tutorat': { start:'09:00', end:'17:00' },
+    'Réunion': { start:'09:00', end:'17:00' }
+  };
+  const ICON_CHOICES = ['','📌','🏠','🩺','🎓','🎉','🚗','🍽️','🛌','⭐','❤️'];
+  // Rappels proposés, en minutes avant le début de l'événement.
+  // NULL = aucun rappel. Ces valeurs sont exactement celles que Google
+  // Agenda attend, ce qui évite toute conversion au moment de la
+  // synchronisation.
+  const REMINDER_CHOICES = [
+    { min: null, label: 'Aucun' },
+    { min: 15,   label: '15 min' },
+    { min: 30,   label: '30 min' },
+    { min: 60,   label: '1 h' },
+    { min: 1440, label: '24 h' }
+  ];
+  function reminderLabel(min){
+    const found = REMINDER_CHOICES.find(r=>r.min===min);
+    return found && found.min !== null ? found.label : '';
+  }
+  const WEEKDAYS = ['L','M','M','J','V','S','D'];
+  const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const MAX_LINES = 4;
+  const VIEW_ICONS = { day:'J', week:'S', month:'M' };
+  const VIEW_LABELS = { day:'Jour', week:'Semaine', month:'Mois' };
+
+  let auth = { session: null, loading: true };
+  let state = {
+    profiles: [], household: null, myProfile: null, activeId: null,
+    events: [], log: [], hidden: loadHidden(), _undo: null,
+    googleLinked: false, googleEmail: ''
+  };
+  let view = {
+    year: new Date().getFullYear(), month: new Date().getMonth(),
+    openDay: null, sheet: null, editingEvent: null,
+    selectMode:false, selectedDays: [],
+    mode:'month', weekAnchor: null, dayAnchor: null, viewMenuOpen:false,
+    authMode:'signin', hhMode:'create', _authEmail:'', _formFrom:null
+  };
+
+  /* ---------- Local-only UI prefs (per device, doesn't need sync) ---------- */
+  function loadHidden(){
+    try { return JSON.parse(localStorage.getItem('af_hidden') || '[]'); } catch(e){ return []; }
+  }
+  function persistHidden(){
+    try { localStorage.setItem('af_hidden', JSON.stringify(state.hidden)); } catch(e){}
+  }
+
+  function uid(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+      const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  function activeProfile(){ return state.profiles.find(p=>p.id===state.activeId); }
+  function profileById(id){ return state.profiles.find(p=>p.id===id); }
+
+  /* ---------- Supabase data layer ---------- */
+  async function afterLogin(){
+    const { data: prof, error } = await sb.from('profiles').select('*').eq('user_id', auth.session.user.id).maybeSingle();
+    if (error || !prof) { state.myProfile = null; state.household = null; return; }
+    state.myProfile = prof;
+    const { data: hh } = await sb.from('households').select('*').eq('id', prof.household_id).single();
+    state.household = hh;
+    await reloadHouseholdData();
+    subscribeRealtime();
+  }
+  async function reloadHouseholdData(){
+    if (!state.household) return;
+    const hid = state.household.id;
+    const [{ data: profiles }, { data: events }, { data: log }] = await Promise.all([
+      sb.from('profiles').select('*').eq('household_id', hid),
+      sb.from('events').select('*, event_participants(profile_id)').eq('household_id', hid),
+      sb.from('activity_log').select('*').eq('household_id', hid).order('ts', { ascending:false }).limit(200)
+    ]);
+    state.profiles = profiles || [];
+    state.events = (events || []).map(e=>({
+      id: e.id, title: e.title, date: e.date,
+      start: e.start_time || '', end: e.end_time || '', icon: e.icon || '',
+      reminder: (e.reminder_min === null || e.reminder_min === undefined) ? null : Number(e.reminder_min),
+      googleId: e.google_event_id || null,
+      participants: (e.event_participants || []).map(p=>p.profile_id)
+    }));
+    state.log = (log || []).map(l=>({ id: l.id, who: l.who, action: l.action, ts: new Date(l.ts).getTime() }));
+    state.activeId = state.myProfile ? state.myProfile.id : null;
+
+    // Le foyer est-il relié à Google ? On ne demande que les colonnes
+    // inoffensives : le jeton lui-même est hors de portée du navigateur,
+    // la base refuserait de le donner.
+    try {
+      const { data: link } = await sb.from('google_link')
+        .select('household_id, connected_email, connected_at')
+        .eq('household_id', hid).maybeSingle();
+      state.googleLinked = !!link;
+      state.googleEmail = link ? (link.connected_email || '') : '';
+    } catch(e){ state.googleLinked = false; state.googleEmail = ''; }
+  }
+  function subscribeRealtime(){
+    if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
+    if (!state.household) return;
+    const hid = state.household.id;
+    let t = null;
+    const onChange = ()=>{
+      clearTimeout(t);
+      t = setTimeout(async ()=>{ await reloadHouseholdData(); render(); }, 200);
+    };
+    rtChannel = sb.channel('household-'+hid)
+      .on('postgres_changes', { event:'*', schema:'public', table:'events', filter:'household_id=eq.'+hid }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'event_participants' }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'profiles', filter:'household_id=eq.'+hid }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'activity_log', filter:'household_id=eq.'+hid }, onChange)
+      .subscribe();
+  }
+  async function logActivity(action){
+    if (!state.household || !state.myProfile) return;
+    try { await sb.from('activity_log').insert({ household_id: state.household.id, who: state.myProfile.name, action }); } catch(e){}
+  }
+  async function upsertEventDb(ev){
+    const { error } = await sb.from('events').upsert({
+      id: ev.id, household_id: state.household.id, title: ev.title, date: ev.date,
+      start_time: ev.start || null, end_time: ev.end || null, icon: ev.icon || null,
+      reminder_min: (ev.reminder === null || ev.reminder === undefined) ? null : ev.reminder,
+      created_by: state.myProfile.id
+    });
+    if (error) throw error;
+    await sb.from('event_participants').delete().eq('event_id', ev.id);
+    if (ev.participants.length) {
+      const { error: perr } = await sb.from('event_participants').insert(ev.participants.map(pid=>({ event_id: ev.id, profile_id: pid })));
+      if (perr) throw perr;
+    }
+  }
+  async function deleteEventDb(id){
+    const { error } = await sb.from('events').delete().eq('id', id);
+    if (error) throw error;
+  }
+  async function createHousehold(name, color){
+    const { data: hh, error } = await sb.from('households').insert({}).select().single();
+    if (error) throw error;
+    const { data: prof, error: perr } = await sb.from('profiles').insert({ user_id: auth.session.user.id, household_id: hh.id, name, color }).select().single();
+    if (perr) throw perr;
+    state.household = hh; state.myProfile = prof;
+    await reloadHouseholdData();
+    subscribeRealtime();
+    await logActivity('a créé le foyer');
+    await reloadHouseholdData();
+    render();
+  }
+  async function joinHousehold(code, name, color){
+    const { data: hh, error } = await sb.from('households').select('*').eq('invite_code', code).maybeSingle();
+    if (error) throw error;
+    if (!hh) throw new Error("Code d'invitation introuvable.");
+    const { data: prof, error: perr } = await sb.from('profiles').insert({ user_id: auth.session.user.id, household_id: hh.id, name, color }).select().single();
+    if (perr) throw perr;
+    state.household = hh; state.myProfile = prof;
+    await reloadHouseholdData();
+    subscribeRealtime();
+    await logActivity('a rejoint le foyer');
+    await reloadHouseholdData();
+    render();
+  }
+  async function createGuestProfile(name, color){
+    // Profil "invité" : pas de compte, pas d'email, juste une entrée dans
+    // le foyer (utile pour les enfants) qu'on peut ajouter aux événements
+    // comme n'importe quel autre membre.
+    const { error } = await sb.from('profiles').insert({ household_id: state.household.id, name, color });
+    if (error) throw error;
+    await logActivity(`a ajouté le profil « ${name} »`);
+    await reloadHouseholdData();
+  }
+  async function deleteGuestProfile(profile){
+    const { error } = await sb.from('profiles').delete().eq('id', profile.id);
+    if (error) throw error;
+    await logActivity(`a supprimé le profil « ${profile.name} »`);
+    await reloadHouseholdData();
+  }
+
+  /* ---------- Pont vers Google Agenda ----------
+     Toute la mécanique OAuth vit dans la fonction serveur : ici on ne
+     fait que l'appeler. La synchronisation ne doit jamais empêcher
+     d'utiliser l'app — un événement enregistré dans le foyer reste
+     enregistré même si Google est injoignable — mais elle ne doit pas
+     non plus échouer sans rien dire, d'où le petit bandeau. */
+  function appRedirectUri(){
+    // Toujours la forme "dossier", même si l'URL affiche index.html :
+    // Google exige que l'adresse de retour corresponde au caractère près
+    // à celle déclarée dans la console.
+    return location.origin + location.pathname.replace(/index\.html$/, '');
+  }
+  function googleConfigured(){ return !!GOOGLE_CLIENT_ID; }
+
+  function startGoogleConnect(){
+    const state_ = uid();
+    try { sessionStorage.setItem('af_gstate', state_); } catch(e){}
+    const params = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: appRedirectUri(),
+      response_type: 'code',
+      scope: 'https://www.googleapis.com/auth/calendar',
+      access_type: 'offline',   // pour obtenir un jeton durable
+      prompt: 'consent',        // sans ça, Google ne renvoie le jeton durable qu'une seule fois
+      state: state_
+    });
+    location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
+  }
+
+  async function finishGoogleConnect(){
+    const url = new URL(location.href);
+    const code = url.searchParams.get('code');
+    const returnedState = url.searchParams.get('state');
+    const oauthError = url.searchParams.get('error');
+    if (!code && !oauthError) return false;
+
+    // On nettoie l'adresse tout de suite : le code ne sert qu'une fois,
+    // et il n'a rien à faire dans l'historique du navigateur.
+    history.replaceState({}, '', appRedirectUri());
+
+    if (oauthError) { toast("Connexion Google annulée."); return false; }
+
+    let expected = null;
+    try { expected = sessionStorage.getItem('af_gstate'); sessionStorage.removeItem('af_gstate'); } catch(e){}
+    if (!expected || expected !== returnedState) { toast("Retour Google inattendu, connexion abandonnée."); return false; }
+
+    try {
+      const { data, error } = await sb.functions.invoke('google-calendar', {
+        body: { action:'connect', code, redirect_uri: appRedirectUri() }
+      });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+      toast('Google Agenda connecté' + (data && data.email ? ' (' + data.email + ')' : '') + '.');
+      return true;
+    } catch(err){
+      toast('Connexion Google impossible : ' + ((err && err.message) || 'erreur inconnue'));
+      return false;
+    }
+  }
+
+  async function syncToGoogle(action, payload){
+    if (!state.googleLinked) return;   // foyer non connecté : rien à faire
+    try {
+      const { data, error } = await sb.functions.invoke('google-calendar', { body: { action, ...payload } });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+    } catch(err){
+      // L'événement est déjà sauvegardé dans le foyer : on prévient sans
+      // bloquer, plutôt que de faire croire que tout s'est bien passé.
+      toast("L'événement est enregistré, mais Google Agenda n'a pas suivi.");
+      console.warn('Synchronisation Google :', err);
+    }
+  }
+
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div'); el.id='toast'; el.className='toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.classList.remove('show'); }, 4200);
+  }
+
+  function snapshot(){
+    state._undo = { events: JSON.parse(JSON.stringify(state.events)), log: JSON.parse(JSON.stringify(state.log)) };
+  }
+  async function undo(){
+    if (!state._undo) return;
+    const prevEvents = state._undo.events;
+    const curEvents = state.events;
+    const prevIds = new Set(prevEvents.map(e=>e.id));
+    const toDelete = curEvents.filter(e=>!prevIds.has(e.id));
+    const toRestore = prevEvents.filter(e=>{
+      const cur = curEvents.find(c=>c.id===e.id);
+      return !cur || JSON.stringify(cur)!==JSON.stringify(e);
+    });
+    // On met l'historique de côté plutôt que de le jeter : si l'annulation
+    // échoue (réseau coupé, règle de sécurité), on le remet en place pour
+    // que le bouton reste utilisable, et on le dit clairement — sinon
+    // l'écran se redessine comme si tout allait bien et l'action est
+    // perdue en silence.
+    const keptUndo = state._undo;
+    state._undo = null;
+    try {
+      const googleIdsToDrop = toDelete.map(e=>e.googleId).filter(Boolean);
+      for (const e of toDelete) await deleteEventDb(e.id);
+      for (const e of toRestore) await upsertEventDb(e);
+      await logActivity('a annulé la dernière action');
+      await reloadHouseholdData();
+      // L'annulation doit se répercuter chez Google, sinon l'agenda
+      // partagé garde une version que plus personne ne voit dans l'app.
+      googleIdsToDrop.forEach(gid=>syncToGoogle('remove', { google_event_id: gid }));
+      toRestore.forEach(e=>syncToGoogle('push', { event_id: e.id }));
+    } catch(err){
+      state._undo = keptUndo;
+      alert("L'annulation n'a pas pu être enregistrée : " + ((err && err.message) || 'erreur inconnue') + "\nRéessaie dans un instant.");
+    }
+    render();
+  }
+  // Suppression d'un événement (depuis la fiche du jour ou le formulaire).
+  async function removeEvent(e){
+    snapshot();
+    const googleId = e.googleId; // à retenir avant que la ligne disparaisse
+    try {
+      await deleteEventDb(e.id);
+      await logActivity(`a supprimé « ${e.title} »`);
+      await reloadHouseholdData();
+      syncToGoogle('remove', { google_event_id: googleId });
+    } catch(err){ alert('Erreur : '+err.message); }
+  }
+  function fmtTime(ts){
+    const d = new Date(ts);
+    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) + ' à ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  }
+  function dstr(y,m,d){ return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+  function stripeBg(colors){
+    if (!colors.length) colors=['#999'];
+    if (colors.length===1) return colors[0];
+    const n = colors.length, step = 100/n, stops=[];
+    colors.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(135deg, ${stops.join(', ')})`;
+  }
+  function pastelStripeBg(colors){
+    if (!colors.length) colors=['#999'];
+    const tinted = colors.map(c=>`color-mix(in srgb, ${c} var(--tint), var(--surface))`);
+    if (tinted.length===1) return tinted[0];
+    const n = tinted.length, step = 100/n, stops=[];
+    tinted.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(135deg, ${stops.join(', ')})`;
+  }
+  // Une couleur unie n'est pas acceptée comme couche de fond "non finale" :
+  // on l'enveloppe dans un dégradé à deux arrêts identiques.
+  function asLayer(bg){ return bg.startsWith('linear-gradient') ? bg : `linear-gradient(${bg}, ${bg})`; }
+  // Fond d'une ligne du mois : teinte pastel à l'intérieur, couleurs pleines
+  // de tous les participants sur la bordure.
+  function lineBg(colors){
+    return `${asLayer(pastelStripeBg(colors))} padding-box, ${asLayer(stripeBg(colors))} border-box`;
+  }
+  function todayStr(){ const t=new Date(); return dstr(t.getFullYear(),t.getMonth(),t.getDate()); }
+  function isWide(){ return document.body.classList.contains('is-wide'); }
+
+  function render(){
+    const root = document.getElementById('app');
+    root.innerHTML = '';
+    document.body.classList.remove('day-mode');
+    if (auth.loading) { root.appendChild(renderLoading()); return; }
+    if (!auth.session) { root.appendChild(renderAuthScreen()); return; }
+    if (!state.myProfile) { root.appendChild(renderHouseholdSetup()); return; }
+    document.body.classList.toggle('day-mode', usesTimeline());
+    const shell = document.createElement('div'); shell.className='shell';
+    shell.appendChild(renderSidebar());
+    const main = document.createElement('div'); main.className='main-col';
+    main.appendChild(renderHeader());
+    main.appendChild(renderLegend());
+    const viewport = document.createElement('div'); viewport.className='cal-viewport';
+    const calEl = renderCalendar();
+    // Le geste est écouté sur toute la zone du calendrier (qui occupe la
+    // hauteur restante), pas seulement sur la carte : en vue semaine ou
+    // jour, la carte est courte mais on peut swiper partout dessous.
+    attachSwipeNav(viewport);
+    viewport.appendChild(calEl);
+    main.appendChild(viewport);
+    main.appendChild(renderFabRow());
+    shell.appendChild(main);
+    root.appendChild(shell);
+    if (view.sheet==='day') root.appendChild(renderDaySheet());
+    if (view.sheet==='form') root.appendChild(renderEventForm());
+    if (view.sheet==='log') root.appendChild(renderLogSheet());
+    if (view.sheet==='switch') root.appendChild(renderSwitchSheet());
+    if (view.sheet==='search') root.appendChild(renderSearchSheet());
+    initMarquees();
+    fitDayView();
+  }
+
+  function initMarquees(){
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.ev-line').forEach(line=>{
+        const text = line.querySelector('.ev-line-text');
+        if (!text) return;
+        const overflow = text.scrollWidth - line.clientWidth;
+        if (overflow > 2) {
+          const dist = -(overflow + 4);
+          line.style.setProperty('--marquee-dist', dist + 'px');
+          const dur = Math.max(3.5, Math.abs(dist) / 16);
+          line.style.setProperty('--marquee-dur', dur + 's');
+          line.classList.add('marquee');
+        } else {
+          line.classList.remove('marquee');
+        }
+      });
+    });
+  }
+
+  /* ---------- Loading ---------- */
+  function renderLoading(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    wrap.innerHTML = `<div class="icon">📅</div><p>Chargement…</p>`;
+    return wrap;
+  }
+
+  /* ---------- Auth (sign up / sign in) ---------- */
+  function renderAuthScreen(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    const mode = view.authMode || 'signin';
+    wrap.innerHTML = `
+      <div class="icon">📅</div>
+      <h1>${mode==='signup' ? 'Créer un compte' : 'Se connecter'}</h1>
+      <p>${mode==='signup' ? 'Un compte par personne, pour un agenda toujours synchronisé entre vous.' : 'Connecte-toi pour retrouver ton agenda familial.'}</p>
+      <div class="field"><label for="auth-email">Email</label><input id="auth-email" type="text" placeholder="toi@exemple.com" value="${escapeAttr(view._authEmail||'')}" autocomplete="email"></div>
+      <div class="field"><label for="auth-pass">Mot de passe</label><input id="auth-pass" type="password" placeholder="••••••••" autocomplete="${mode==='signup'?'new-password':'current-password'}"></div>
+      <div id="auth-error" style="color:${view._authNoticeOk?'var(--palette-3)':'var(--palette-4)'};font-size:13px;min-height:16px;max-width:320px;">${escapeHtml(view._authNotice||'')}</div>
+      <button class="btn-primary" id="auth-submit">${mode==='signup' ? 'Créer mon compte' : 'Se connecter'}</button>
+      <button class="btn-primary" id="auth-toggle" style="background:transparent;color:var(--ink-soft);box-shadow:none;">${mode==='signup' ? 'J’ai déjà un compte' : 'Créer un compte'}</button>
+    `;
+    view._authNotice = null; view._authNoticeOk = false;
+    wrap.querySelector('#auth-toggle').onclick = ()=>{ view.authMode = mode==='signup' ? 'signin' : 'signup'; render(); };
+    wrap.querySelector('#auth-submit').onclick = async ()=>{
+      const email = wrap.querySelector('#auth-email').value.trim();
+      const pass = wrap.querySelector('#auth-pass').value;
+      const errBox = wrap.querySelector('#auth-error');
+      errBox.style.color = 'var(--palette-4)';
+      errBox.textContent = '';
+      view._authEmail = email;
+      if (!email || !pass) { errBox.textContent = 'Email et mot de passe requis.'; return; }
+      const btn = wrap.querySelector('#auth-submit'); btn.disabled = true;
+      btn.textContent = mode==='signup' ? 'Création…' : 'Connexion…';
+      try {
+        if (mode==='signup') {
+          const { error } = await sb.auth.signUp({ email, password: pass });
+          if (error) throw error;
+          view.authMode = 'signin';
+          view._authNotice = 'Compte créé. Si une confirmation par email est demandée, valide-la puis connecte-toi.';
+          view._authNoticeOk = true;
+          render();
+          return;
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+          if (error) throw error;
+          // Succès : le listener onAuthStateChange prend le relais et ré-affiche l'appli.
+          return;
+        }
+      } catch(err){
+        errBox.style.color = 'var(--palette-4)';
+        errBox.textContent = (err && err.message) ? err.message : 'Erreur inconnue.';
+        btn.disabled = false;
+        btn.textContent = mode==='signup' ? 'Créer mon compte' : 'Se connecter';
+      }
+    };
+    return wrap;
+  }
+
+  /* ---------- Household setup (create / join) ---------- */
+  function renderHouseholdSetup(){
+    const wrap = document.createElement('div'); wrap.id='onboarding';
+    const mode = view.hhMode || 'create';
+    let chosenColor = PALETTE[0];
+    wrap.innerHTML = `
+      <div class="icon">🏡</div>
+      <h1>${mode==='join' ? 'Rejoindre un foyer' : 'Créer votre foyer'}</h1>
+      <p>${mode==='join' ? "Entre le code d'invitation donné par l'autre parent." : "Tu es la première personne du foyer. L'autre parent pourra te rejoindre ensuite avec un code."}</p>
+      <div class="field"><label for="hh-name">Ton prénom</label><input id="hh-name" type="text" placeholder="ex. Léo" maxlength="20"></div>
+      <div class="field"><label>Ta couleur</label><div class="swatches" id="swatches"></div></div>
+      ${mode==='join' ? `<div class="field"><label for="hh-code">Code d'invitation</label><input id="hh-code" type="text" placeholder="ex. A3F9K2" maxlength="12" style="text-transform:uppercase"></div>` : ''}
+      <div id="hh-error" style="color:var(--palette-4);font-size:13px;min-height:16px;max-width:320px;"></div>
+      <button class="btn-primary" id="hh-submit">${mode==='join' ? 'Rejoindre' : 'Créer le foyer'}</button>
+      <button class="btn-primary" id="hh-toggle" style="background:transparent;color:var(--ink-soft);box-shadow:none;">${mode==='join' ? 'Créer un nouveau foyer à la place' : "J'ai un code d'invitation"}</button>
+      <button class="btn-primary" id="hh-signout" style="background:transparent;color:var(--ink-soft);box-shadow:none;">Se déconnecter</button>
+    `;
+    const sw = wrap.querySelector('#swatches');
+    PALETTE.forEach(c=>{
+      const s = document.createElement('div');
+      s.className='swatch' + (c===chosenColor?' selected':'');
+      s.style.background=c;
+      s.onclick=()=>{ chosenColor=c; [...sw.children].forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+      sw.appendChild(s);
+    });
+    wrap.querySelector('#hh-toggle').onclick = ()=>{ view.hhMode = mode==='join' ? 'create' : 'join'; render(); };
+    wrap.querySelector('#hh-signout').onclick = async ()=>{ await sb.auth.signOut(); };
+    wrap.querySelector('#hh-submit').onclick = async ()=>{
+      const name = wrap.querySelector('#hh-name').value.trim();
+      const errBox = wrap.querySelector('#hh-error');
+      errBox.textContent = '';
+      if (!name) { errBox.textContent = 'Ton prénom est requis.'; return; }
+      const btn = wrap.querySelector('#hh-submit'); btn.disabled = true;
+      try {
+        if (mode==='join') {
+          const code = wrap.querySelector('#hh-code').value.trim().toUpperCase();
+          if (!code) { errBox.textContent = "Code d'invitation requis."; btn.disabled=false; return; }
+          await joinHousehold(code, name, chosenColor);
+        } else {
+          await createHousehold(name, chosenColor);
+        }
+      } catch(err){
+        errBox.textContent = err.message || 'Erreur.';
+        btn.disabled = false;
+      }
+    };
+    return wrap;
+  }
+
+  function goToday(){
+    const t = new Date();
+    view.year = t.getFullYear(); view.month = t.getMonth();
+    view.weekAnchor = todayStr(); view.dayAnchor = todayStr();
+    dayScrollTop = null; // la vue Jour se recale sur l'heure actuelle
+    render();
+  }
+
+  function renderSidebar(){
+    const bar = document.createElement('div'); bar.className='sidebar';
+    const p = activeProfile();
+    bar.innerHTML = `
+      <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">📅</div><span class="side-label">Agenda</span></div>
+      <div class="side-item" id="side-today"><div class="icon-btn" style="font-size:13px;">📍</div><span class="side-label">Auj.</span></div>
+      <div class="side-item" id="side-search"><div class="icon-btn">🔍</div><span class="side-label">Recherche</span></div>
+      <div class="side-item" id="side-select"><div class="icon-btn${view.selectMode?' active':''}">${view.selectMode?'✕':'☑'}</div><span class="side-label">Sélection</span></div>
+      <div class="side-item" id="side-log"><div class="icon-btn">🕓</div><span class="side-label">Journal</span></div>
+      <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
+    `;
+    bar.querySelector('#side-today').onclick=goToday;
+    bar.querySelector('#side-search').onclick=()=>{ view.sheet='search'; render(); };
+    bar.querySelector('#side-select').onclick=()=>{ view.selectMode=!view.selectMode; view.selectedDays=[]; render(); };
+    bar.querySelector('#side-log').onclick=()=>{ view.sheet='log'; render(); };
+    bar.querySelector('#side-profile').onclick=()=>{ view.sheet='switch'; render(); };
+    return bar;
+  }
+
+  /* ---------- Header ---------- */
+  function headerLabel(){
+    if (view.mode==='week') {
+      const mon = mondayOf(view.weekAnchor || todayStr());
+      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      const fmt = (d)=> d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0,3);
+      return `${fmt(mon)} – ${fmt(sun)}`;
+    }
+    if (view.mode==='day') {
+      const d = new Date((view.dayAnchor||todayStr())+'T00:00:00');
+      return d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
+    }
+    return `${MONTHS[view.month]} ${view.year}`;
+  }
+  function stepPrev(){
+    if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), -7); }
+    else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), -1); }
+    else { view.month--; if(view.month<0){view.month=11; view.year--;} }
+  }
+  function stepNext(){
+    if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), 7); }
+    else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), 1); }
+    else { view.month++; if(view.month>11){view.month=0; view.year++;} }
+  }
+  function navPrev(){ stepPrev(); renderWithTransition('prev'); }
+  function navNext(){ stepNext(); renderWithTransition('next'); }
+  /* Anime le changement de vue avec un vrai glissement "carrousel" :
+     l'ancien et le nouveau mois sont tous les deux dans le DOM en même
+     temps, côte à côte, et se déplacent ensemble — pas un fondu qui
+     laisse un trou vide entre les deux. Seule la carte du calendrier
+     bouge (transform, GPU), le reste de la page (en-tête, légende) se
+     met à jour instantanément à côté, sans animer. */
+  let navBusy = false;
+  function renderWithTransition(dir){
+    const viewport = document.querySelector('.cal-viewport');
+    const oldEl = viewport ? viewport.querySelector('.cal-wrap') : null;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!viewport || !oldEl || reduceMotion || navBusy) { render(); return; }
+    navBusy = true;
+
+    // En-tête et légende changent tout de suite (libellé du mois, etc.),
+    // seule la zone du calendrier est animée.
+    const oldHeader = document.querySelector('header');
+    if (oldHeader) oldHeader.replaceWith(renderHeader());
+    const oldLegend = document.querySelector('.legend, .select-bar');
+    if (oldLegend) oldLegend.replaceWith(renderLegend());
+
+    // Le geste de swipe est écouté sur la zone (viewport), qui reste en
+    // place : rien à rattacher à la nouvelle carte.
+    const newEl = renderCalendar();
+    const goingNext = dir === 'next';
+
+    // Mesurer la hauteur AVANT de passer les éléments en position absolue
+    // (sinon le conteneur s'effondre à 0 dès que son seul enfant en flux
+    // normal en sort, et on mesurerait une hauteur déjà nulle).
+    viewport.style.minHeight = viewport.offsetHeight + 'px';
+
+    [oldEl, newEl].forEach(el=>{
+      el.style.position = 'absolute';
+      el.style.top = '0'; el.style.left = '0'; el.style.width = '100%';
+    });
+    newEl.style.transform = `translateX(${goingNext ? '100%' : '-100%'})`;
+    viewport.appendChild(newEl);
+    if (usesTimeline()) syncDayScroll(oldEl, [newEl]);
+    initMarquees();
+
+    void newEl.offsetWidth; // force le navigateur à appliquer l'état de départ avant d'animer
+
+    const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
+    oldEl.style.transition = `transform ${dur} ${ease}`;
+    newEl.style.transition = `transform ${dur} ${ease}`;
+    requestAnimationFrame(()=>{
+      oldEl.style.transform = `translateX(${goingNext ? '-100%' : '100%'})`;
+      newEl.style.transform = 'translateX(0)';
+    });
+
+    let cleaned = false;
+    const cleanup = ()=>{
+      if (cleaned) return; cleaned = true;
+      oldEl.remove();
+      newEl.style.position = ''; newEl.style.top = ''; newEl.style.left = ''; newEl.style.width = '';
+      newEl.style.transform = ''; newEl.style.transition = '';
+      viewport.style.minHeight = '';
+      navBusy = false;
+    };
+    newEl.addEventListener('transitionend', cleanup, { once:true });
+    setTimeout(cleanup, 320); // filet de sécurité si transitionend ne se déclenche pas
+  }
+  function renderHeader(){
+    const h = document.createElement('header');
+    const p = activeProfile();
+    h.innerHTML = `
+      <div class="month-nav">
+        <button id="prev-m" aria-label="Précédent">←</button>
+        <div class="month-title" style="text-transform:capitalize">${headerLabel()}</div>
+        <button id="next-m" aria-label="Suivant">→</button>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="go-today" aria-label="Aujourd'hui" style="font-size:13px;">📍</button>
+        <button class="icon-btn" id="open-search" aria-label="Rechercher">🔍</button>
+        <button class="icon-btn${view.selectMode?' active':''}" id="toggle-select" aria-label="Sélection multiple">${view.selectMode?'✕':'☑'}</button>
+        <button class="avatar" id="open-switch" style="background:${p.color}">${p.name[0].toUpperCase()}</button>
+      </div>
+    `;
+    h.querySelector('#go-today').onclick=goToday;
+    h.querySelector('#open-search').onclick=()=>{ view.sheet='search'; render(); };
+    h.querySelector('#prev-m').onclick=navPrev;
+    h.querySelector('#next-m').onclick=navNext;
+    h.querySelector('#toggle-select').onclick=()=>{ view.selectMode = !view.selectMode; view.selectedDays=[]; render(); };
+    h.querySelector('#open-switch').onclick=()=>{ view.sheet='switch'; render(); };
+    return h;
+  }
+
+  /* ---------- Legend / select bar ---------- */
+  function renderLegend(){
+    if (view.selectMode) {
+      const bar = document.createElement('div');
+      bar.className='select-bar';
+      const n = view.selectedDays.length;
+      bar.innerHTML = `<span>${n ? n+' jour'+(n>1?'s':'')+' sélectionné'+(n>1?'s':'') : 'Touchez des jours à sélectionner'}</span>`;
+      if (n) {
+        const clearBtn = document.createElement('button'); clearBtn.textContent='Vider';
+        clearBtn.onclick = ()=>{ view.selectedDays=[]; render(); };
+        bar.appendChild(clearBtn);
+      }
+      return bar;
+    }
+    const wrap = document.createElement('div');
+    wrap.className='legend';
+    state.profiles.forEach(p=>{
+      const off = state.hidden.includes(p.id);
+      const chip = document.createElement('button');
+      chip.className='legend-chip' + (off?' off':'');
+      chip.innerHTML = `<span class="dot" style="background:${p.color}"></span>${p.name}`;
+      chip.onclick = ()=>{
+        if (off) state.hidden = state.hidden.filter(id=>id!==p.id);
+        else state.hidden.push(p.id);
+        persistHidden(); render();
+      };
+      wrap.appendChild(chip);
+    });
+    return wrap;
+  }
+
+  /* ---------- Calendar ---------- */
+  function eventsFor(dateStr){
+    return state.events.filter(e=>e.date===dateStr && e.participants.some(id=>!state.hidden.includes(id)));
+  }
+  function addDays(dateStr, n){
+    const d = new Date(dateStr+'T00:00:00');
+    d.setDate(d.getDate()+n);
+    return dstr(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function mondayOf(dateStr){
+    const d = new Date(dateStr+'T00:00:00');
+    const offset = (d.getDay()+6)%7;
+    d.setDate(d.getDate()-offset);
+    return d;
+  }
+  function buildDayCell(ds, otherMonth, maxLines){
+    const todayS = todayStr();
+    const picked = view.selectedDays.includes(ds);
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (otherMonth?' other-month':'') + (ds===todayS?' today':'') + (picked?' picked':'');
+    const evs = eventsFor(ds);
+    let linesHtml = '';
+    evs.slice(0,maxLines).forEach(e=>{
+      const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+      linesHtml += `<div class="ev-line" style="background:${lineBg(cols)}"><span class="ev-line-text">${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
+    });
+    const dnum = Number(ds.slice(8,10));
+    cell.innerHTML = `<div class="day-num">${dnum}</div>${linesHtml}${evs.length>maxLines?`<div class="more">+${evs.length-maxLines} autre${evs.length-maxLines>1?'s':''}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
+    cell.onclick = ()=>{
+      if (view.selectMode) {
+        if (picked) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
+        else view.selectedDays.push(ds);
+        render();
+        return;
+      }
+      if (!evs.length) { openEventForm(null, ds); return; }
+      view.openDay = ds; view.sheet='day'; render();
+    };
+    return cell;
+  }
+
+  function renderCalendar(){
+    if (view.mode==='week') return landscapePhone ? renderWeekHours() : renderWeekView();
+    if (view.mode==='day') return renderDayView();
+    return renderMonthView();
+  }
+
+  /* Swipe tactile gauche/droite pour naviguer entre mois/semaines/jours :
+     la carte suit le doigt en direct (comme Google Agenda) — l'ancien et
+     le nouveau mois sont visibles et bougent ensemble pendant tout le
+     geste, sans coupure ni animation "boîte noire" qui ne démarre qu'au
+     relâchement. On exige un mouvement nettement plus horizontal que
+     vertical avant de capturer le geste, pour ne pas gêner le défilement
+     vertical normal de la page. */
+  function buildNeighborCard(dir){
+    // Construit la carte du mois/semaine/jour précédent (dir<0) ou suivant
+    // (dir>0) sans toucher à l'affichage courant : on avance/recule
+    // temporairement la vue, on rend la carte, puis on remet la vue en
+    // place.
+    if (dir < 0) stepPrev(); else stepNext();
+    const el = renderCalendar();
+    if (dir < 0) stepNext(); else stepPrev();
+    return el;
+  }
+  function attachSwipeNav(el){
+    let startX = 0, startY = 0, startT = 0;
+    let tracking = false;  // un doigt est posé, direction pas encore tranchée
+    let dragging = false;  // geste capturé comme un swipe horizontal
+    let viewport = null, curEl = null, prevCard = null, nextCard = null, width = 1;
+    let pendingDx = 0, rafId = 0;
+
+    // Les mises à jour de position ne sont écrites qu'une fois par frame
+    // (via requestAnimationFrame), jamais directement dans le handler de
+    // touchmove : sur un écran 90/120 Hz, le tactile peut envoyer plus
+    // d'événements que l'écran ne peut afficher, et écrire le style à
+    // chaque événement ne fait que gaspiller du travail sans rien
+    // afficher de plus fluide. translate3d (et non translateX/calc) pour
+    // rester strictement sur le thread de composition GPU.
+    function scheduleFrame(dx){
+      pendingDx = dx;
+      if (rafId) return;
+      rafId = requestAnimationFrame(()=>{
+        rafId = 0;
+        curEl.style.transform = `translate3d(${pendingDx}px,0,0)`;
+        prevCard.style.transform = `translate3d(${pendingDx - width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${pendingDx + width}px,0,0)`;
+      });
+    }
+
+    function cleanup(){
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      if (prevCard) { prevCard.remove(); prevCard = null; }
+      if (nextCard) { nextCard.remove(); nextCard = null; }
+      if (curEl) {
+        curEl.style.position = ''; curEl.style.top = ''; curEl.style.left = ''; curEl.style.width = '';
+        curEl.style.transform = ''; curEl.style.transition = ''; curEl.style.willChange = '';
+      }
+      if (viewport) viewport.style.minHeight = '';
+      viewport = curEl = null;
+    }
+
+    el.addEventListener('touchstart', (e)=>{
+      if (e.touches.length !== 1 || navBusy) { tracking = false; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      startT = Date.now();
+      tracking = true;
+      dragging = false;
+    }, { passive:true });
+
+    el.addEventListener('touchmove', (e)=>{
+      if (!tracking) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (!dragging) {
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; // pas encore assez de mouvement
+        if (Math.abs(dx) < Math.abs(dy) * 1.2) { tracking = false; return; } // plutôt un scroll vertical, on laisse faire
+        dragging = true;
+        viewport = document.querySelector('.cal-viewport');
+        curEl = viewport ? viewport.querySelector('.cal-wrap') : null;
+        if (!viewport || !curEl) { tracking = false; dragging = false; return; }
+        width = viewport.offsetWidth || 1;
+        viewport.style.minHeight = viewport.offsetHeight + 'px';
+        curEl.style.position = 'absolute'; curEl.style.top = '0'; curEl.style.left = '0'; curEl.style.width = '100%';
+        curEl.style.transition = 'none'; curEl.style.willChange = 'transform';
+        prevCard = buildNeighborCard(-1);
+        nextCard = buildNeighborCard(1);
+        [prevCard, nextCard].forEach(c=>{
+          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = '100%';
+          c.style.transition = 'none'; c.style.willChange = 'transform';
+        });
+        prevCard.style.transform = `translate3d(${-width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${width}px,0,0)`;
+        viewport.appendChild(prevCard);
+        viewport.appendChild(nextCard);
+        if (usesTimeline()) syncDayScroll(curEl, [prevCard, nextCard]);
+        initMarquees();
+      }
+      if (!dragging) return;
+      e.preventDefault(); // on a le geste : plus de scroll vertical pendant le glissement
+      scheduleFrame(dx);
+    }, { passive:false });
+
+    function settle(e){
+      if (!tracking) return;
+      tracking = false;
+      if (!dragging) return;
+      dragging = false;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      const touch = (e.changedTouches && e.changedTouches[0]) || null;
+      const dx = touch ? touch.clientX - startX : 0;
+      const dt = Math.max(1, Date.now() - startT);
+      const speed = Math.abs(dx) / dt; // px/ms
+      const goingPrev = dx > 0;
+      // On termine le changement de page si le glissement est assez ample,
+      // ou assez rapide (un petit coup sec compte aussi, pas seulement une
+      // grande amplitude).
+      const complete = Math.abs(dx) > width * 0.32 || speed > 0.55;
+      const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
+      [curEl, prevCard, nextCard].forEach(x=>{ x.style.transition = `transform ${dur} ${ease}`; });
+      if (complete) {
+        curEl.style.transform = `translate3d(${goingPrev ? width : -width}px,0,0)`;
+        (goingPrev ? prevCard : nextCard).style.transform = 'translate3d(0,0,0)';
+      } else {
+        curEl.style.transform = 'translate3d(0,0,0)';
+        prevCard.style.transform = `translate3d(${-width}px,0,0)`;
+        nextCard.style.transform = `translate3d(${width}px,0,0)`;
+      }
+      navBusy = true;
+      let done = false;
+      const finish = ()=>{
+        if (done) return; done = true;
+        navBusy = false;
+        if (complete) {
+          if (goingPrev) stepPrev(); else stepNext();
+          render();
+        } else {
+          cleanup();
+        }
+      };
+      curEl.addEventListener('transitionend', finish, { once:true });
+      setTimeout(finish, 320); // filet de sécurité si transitionend ne se déclenche pas
+    }
+
+    el.addEventListener('touchend', settle, { passive:true });
+    el.addEventListener('touchcancel', settle, { passive:true });
+  }
+
+  function renderMonthView(){
+    const wrap = document.createElement('div');
+    wrap.className='cal-wrap';
+    const wd = document.createElement('div'); wd.className='weekdays';
+    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    wrap.appendChild(wd);
+
+    const grid = document.createElement('div'); grid.className='grid';
+    const first = new Date(view.year, view.month, 1);
+    let startOffset = (first.getDay()+6)%7;
+    const daysInMonth = new Date(view.year, view.month+1, 0).getDate();
+    const prevDays = new Date(view.year, view.month, 0).getDate();
+
+    const cells = [];
+    for (let i=startOffset; i>0; i--) cells.push({ d: prevDays-i+1, other:true, m: view.month-1 });
+    for (let d=1; d<=daysInMonth; d++) cells.push({ d, other:false, m: view.month });
+    while (cells.length % 7 !== 0 || cells.length < 35) cells.push({ d: cells.length - (startOffset+daysInMonth) + 1, other:true, m: view.month+1 });
+
+    cells.forEach(c=>{
+      let y=view.year, m=c.m;
+      if (m<0){ m=11; y--; } else if (m>11){ m=0; y++; }
+      const ds = dstr(y,m,c.d);
+      grid.appendChild(buildDayCell(ds, c.other, isWide() ? 8 : MAX_LINES));
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  function renderWeekView(){
+    const wrap = document.createElement('div');
+    wrap.className='cal-wrap';
+    const wd = document.createElement('div'); wd.className='weekdays';
+    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    wrap.appendChild(wd);
+
+    const grid = document.createElement('div'); grid.className='grid';
+    const mon = mondayOf(view.weekAnchor || todayStr());
+    for (let i=0;i<7;i++){
+      const d = new Date(mon); d.setDate(mon.getDate()+i);
+      const ds = dstr(d.getFullYear(), d.getMonth(), d.getDate());
+      grid.appendChild(buildDayCell(ds, false, isWide() ? 18 : MAX_LINES*2));
+    }
+    wrap.appendChild(grid);
+    return wrap;
+  }
+
+  /* ---------- Vue Jour : frise horaire verticale ----------
+     Les heures défilent de haut en bas, chaque événement est posé à son
+     heure de début et sa hauteur suit sa durée. Les événements qui se
+     chevauchent se partagent la largeur, côte à côte.
+
+     Pour ne pas gaspiller l'écran, la nuit (00h–5h30) est écrasée en une
+     fine bande en haut : tout le reste (5h30–minuit) garde sa pleine
+     échelle. La hauteur d'une heure est calculée pour que la journée
+     tienne exactement dans l'écran, sans défilement. */
+  const DAY_START_MIN = 330;   // 5h30 : début de la plage à pleine échelle
+  const NIGHT_UNITS = 0.6;     // hauteur (en "heures") de la bande de nuit
+  function tlU(min){ return min < DAY_START_MIN ? (min/DAY_START_MIN)*NIGHT_UNITS : NIGHT_UNITS + (min-DAY_START_MIN)/60; }
+  function tlMin(u){ return u < NIGHT_UNITS ? (u/NIGHT_UNITS)*DAY_START_MIN : DAY_START_MIN + (u-NIGHT_UNITS)*60; }
+  const TL_TOTAL = tlU(1440);
+  let dayHH = 32;              // hauteur d'une heure, en px (recalculée à l'affichage)
+  let dayScrollTop = null;     // position de défilement mémorisée entre deux jours
+  function toMin(t){
+    if (!t) return null;
+    const p = t.split(':');
+    return (parseInt(p[0],10)||0)*60 + (parseInt(p[1],10)||0);
+  }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  // Répartit les événements qui se chevauchent en colonnes.
+  function layoutDayEvents(items){
+    items.sort((a,b)=> a.s-b.s || b.e-a.e);
+    const clusters = [];
+    let cur = null;
+    items.forEach(it=>{
+      if (!cur || it.s >= cur.end) { cur = { items:[], end: it.e, cols:[] }; clusters.push(cur); }
+      let c = 0;
+      while (cur.cols[c] !== undefined && cur.cols[c] > it.s) c++;
+      cur.cols[c] = it.e; it.col = c;
+      cur.items.push(it);
+      cur.end = Math.max(cur.end, it.e);
+    });
+    clusters.forEach(cl=>{ const n = cl.cols.length; cl.items.forEach(it=>{ it.n = n; }); });
+    return items;
+  }
+
+  function renderDayView(){
+    const ds = view.dayAnchor || todayStr();
+    const wrap = document.createElement('div');
+    wrap.className = 'cal-wrap day-wrap';
+
+    const visible = state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)));
+    const allDay = visible.filter(e=>!e.start);
+    const timed = timedItems(visible);
+
+    const colorsOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+    const namesOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+
+    // Bande "Toute la journée" : fixe, au-dessus de la frise qui défile.
+    if (allDay.length) {
+      const bar = document.createElement('div'); bar.className = 'day-allday';
+      bar.innerHTML = `<span class="day-allday-lab">Journée</span>`;
+      allDay.forEach(e=>{
+        const chip = document.createElement('div'); chip.className = 'allday-chip';
+        chip.style.background = stripeBg(colorsOf(e));
+        chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
+        chip.onclick = ()=>openEventForm(e, ds);
+        bar.appendChild(chip);
+      });
+      wrap.appendChild(bar);
+    }
+
+    const scroll = document.createElement('div'); scroll.className = 'day-scroll';
+    scroll.style.setProperty('--hh', dayHH + 'px');
+    scroll.addEventListener('scroll', ()=>{ dayScrollTop = scroll.scrollTop; });
+
+    const tl = document.createElement('div'); tl.className = 'tl';
+    tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
+
+    tl.innerHTML = tlBackgroundHtml();
+
+    const grid = document.createElement('div'); grid.className = 'tl-grid';
+    layoutDayEvents(timed).forEach(it=>grid.appendChild(makeTlCard(it, ds, false)));
+
+    // Trait rouge de l'heure actuelle, sur la vue d'aujourd'hui.
+    if (ds === todayStr()) {
+      const n = new Date();
+      const now = document.createElement('div'); now.className = 'tl-now';
+      now.style.top = `calc(var(--hh) * ${tlU(n.getHours()*60 + n.getMinutes())})`;
+      grid.appendChild(now);
+    }
+
+    // Toucher un créneau vide : nouveau formulaire, heure de début pré-remplie
+    // (arrondie au quart d'heure inférieur).
+    grid.onclick = (ev)=>{
+      const rect = grid.getBoundingClientRect();
+      const u = (ev.clientY - rect.top) / dayHH;
+      let min = Math.floor(tlMin(Math.max(0, Math.min(TL_TOTAL, u))) / 15) * 15;
+      min = Math.max(0, Math.min(23*60+45, min));
+      openEventForm(null, ds, null, `${pad2(Math.floor(min/60))}:${pad2(min%60)}`);
+    };
+
+    tl.appendChild(grid);
+    scroll.appendChild(tl);
+    wrap.appendChild(scroll);
+    return wrap;
+  }
+
+
+  // Événements horodatés -> intervalles en minutes (sans heure de fin : 1 h ;
+  // fin "avant" le début : jusqu'à minuit).
+  function timedItems(evs){
+    return evs.filter(e=>e.start).map(e=>{
+      const s = toMin(e.start);
+      let en = e.end ? toMin(e.end) : s + 60;
+      if (en <= s) en = e.end ? 1440 : s + 60;
+      en = Math.min(en, 1440);
+      return { ev:e, s, e:en };
+    });
+  }
+  // Fond de la frise : bande de nuit, filets et libellés des heures.
+  function tlBackgroundHtml(){
+    let html = `<div class="tl-night" style="height:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
+    html += `<div class="tl-lab first" style="top:0">00h</div>`;
+    html += `<div class="tl-line edge" style="top:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
+    for (let h=6; h<=23; h++) {
+      const u = tlU(h*60);
+      html += `<div class="tl-line" style="top:calc(var(--hh) * ${u})"></div>`;
+      html += `<div class="tl-lab" style="top:calc(var(--hh) * ${u})">${pad2(h)}h</div>`;
+    }
+    return html;
+  }
+  // Une carte d'événement sur la frise. En mode "compact" (colonnes étroites
+  // de la semaine) : titre seul, sur une ligne.
+  function makeTlCard(it, ds, compact){
+    const e = it.ev;
+    const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+    const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+    const u1 = tlU(it.s), u2 = tlU(it.e);
+    const card = document.createElement('div');
+    card.className = 'tl-ev' + ((compact || (it.e - it.s) < 45) ? ' s' : '');
+    card.style.background = stripeBg(cols);
+    card.style.top = `calc(var(--hh) * ${u1})`;
+    card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
+    card.style.left = (it.col/it.n*100).toFixed(3) + '%';
+    card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
+    const tall = !compact && (u2-u1) >= 1.25;
+    card.innerHTML = `<div class="event-plate">
+        <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+        ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' ⏰':''}</div>` : ''}
+      </div>`;
+    card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
+    return card;
+  }
+
+  // Bande verticale aux couleurs de tous les participants (bord gauche des cartes de la semaine).
+  function vStripe(colors){
+    if (!colors.length) colors = ['#999'];
+    if (colors.length === 1) return colors[0];
+    const n = colors.length, step = 100/n, stops = [];
+    colors.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
+    return `linear-gradient(to bottom, ${stops.join(', ')})`;
+  }
+  // Carte de la vue Semaine (paysage) : fond pastel, texte sombre, bande de
+  // couleur à gauche, ronds d'initiales en bas à droite. Le titre reste collé
+  // en haut de l'écran (position:sticky) quand la carte déborde de la vue.
+  function makeWkCard(it, ds){
+    const e = it.ev;
+    const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+    const u1 = tlU(it.s), u2 = tlU(it.e), dur = it.e - it.s;
+    const card = document.createElement('div');
+    card.className = 'wk-ev' + (dur < 45 ? ' xs' : (dur < 75 ? ' s' : ''));
+    card.style.background = pastelStripeBg(cols);
+    card.style.top = `calc(var(--hh) * ${u1} + 1px)`;
+    card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 2px)`;
+    card.style.left = `calc(${(it.col/it.n*100).toFixed(3)}% + 1px)`;
+    card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
+    const bar = document.createElement('div'); bar.className = 'wk-bar';
+    bar.style.background = vStripe(cols);
+    card.appendChild(bar);
+    const tall = dur >= 120;
+    const narrow = it.n > 1;
+    // Ronds d'initiales : en bas à droite sur les grandes cartes, sur la ligne
+    // du titre (à droite) sur les cartes courtes, et de simples pastilles de
+    // couleur sur les cartes de moins de 45 min, trop basses pour une lettre.
+    const makeAvs = (max, cls)=>{
+      const wrap = document.createElement('span'); wrap.className = cls;
+      const list = e.participants.map(id=>profileById(id)).filter(Boolean);
+      list.slice(0, max).forEach(pr=>{
+        const a = document.createElement('span'); a.className = 'wk-av';
+        a.style.background = pr.color;
+        if (dur >= 45) a.textContent = pr.name[0].toUpperCase();
+        wrap.appendChild(a);
+      });
+      if (list.length > max) {
+        const more = document.createElement('span'); more.className = 'wk-av';
+        more.style.background = 'var(--ink-soft)';
+        if (dur >= 45) more.textContent = '+' + (list.length - max);
+        wrap.appendChild(more);
+      }
+      return wrap;
+    };
+    const text = document.createElement('div'); text.className = 'wk-text';
+    const line = document.createElement('div'); line.className = 'wk-line';
+    line.innerHTML = `<div class="wk-title${tall?' wrap':''}">${iconHtml(e)}${escapeHtml(e.title)}</div>`;
+    if (!tall && e.participants.length) line.appendChild(makeAvs(narrow ? 1 : 2, 'wk-avs-inline'));
+    text.appendChild(line);
+    card.appendChild(text);
+    if (tall && e.participants.length) card.appendChild(makeAvs(narrow ? 1 : 3, 'wk-avs'));
+    card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
+    return card;
+  }
+
+  function usesTimeline(){ return view.mode==='day' || (view.mode==='week' && landscapePhone); }
+  function minuteFromY(clientY, el){
+    const rect = el.getBoundingClientRect();
+    const u = (clientY - rect.top) / dayHH;
+    let min = Math.floor(tlMin(Math.max(0, Math.min(TL_TOTAL, u))) / 15) * 15;
+    return Math.max(0, Math.min(23*60+45, min));
+  }
+
+  /* ---------- Semaine avec heures (téléphone en paysage) ----------
+     Sept colonnes, du lundi au dimanche, avec la même frise horaire que la
+     vue Jour. Les cartes y sont réduites au titre. Toucher un en-tête de
+     colonne ouvre ce jour en vue Jour. */
+  const WK_NAMES = ['lun','mar','mer','jeu','ven','sam','dim'];
+  function renderWeekHours(){
+    const mon = mondayOf(view.weekAnchor || todayStr());
+    const days = [];
+    for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+    const today = todayStr();
+    const wrap = document.createElement('div');
+    wrap.className = 'cal-wrap day-wrap';
+
+    const head = document.createElement('div'); head.className = 'wk-row';
+    head.innerHTML = `<span class="wk-gutter"></span>` + days.map((ds,i)=>
+      `<button type="button" class="wk-h${ds===today?' today':''}" data-ds="${ds}"><span class="wk-dn">${WK_NAMES[i]}</span><span class="wk-dd">${Number(ds.slice(8,10))}</span></button>`).join('');
+    head.querySelectorAll('.wk-h').forEach(b=>{
+      b.onclick = ()=>{ view.dayAnchor = b.dataset.ds; view.mode = 'day'; view._autoSwitched = false; dayScrollTop = null; render(); };
+    });
+    wrap.appendChild(head);
+
+    const perDay = days.map(ds=>state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id))));
+    if (perDay.some(list=>list.some(e=>!e.start))) {
+      const row = document.createElement('div'); row.className = 'wk-row wk-allday';
+      row.innerHTML = `<span class="wk-gutter">Journée</span>`;
+      perDay.forEach((list,i)=>{
+        const cell = document.createElement('div'); cell.className = 'wk-allcell';
+        list.filter(e=>!e.start).forEach(e=>{
+          const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+          const chip = document.createElement('div'); chip.className = 'wk-chip';
+          chip.style.background = lineBg(cols);
+          chip.innerHTML = iconHtml(e) + escapeHtml(e.title);
+          chip.onclick = ()=>openEventForm(e, days[i]);
+          cell.appendChild(chip);
+        });
+        row.appendChild(cell);
+      });
+      wrap.appendChild(row);
+    }
+
+    const scroll = document.createElement('div'); scroll.className = 'day-scroll';
+    scroll.style.setProperty('--hh', dayHH + 'px');
+    scroll.addEventListener('scroll', ()=>{ dayScrollTop = scroll.scrollTop; });
+    const tl = document.createElement('div'); tl.className = 'tl';
+    tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
+    tl.innerHTML = tlBackgroundHtml();
+    scroll.classList.add('wk');   // quadrillage plus discret
+    const grid = document.createElement('div'); grid.className = 'tl-grid';
+    days.forEach((ds,i)=>{
+      const col = document.createElement('div');
+      col.className = 'wk-col' + (ds===today ? ' today' : '');
+      col.style.left = (i/7*100).toFixed(4) + '%';
+      col.style.width = (100/7).toFixed(4) + '%';
+      layoutDayEvents(timedItems(perDay[i])).forEach(it=>col.appendChild(makeWkCard(it, ds)));
+      if (ds === today) {
+        const n = new Date();
+        const now = document.createElement('div'); now.className = 'tl-now';
+        now.style.top = `calc(var(--hh) * ${tlU(n.getHours()*60 + n.getMinutes())})`;
+        col.appendChild(now);
+      }
+      col.onclick = (ev)=>{
+        const min = minuteFromY(ev.clientY, col);
+        openEventForm(null, ds, null, `${pad2(Math.floor(min/60))}:${pad2(min%60)}`);
+      };
+      grid.appendChild(col);
+    });
+    tl.appendChild(grid);
+    scroll.appendChild(tl);
+    wrap.appendChild(scroll);
+    return wrap;
+  }
+
+  // Heure sur laquelle caler la frise quand elle doit défiler : maintenant si
+  // aujourd'hui est affiché, sinon le premier événement.
+  function timelineFocusMin(){
+    const today = todayStr();
+    let days;
+    if (view.mode === 'week') {
+      const mon = mondayOf(view.weekAnchor || today);
+      days = [];
+      for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+    } else {
+      days = [view.dayAnchor || today];
+    }
+    if (days.includes(today)) { const n = new Date(); return n.getHours()*60 + n.getMinutes(); }
+    const mins = state.events.filter(e=>days.includes(e.date) && e.start).map(e=>toMin(e.start));
+    return mins.length ? Math.min(...mins) : 8*60;
+  }
+
+  // Calcule la hauteur d'une heure pour que 00h–24h (avec la nuit écrasée)
+  // tienne dans l'écran, puis cale le défilement si ça ne suffit pas :
+  // sur l'heure actuelle pour aujourd'hui, sinon sur le premier événement.
+  function fitDayView(){
+    if (!usesTimeline()) return;
+    const viewport = document.querySelector('.cal-viewport');
+    const scroll = viewport ? viewport.querySelector('.day-scroll') : null;
+    if (!scroll) return;
+    const bottomPad = isWide() ? 12 : 80;
+    const avail = scroll.clientHeight - bottomPad;
+    if (avail > 0) {
+      dayHH = Math.max(landscapePhone ? 20 : 24, Math.min(60, Math.floor(avail / TL_TOTAL)));
+      viewport.querySelectorAll('.day-scroll').forEach(s=>s.style.setProperty('--hh', dayHH + 'px'));
+    }
+    if (scroll.scrollHeight > scroll.clientHeight + 2) {
+      if (dayScrollTop !== null) {
+        scroll.scrollTop = dayScrollTop;
+      } else {
+        scroll.scrollTop = Math.max(0, tlU(timelineFocusMin())*dayHH - scroll.clientHeight/3);
+      }
+    }
+  }
+  // Pendant une transition entre deux jours, la carte voisine reprend la
+  // même position de défilement que la carte courante, pour éviter un saut.
+  function syncDayScroll(from, tos){
+    const a = from.querySelector('.day-scroll');
+    if (!a) return;
+    tos.forEach(t=>{ const b = t.querySelector('.day-scroll'); if (b) b.scrollTop = a.scrollTop; });
+  }
+
+  /* ---------- Floating buttons ---------- */
+  function renderFabRow(){
+    const row = document.createElement('div'); row.className='fab-row';
+    if (view.selectMode) {
+      const n = view.selectedDays.length;
+      const applyBtn = document.createElement('button');
+      applyBtn.className='fab apply';
+      applyBtn.textContent = n ? `Appliquer à ${n} jour${n>1?'s':''}` : 'Sélectionnez des jours';
+      applyBtn.disabled = !n;
+      applyBtn.style.opacity = n?1:.5;
+      applyBtn.onclick = ()=>{ if(n) openEventForm(null, view.selectedDays[0], [...view.selectedDays]); };
+      row.appendChild(applyBtn);
+      return row;
+    }
+
+    const viewWrap = document.createElement('div'); viewWrap.className='view-toggle-wrap';
+    const viewBtn = document.createElement('button');
+    viewBtn.className='fab-view'; viewBtn.textContent = VIEW_ICONS[view.mode]; viewBtn.setAttribute('aria-label','Changer de vue');
+    viewBtn.onclick = ()=>{ view.viewMenuOpen = !view.viewMenuOpen; render(); };
+    viewWrap.appendChild(viewBtn);
+    if (view.viewMenuOpen) {
+      const menu = document.createElement('div'); menu.className='view-menu';
+      ['month','week','day'].forEach(m=>{
+        const b = document.createElement('button');
+        b.className = 'view-opt' + (view.mode===m?' active':'');
+        b.textContent = VIEW_ICONS[m];
+        b.setAttribute('aria-label', VIEW_LABELS[m]);
+        b.onclick = ()=>{
+          view.mode = m; view.viewMenuOpen = false; view._autoSwitched = false;
+          if (m==='week' && !view.weekAnchor) view.weekAnchor = todayStr();
+          if (m==='day' && !view.dayAnchor) view.dayAnchor = todayStr();
+          if (m==='day' || m==='week') dayScrollTop = null;
+          render();
+        };
+        menu.appendChild(b);
+      });
+      viewWrap.appendChild(menu);
+    }
+    row.appendChild(viewWrap);
+
+    const fab = document.createElement('button');
+    fab.className='fab'; fab.textContent='+'; fab.setAttribute('aria-label','Ajouter un événement');
+    fab.onclick = ()=>openEventForm(null, view.mode==='day'?(view.dayAnchor||todayStr()):todayStr());
+    row.appendChild(fab);
+
+    const undoBtn = document.createElement('button');
+    undoBtn.className='fab-undo'; undoBtn.textContent='↺'; undoBtn.setAttribute('aria-label','Annuler la dernière action');
+    undoBtn.disabled = !state._undo;
+    undoBtn.onclick = undo;
+    row.appendChild(undoBtn);
+    return row;
+  }
+
+  /* ---------- Day sheet ---------- */
+  function renderDaySheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const ds = view.openDay;
+    const d = new Date(ds+'T00:00:00');
+    const label = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
+    // Même filtre que la grille du mois et que la vue « Jour » : ce que la
+    // légende masque n'apparaît pas ici non plus. On compte quand même les
+    // événements masqués pour le signaler en bas de la fiche, sinon un jour
+    // pourrait sembler vide à tort.
+    const allOfDay = state.events.filter(e=>e.date===ds);
+    const evs = allOfDay
+      .filter(e=>e.participants.some(id=>!state.hidden.includes(id)))
+      .sort((a,b)=> (a.start||'').localeCompare(b.start||''));
+    const hiddenCount = allOfDay.length - evs.length;
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2 style="text-transform:capitalize">${label}</h2><button class="sheet-close" id="close-day">✕</button></div>
+      <div id="day-events"></div>
+      <button class="save-btn" id="add-day-event">+ Ajouter un événement</button>`;
+    const list = sheet.querySelector('#day-events');
+    if (!evs.length) {
+      const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement ce jour-là.';
+      list.appendChild(p);
+    }
+    evs.forEach(e=>{
+      const row = document.createElement('div'); row.className='event-row';
+      const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+      const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+      row.style.background = stripeBg(cols);
+      row.innerHTML = `<div class="event-info"><div class="event-plate">
+          <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+          <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
+        </div></div>
+        ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
+        <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
+      row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
+      row.querySelector('.event-del').onclick = async ()=>{
+        await removeEvent(e);
+        render();
+      };
+      list.appendChild(row);
+    });
+    if (hiddenCount) {
+      const note = document.createElement('div');
+      note.className = 'empty-note';
+      note.style.fontSize = '12.5px';
+      note.style.padding = evs.length ? '6px 0 2px' : '0 0 8px';
+      note.textContent = hiddenCount > 1
+        ? `${hiddenCount} autres événements sont masqués par le filtre de la légende.`
+        : `1 autre événement est masqué par le filtre de la légende.`;
+      list.appendChild(note);
+    }
+    sheet.querySelector('#close-day').onclick = ()=>{ view.sheet=null; render(); };
+    sheet.querySelector('#add-day-event').onclick = ()=>openEventForm(null, ds);
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Event form ---------- */
+  function openEventForm(event, dateStr, bulkDates, startTime){
+    view.editingEvent = event ? {...event, participants:[...event.participants]} : {
+      id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null,
+      participants: state.activeId?[state.activeId]:[]
+    };
+    view._bulkDates = bulkDates || null;
+    // On retient d'où on vient : fermer le formulaire ramène à la fiche du
+    // jour si on en venait, sinon directement au calendrier.
+    view._formFrom = view.sheet;
+    view.sheet='form';
+    render();
+  }
+  function closeForm(){
+    view.sheet = (view._formFrom === 'day') ? 'day' : null;
+    render();
+  }
+  function renderEventForm(){
+    const scrim = document.createElement('div'); scrim.className='scrim center';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ closeForm(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const ev = view.editingEvent;
+    const isNew = !state.events.some(x=>x.id===ev.id);
+    const bulk = view._bulkDates;
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>${bulk?`Nouvel événement (${bulk.length} jours)`:(isNew?'Nouvel événement':'Modifier')}</h2><button class="sheet-close" id="close-form">✕</button></div>
+      ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
+      <div class="preset-row" id="presets"></div>
+      <div class="form-row"><label>Titre</label><input type="text" id="f-title" placeholder="ex. Anniversaire de Mamie" value="${escapeAttr(ev.title)}"></div>
+      <div class="form-row"><label>Icône</label><div class="chips" id="f-icons"></div></div>
+      ${bulk?'':`<div class="form-row"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
+      <div class="form-row time-row">
+        <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
+        <div style="flex:1"><label>Fin</label><button type="button" class="time-field" id="f-end-btn">${ev.end||'--:--'}</button></div>
+      </div>
+      <div class="form-row"><label>⏰ Rappel</label><div class="chips" id="f-reminder"></div><div id="f-reminder-note" class="reminder-note"></div></div>
+      <div class="form-row"><label>Qui participe ?</label><div class="chips" id="f-participants"></div></div>
+      <button class="save-btn" id="f-save">Enregistrer</button>
+    `;
+    const iconWrap = sheet.querySelector('#f-icons');
+    function drawIcons(){
+      iconWrap.innerHTML='';
+      ICON_CHOICES.forEach(ic=>{
+        const on = (ev.icon||'')===ic;
+        const b = document.createElement('button'); b.type='button';
+        b.className='chip'+(on?' on':''); b.style.background = on?'var(--ink)':'var(--surface)';
+        b.style.borderColor = on?'var(--ink)':'var(--line)';
+        b.style.fontSize='16px';
+        b.textContent = ic || '∅';
+        b.onclick = ()=>{ ev.icon = ic; drawIcons(); };
+        iconWrap.appendChild(b);
+      });
+    }
+    drawIcons();
+    const presetsWrap = sheet.querySelector('#presets');
+    SHIFT_PRESETS.forEach(name=>{
+      const b = document.createElement('button'); b.className='preset'; b.textContent=name;
+      b.onclick = ()=>{
+        sheet.querySelector('#f-title').value = name;
+        ev.icon = PRESET_ICON[name]||'';
+        drawIcons();
+        const t = PRESET_TIME[name];
+        if (t) {
+          ev.start = t.start; ev.end = t.end;
+          sheet.querySelector('#f-start-btn').textContent = ev.start || '--:--';
+          sheet.querySelector('#f-end-btn').textContent = ev.end || '--:--';
+        }
+      };
+      presetsWrap.appendChild(b);
+    });
+    // Rappel : aucun, ou un délai avant le début de l'événement. La
+    // valeur est stockée en minutes, comme l'attend Google Agenda.
+    const remWrap = sheet.querySelector('#f-reminder');
+    const remNote = sheet.querySelector('#f-reminder-note');
+    function drawReminders(){
+      remWrap.innerHTML = '';
+      REMINDER_CHOICES.forEach(r=>{
+        const on = (ev.reminder ?? null) === r.min;
+        const btn = document.createElement('button'); btn.type='button';
+        btn.className = 'chip' + (on?' on':'');
+        btn.style.background = on ? 'var(--ink)' : 'var(--surface)';
+        btn.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
+        btn.textContent = r.label;
+        btn.onclick = ()=>{ ev.reminder = r.min; drawReminders(); };
+        remWrap.appendChild(btn);
+      });
+      // Sans heure de début, Google déclenche le rappel à partir de
+      // minuit : on le dit plutôt que de laisser croire à un bug.
+      remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
+        ? "Sans heure de début, le rappel se comptera à partir de minuit."
+        : '';
+    }
+    drawReminders();
+
+    const partWrap = sheet.querySelector('#f-participants');
+    function drawChips(){
+      partWrap.innerHTML='';
+      state.profiles.forEach(p=>{
+        const on = ev.participants.includes(p.id);
+        const c = document.createElement('button'); c.type='button';
+        c.className='chip'+(on?' on':''); c.style.background = on?p.color:'var(--surface)';
+        c.style.borderColor = on?p.color:'var(--line)';
+        c.innerHTML = `<span class="dot" style="background:${on?'#fff':p.color}"></span>${p.name}`;
+        c.onclick = ()=>{
+          if (on) ev.participants = ev.participants.filter(id=>id!==p.id);
+          else ev.participants.push(p.id);
+          drawChips();
+        };
+        partWrap.appendChild(c);
+      });
+    }
+    drawChips();
+    sheet.querySelector('#f-start-btn').onclick = ()=>{
+      openTimeWheel(ev.start, (val)=>{
+        ev.start = val;
+        sheet.querySelector('#f-start-btn').textContent = val || '--:--';
+        drawReminders(); // la note sur "à partir de minuit" dépend de l'heure de début
+      });
+    };
+    sheet.querySelector('#f-end-btn').onclick = ()=>{
+      openTimeWheel(ev.end, (val)=>{ ev.end = val; sheet.querySelector('#f-end-btn').textContent = val || '--:--'; });
+    };
+    sheet.querySelector('#close-form').onclick = closeForm;
+    sheet.querySelector('#f-save').onclick = async ()=>{
+      const title = sheet.querySelector('#f-title').value.trim();
+      if (!title) { sheet.querySelector('#f-title').focus(); return; }
+      ev.title = title;
+      if (!ev.participants.length && state.activeId) ev.participants=[state.activeId];
+      const btn = sheet.querySelector('#f-save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
+      snapshot();
+      try {
+        const pushedIds = [];
+        if (bulk) {
+          for (const ds of bulk) {
+            const newId = uid();
+            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, participants: [...ev.participants] });
+            pushedIds.push(newId);
+          }
+          await logActivity(`a ajouté « ${title} » sur ${bulk.length} jours`);
+          view.selectMode = false; view.selectedDays = [];
+        } else {
+          ev.date = sheet.querySelector('#f-date').value || ev.date;
+          const existed = state.events.some(x=>x.id===ev.id);
+          await upsertEventDb(ev);
+          await logActivity(existed ? `a modifié « ${title} »` : `a ajouté « ${title} »`);
+          pushedIds.push(ev.id);
+        }
+        await reloadHouseholdData();
+        // Envoi vers Google en arrière-plan : l'enregistrement dans le
+        // foyer est déjà fait, on ne fait pas attendre l'utilisateur.
+        pushedIds.forEach(id=>syncToGoogle('push', { event_id: id }));
+        view.sheet = null;
+      } catch(err){
+        alert("Erreur d'enregistrement : "+err.message);
+      }
+      render();
+    };
+    // Suppression : elle vit ici (et dans la fiche du jour) car les cartes
+    // de la vue Jour sont trop étroites pour porter un bouton corbeille.
+    if (!bulk && !isNew) {
+      const del = document.createElement('button');
+      del.type = 'button'; del.className = 'danger-btn';
+      del.textContent = '🗑 Supprimer cet événement';
+      del.onclick = async ()=>{
+        if (!confirm(`Supprimer « ${ev.title} » ?`)) return;
+        del.disabled = true;
+        await removeEvent(ev);
+        view.sheet = null;
+        render();
+      };
+      sheet.appendChild(del);
+    }
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Log sheet ---------- */
+  function renderLogSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Journal</h2><button class="sheet-close" id="close-log">✕</button></div>
+      <div id="log-list"></div>`;
+    const list = sheet.querySelector('#log-list');
+    if (!state.log.length) {
+      const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucune activité pour le moment.';
+      list.appendChild(p);
+    }
+    state.log.forEach(l=>{
+      const row = document.createElement('div'); row.className='log-row';
+      row.innerHTML = `<b>${escapeHtml(l.who)}</b> ${escapeHtml(l.action)}<div class="log-time">${fmtTime(l.ts)}</div>`;
+      list.appendChild(row);
+    });
+    sheet.querySelector('#close-log').onclick = ()=>{ view.sheet=null; render(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Search sheet ---------- */
+  function renderSearchSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Rechercher</h2><button class="sheet-close" id="close-search">✕</button></div>
+      <div class="form-row"><input type="text" id="search-input" placeholder="Titre d'un événement..." autofocus></div>
+      <div id="search-results"></div>`;
+    const resultsWrap = sheet.querySelector('#search-results');
+    function runSearch(q){
+      resultsWrap.innerHTML = '';
+      const query = q.trim().toLowerCase();
+      if (!query) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Tape un mot-clé pour chercher dans tous les événements.'; resultsWrap.appendChild(p); return; }
+      const matches = state.events.filter(e=>e.title.toLowerCase().includes(query)).sort((a,b)=>a.date.localeCompare(b.date));
+      if (!matches.length) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement trouvé.'; resultsWrap.appendChild(p); return; }
+      matches.forEach(e=>{
+        const row = document.createElement('div'); row.className='event-row';
+        const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+        const d = new Date(e.date+'T00:00:00');
+        const dateLabel = d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
+        row.style.background = stripeBg(cols);
+        row.innerHTML = `<div class="event-info"><div class="event-plate">
+            <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+            <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
+          </div></div>
+          ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}`;
+        row.onclick = ()=>{ view.openDay = e.date; view.sheet='day'; render(); };
+        resultsWrap.appendChild(row);
+      });
+    }
+    runSearch('');
+    sheet.querySelector('#search-input').oninput = (e)=>runSearch(e.target.value);
+    sheet.querySelector('#close-search').onclick = ()=>{ view.sheet=null; render(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Account sheet ---------- */
+  function renderSwitchSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const code = state.household ? state.household.invite_code : '';
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Mon compte</h2><button class="sheet-close" id="close-sw">✕</button></div>
+      <div id="who-list"></div>
+      <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
+      <button class="ghost-btn" id="copy-code">Copier le code</button>
+
+      <hr class="section-sep">
+      <div class="section-title">Profils enfants</div>
+      <div class="field">
+        <label for="guest-name">Ajouter un profil enfant (sans compte ni email)</label>
+        <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
+        <div class="swatches" id="guest-swatches"></div>
+      </div>
+      <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
+      <button class="ghost-btn" id="add-guest-btn">➕ Ajouter ce profil</button>
+      <hr class="section-sep">
+      <div id="google-box"></div>
+
+      <hr class="section-sep">
+      <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
+      <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
+    renderGoogleBox(sheet.querySelector('#google-box'));
+    const list = sheet.querySelector('#who-list');
+    state.profiles.forEach(p=>{
+      const row = document.createElement('div'); row.className='who';
+      row.innerHTML = `<div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span>${escapeHtml(p.name)}</span>`;
+      if (state.myProfile && p.id===state.myProfile.id) {
+        const badge = document.createElement('span'); badge.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);font-weight:700;'; badge.textContent='Toi';
+        row.appendChild(badge);
+      } else if (!p.user_id) {
+        const badge = document.createElement('span'); badge.style.cssText='margin-left:auto;font-size:12px;color:var(--ink-soft);'; badge.textContent='Invité';
+        row.appendChild(badge);
+        const del = document.createElement('button');
+        del.textContent='✕'; del.setAttribute('aria-label','Supprimer ce profil');
+        del.style.cssText='margin-left:8px;background:none;border:none;color:var(--palette-4);font-size:14px;cursor:pointer;padding:2px 4px;';
+        del.onclick = async (e)=>{
+          e.stopPropagation();
+          if (!confirm(`Supprimer le profil « ${p.name} » ? Il sera retiré des événements où il apparaît.`)) return;
+          try { await deleteGuestProfile(p); render(); }
+          catch(err){ alert('Erreur : '+err.message); }
+        };
+        row.appendChild(del);
+      }
+      list.appendChild(row);
+    });
+    let guestColor = PALETTE[state.profiles.length % PALETTE.length];
+    const gsw = sheet.querySelector('#guest-swatches');
+    PALETTE.forEach(c=>{
+      const s = document.createElement('div');
+      s.className='swatch' + (c===guestColor?' selected':'');
+      s.style.background=c;
+      s.onclick=()=>{ guestColor=c; [...gsw.children].forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); };
+      gsw.appendChild(s);
+    });
+    sheet.querySelector('#close-sw').onclick = ()=>{ view.sheet=null; render(); };
+    sheet.querySelector('#copy-code').onclick = async ()=>{
+      try { await navigator.clipboard.writeText(code); } catch(e){}
+    };
+    sheet.querySelector('#add-guest-btn').onclick = async ()=>{
+      const nameInput = sheet.querySelector('#guest-name');
+      const errBox = sheet.querySelector('#guest-error');
+      const name = nameInput.value.trim();
+      errBox.textContent = '';
+      if (!name) { errBox.textContent = 'Le prénom est requis.'; return; }
+      try {
+        await createGuestProfile(name, guestColor);
+        view.sheet='switch'; render();
+      } catch(err){ errBox.textContent = err.message || 'Erreur.'; }
+    };
+    sheet.querySelector('#open-log-btn').onclick = ()=>{ view.sheet='log'; render(); };
+    sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  /* ---------- Bloc "Google Agenda" de la fiche compte ----------
+     Google sert de copie de secours : tout ce qui est saisi dans l'app
+     est recopié dans un agenda Google partagé, qui survivra même si la
+     base de données disparaît. D'où le bouton de sauvegarde complète :
+     sans lui, seuls les événements créés APRÈS la connexion seraient
+     protégés. */
+  function renderGoogleBox(box){
+    box.innerHTML = '';
+    const note = document.createElement('div');
+    note.className = 'bulk-note';
+    note.style.marginBottom = '10px';
+
+    if (!googleConfigured()) {
+      note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Pas encore configurée. Il manque l'identifiant client dans le fichier de l'app — voir <b>guide_google.md</b>.<br><br>Adresse de retour à déclarer dans Google Cloud :<br><code style="font-size:12px;word-break:break-all;">${escapeHtml(appRedirectUri())}</code>`;
+      box.appendChild(note);
+      return;
+    }
+
+    if (!state.googleLinked) {
+      note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Non connectée. Une fois reliée, chaque événement du foyer est recopié dans un agenda Google « Agenda Famille », qui te restera même s'il arrivait malheur à la base.`;
+      box.appendChild(note);
+      const btn = document.createElement('button');
+      btn.className = 'ghost-btn'; btn.textContent = '🔗 Connecter Google Agenda';
+      btn.onclick = startGoogleConnect;
+      box.appendChild(btn);
+      return;
+    }
+
+    const total = state.events.length;
+    const saved = state.events.filter(e=>e.googleId).length;
+    note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Connectée${state.googleEmail?' — '+escapeHtml(state.googleEmail):''}.<br><b>${saved}</b> événement${saved>1?'s':''} sur <b>${total}</b> déjà recopié${saved>1?'s':''} dans Google.`;
+    box.appendChild(note);
+
+    if (saved < total) {
+      const back = document.createElement('button');
+      back.className = 'ghost-btn';
+      back.textContent = `⬆ Sauvegarder les ${total-saved} événements manquants`;
+      back.onclick = ()=>runBackfill(back);
+      box.appendChild(back);
+    }
+
+    const off = document.createElement('button');
+    off.className = 'ghost-btn';
+    off.textContent = 'Déconnecter Google Agenda';
+    off.onclick = async ()=>{
+      if (!confirm("Déconnecter Google Agenda ?\n\nLes événements déjà recopiés restent dans ton agenda Google, mais l'app cessera de l'alimenter.")) return;
+      try {
+        const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'disconnect' } });
+        if (error) throw error;
+        if (data && data.error) throw new Error(data.error);
+        await reloadHouseholdData();
+        toast('Google Agenda déconnecté.');
+        render();
+      } catch(err){ toast('Déconnexion impossible : ' + ((err&&err.message)||'erreur')); }
+    };
+    box.appendChild(off);
+  }
+
+  async function runBackfill(btn){
+    btn.disabled = true;
+    let done = 0;
+    try {
+      // Le serveur traite par lots : on rappelle tant qu'il en reste,
+      // en affichant l'avancement plutôt qu'un bouton figé.
+      for (let pass=0; pass<200; pass++) {
+        btn.textContent = `Sauvegarde en cours… ${done} envoyé${done>1?'s':''}`;
+        const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'push_all', limit:40 } });
+        if (error) throw error;
+        if (data && data.error) throw new Error(data.error);
+        done += (data && data.done) || 0;
+        if (data && data.failures && data.failures.length) console.warn('Non envoyés :', data.failures);
+        if (!data || !data.remaining || !data.done) break;
+      }
+      await reloadHouseholdData();
+      toast(`Sauvegarde terminée : ${done} événement${done>1?'s':''} envoyé${done>1?'s':''} dans Google.`);
+      render();
+    } catch(err){
+      btn.disabled = false;
+      toast('Sauvegarde interrompue : ' + ((err&&err.message)||'erreur'));
+    }
+  }
+
+  /* ---------- Custom time wheel picker ---------- */
+  const WHEEL_HOURS = Array.from({length:24},(_,i)=>i);
+  const WHEEL_MINUTES = [0,5,10,15,20,25,30,35,40,45,50,55];
+  const WHEEL_ITEM_H = 44;
+
+  const WHEEL_REPEAT = 9;
+  function wheelOpacity(col, idx){
+    [...col.children].forEach((el,i)=>{ el.style.opacity = i===idx?'1':'.35'; });
+  }
+  function fillWheelCol(col, values, selIdx, onSettle){
+    const n = values.length;
+    const mid = Math.floor(WHEEL_REPEAT/2);
+    let html = '';
+    for (let r=0; r<WHEEL_REPEAT; r++){
+      values.forEach(v=>{ html += `<div class="wheel-item">${String(v).padStart(2,'0')}</div>`; });
+    }
+    col.innerHTML = html;
+    const total = n*WHEEL_REPEAT;
+    let curIdx = mid*n + selIdx;
+    col.scrollTop = curIdx * WHEEL_ITEM_H;
+    wheelOpacity(col, curIdx);
+    let t=null;
+    col.addEventListener('scroll', ()=>{
+      if (t) clearTimeout(t);
+      t = setTimeout(()=>{
+        let idx = Math.round(col.scrollTop / WHEEL_ITEM_H);
+        idx = Math.max(0, Math.min(total-1, idx));
+        if (col.scrollTop !== idx*WHEEL_ITEM_H) col.scrollTo({top: idx*WHEEL_ITEM_H, behavior:'smooth'});
+        wheelOpacity(col, idx);
+        const realVal = values[((idx % n)+n)%n];
+        onSettle(realVal);
+        if (idx < n*1.5 || idx > total - n*1.5) {
+          setTimeout(()=>{
+            const newIdx = mid*n + (((idx % n)+n)%n);
+            col.scrollTop = newIdx * WHEEL_ITEM_H;
+            wheelOpacity(col, newIdx);
+          }, 260);
+        }
+      }, 130);
+    });
+  }
+
+  function openTimeWheel(currentValue, onConfirm){
+    let h = 8, m = 0;
+    if (currentValue) {
+      const parts = currentValue.split(':');
+      h = parseInt(parts[0],10) || 0;
+      m = Math.round((parseInt(parts[1],10)||0)/5)*5;
+      if (m>55) m=55;
+    }
+    let curH = h, curM = m;
+    const hIdx = WHEEL_HOURS.indexOf(h);
+    const mIdx = WHEEL_MINUTES.indexOf(m);
+
+    const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>Choisir l'heure</h2><button class="sheet-close" id="wp-close">✕</button></div>
+      <div class="wheel-frame">
+        <div class="wheel-highlight"></div>
+        <div class="wheel-picker">
+          <div class="wheel-col" id="wp-hour"></div>
+          <div class="wheel-colon">:</div>
+          <div class="wheel-col" id="wp-min"></div>
+        </div>
+      </div>
+      <button class="ghost-btn" id="wp-clear">Aucune heure</button>
+      <button class="save-btn" id="wp-set">Définir</button>
+    `;
+    fillWheelCol(sheet.querySelector('#wp-hour'), WHEEL_HOURS, hIdx, (v)=>{ curH=v; });
+    fillWheelCol(sheet.querySelector('#wp-min'), WHEEL_MINUTES, mIdx, (v)=>{ curM=v; });
+    sheet.querySelector('#wp-close').onclick = ()=>scrim.remove();
+    sheet.querySelector('#wp-clear').onclick = ()=>{ onConfirm(''); scrim.remove(); };
+    sheet.querySelector('#wp-set').onclick = ()=>{
+      onConfirm(`${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}`);
+      scrim.remove();
+    };
+    scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
+    scrim.appendChild(sheet);
+    document.body.appendChild(scrim);
+    // Le réglage fait dans fillWheelCol a lieu avant que la fenêtre soit
+    // affichée : le navigateur ignore alors la position de défilement et
+    // la roulette reste sur 00. On la règle donc une seconde fois, une
+    // fois la fenêtre à l'écran.
+    const midRep = Math.floor(WHEEL_REPEAT/2);
+    const hourCol = sheet.querySelector('#wp-hour'), minCol = sheet.querySelector('#wp-min');
+    hourCol.scrollTop = (midRep*WHEEL_HOURS.length + hIdx) * WHEEL_ITEM_H;
+    minCol.scrollTop = (midRep*WHEEL_MINUTES.length + mIdx) * WHEEL_ITEM_H;
+    wheelOpacity(hourCol, midRep*WHEEL_HOURS.length + hIdx);
+    wheelOpacity(minCol, midRep*WHEEL_MINUTES.length + mIdx);
+  }
+
+  function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+
+
+  function detectLandscapePhone(){
+    // On s'appuie sur l'orientation réelle de l'écran (pas sur la taille de
+    // la fenêtre) : quand le clavier s'ouvre, la fenêtre rétrécit mais le
+    // téléphone n'a pas tourné.
+    let land;
+    try {
+      land = (screen.orientation && screen.orientation.type)
+        ? screen.orientation.type.indexOf('landscape') === 0
+        : Math.abs(window.orientation || 0) === 90;
+    } catch(e){ land = window.innerWidth > window.innerHeight; }
+    const small = Math.min(screen.width || 9999, screen.height || 9999) < 600;
+    return !!land && small;
+  }
+  // Tourner le téléphone : Jour (vertical) <-> Semaine (horizontal). Seules
+  // les bascules faites automatiquement sont défaites au retour ; un choix
+  // fait avec les boutons J/S/M n'est jamais écrasé.
+  function applyOrientationSwitch(lp){
+    dayScrollTop = null;
+    view.viewMenuOpen = false;
+    if (lp) {
+      if (view.mode === 'day') {
+        view.weekAnchor = view.dayAnchor || todayStr();
+        view.mode = 'week';
+        view._autoSwitched = true;
+      } else { view._autoSwitched = false; }
+    } else if (view._autoSwitched && view.mode === 'week') {
+      const mon = mondayOf(view.weekAnchor || todayStr());
+      const days = [];
+      for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+      if (!(view.dayAnchor && days.includes(view.dayAnchor))) view.dayAnchor = days.includes(todayStr()) ? todayStr() : days[0];
+      view.mode = 'day';
+      view._autoSwitched = false;
+    } else { view._autoSwitched = false; }
+  }
+  function stashFormFields(){
+    // Une rotation redessine l'écran : on garde ce qui est en cours de saisie.
+    if (view.sheet === 'form' && view.editingEvent) {
+      const t = document.getElementById('f-title'); if (t) view.editingEvent.title = t.value;
+      const d = document.getElementById('f-date'); if (d && d.value) view.editingEvent.date = d.value;
+    }
+  }
+  function updateLayout(){
+    // Width-based, not aspect-based: a real browser window gets the
+    // full desktop layout whether it's wide-short or narrow-tall.
+    // Only re-render when the layout classification actually changes —
+    // a height-only resize (e.g. a mobile virtual keyboard opening)
+    // must NOT re-render, or it wipes the DOM and steals focus from
+    // whatever field the person just tapped.
+    const lp = detectLandscapePhone();
+    const wide = window.innerWidth >= 780 || lp;   // paysage sur téléphone : mise en page large, compacte
+    const changedWide = document.body.classList.contains('is-wide') !== wide;
+    const changedLp = lp !== landscapePhone;
+    document.body.classList.toggle('is-wide', wide);
+    document.body.classList.toggle('compact-h', lp);
+    if (changedLp) { landscapePhone = lp; applyOrientationSwitch(lp); }
+    if (changedWide || changedLp) { stashFormFields(); render(); }
+  }
+  let layoutTimer = null;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(layoutTimer);
+    layoutTimer = setTimeout(updateLayout, 120);
+  });
+  window.addEventListener('orientationchange', ()=>{
+    // Les dimensions de la fenêtre se mettent à jour un peu après la rotation.
+    setTimeout(updateLayout, 150);
+    setTimeout(()=>{ updateLayout(); fitDayView(); }, 450);
+  });
+  if (screen.orientation && screen.orientation.addEventListener) {
+    screen.orientation.addEventListener('change', ()=>{ updateLayout(); setTimeout(()=>{ updateLayout(); fitDayView(); }, 450); });
+  }
+  landscapePhone = detectLandscapePhone();
+  document.body.classList.toggle('is-wide', window.innerWidth >= 780 || landscapePhone);
+  document.body.classList.toggle('compact-h', landscapePhone);
+
+  /* ---------- Boot ---------- */
+  async function boot(){
+    render();
+    const { data: { session } } = await sb.auth.getSession();
+    auth.session = session; auth.loading = false;
+    if (session) { try { await afterLogin(); } catch(e){} }
+    // Retour de Google après autorisation : on échange le code avant le
+    // premier affichage utile, pour que la fiche compte montre déjà
+    // l'état connecté.
+    if (session && location.search.includes('code=')) {
+      const linked = await finishGoogleConnect();
+      if (linked) { try { await reloadHouseholdData(); } catch(e){} }
+    }
+    render();
+    sb.auth.onAuthStateChange((event, session)=>{
+      const hadSession = !!auth.session, hasSession = !!session;
+      auth.session = session;
+      if (!hadSession && !hasSession) return; // no real change (e.g. redundant initial fire) — don't steal focus with a needless re-render
+      if (session) {
+        afterLogin().then(render).catch(()=>render());
+      } else {
+        if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
+        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = [];
+        render();
+      }
+    });
+  }
+  boot();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
+  }
+})();
+</script>
+</body>
+</html>
+  .sheet-close { background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer; padding:4px; }
+
+  /* La carte d'un événement porte directement les couleurs de ses
+     participants, en bandes diagonales (le fond est posé en JS via
+     stripeBg). Les bandes gardent leur éclat d'origine et seul le texte
+     est posé sur une petite plaque sombre : c'est ce qui le rend lisible
+     même sur le jaune, sur lequel du blanc seul ne tenait pas. */
+  .event-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:12px; margin-bottom:6px; color:#fff; }
+  .event-info { flex:1; min-width:0; }
+  .event-plate { display:inline-block; max-width:100%; background:rgba(14,16,19,.58); border-radius:9px; padding:5px 10px; }
+  .event-title { font-weight:700; font-size:14.5px; color:#fff; }
+  .event-meta { font-size:12px; color:rgba(255,255,255,.88); }
+  .event-del { background:none; border:none; color:rgba(255,255,255,.85); font-size:16px; cursor:pointer; padding:4px 6px; }
+  .empty-note { color:var(--ink-soft); font-size:14px; text-align:center; padding:18px 0; }
+  /* Bandeau discret en bas de l'écran : sert à dire qu'une
+     synchronisation Google n'a pas abouti, sans bloquer l'app. */
+  .toast { position:fixed; left:50%; bottom:96px; transform:translate(-50%, 14px); z-index:40;
+           max-width:min(92vw,520px); background:var(--ink); color:var(--surface);
+           font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:12px;
+           box-shadow:0 6px 20px rgba(0,0,0,.3); opacity:0; pointer-events:none;
+           transition:opacity .18s ease, transform .18s ease; text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%, 0); }
+
+  .form-row { margin-bottom:14px; }
+  .form-row label { display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px; }
+  .form-row input, .form-row select { width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:15px; }
+  .time-row { display:flex; gap:10px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { padding:8px 13px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; color:var(--ink); }
+  .chip.on { border-color:transparent; color:#fff; }
+  .preset-row { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; margin-bottom:4px; }
+  .preset { flex-shrink:0; padding:7px 12px; border-radius:10px; background:var(--surface-soft); border:none; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer; }
+  .bulk-note { background:var(--surface-soft); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
+  .reminder-note { font-size:12px; color:var(--ink-soft); margin-top:7px; }
+  /* Séparateur de section : un filet qui s'efface sur les bords, plus
+     doux qu'un trait net d'un bord à l'autre. Sert à aérer la fiche
+     "Mon compte", qui empile plusieurs sujets sans rapport entre eux. */
+  .section-sep { border:0; height:1px; background:linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent); margin:26px 0 18px; }
+  .section-title { font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 12px 2px; }
+  /* Petite pastille "⏰ 15 min" posée sur la carte d'un événement qui a
+     un rappel. Fond sombre translucide pour rester lisible quelle que
+     soit la couleur des participants derrière. */
+  .rem-badge { flex-shrink:0; font-size:11px; font-weight:700; color:#fff; background:rgba(16,18,21,.45); border-radius:999px; padding:3px 8px; white-space:nowrap; }
+
+  .log-row { padding:10px 4px; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .log-time { color:var(--ink-soft); font-size:12px; }
+
+  .save-btn { width:100%; padding:13px; border-radius:12px; border:none; background:var(--ink); color:var(--surface); font-family:'Quicksand',sans-serif; font-weight:700; font-size:16px; cursor:pointer; margin-top:4px; }
+  .save-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .who { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .who .avatar { cursor:default; }
+  .switch-btn { margin-left:auto; background:none; border:1.5px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12.5px; cursor:pointer; color:var(--ink); font-weight:700; }
+  .ghost-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--ink); border:1.5px solid var(--line); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
+  .danger-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--palette-4); border:1.5px solid var(--palette-4); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
+  .danger-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+  .time-field { width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
+  .wheel-frame { position:relative; margin: 4px 0 18px; }
+  .wheel-picker { display:flex; align-items:center; justify-content:center; gap:2px; }
+  .wheel-col { height:176px; width:76px; overflow-y:scroll; scroll-snap-type:y mandatory; padding:66px 0; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .wheel-col::-webkit-scrollbar { display:none; }
+  .wheel-item { height:44px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; font-family:'Quicksand',sans-serif; scroll-snap-align:center; color:var(--ink); transition:opacity .1s; }
+  .wheel-colon { font-size:22px; font-weight:700; padding:0 2px; color:var(--ink); }
+  .wheel-highlight { position:absolute; top:50%; left:0; right:0; height:44px; transform:translateY(-50%); border-top:1.5px solid var(--line); border-bottom:1.5px solid var(--line); pointer-events:none; }
+
+  .shell { display:flex; flex-direction:column; flex:1; min-height:0; }
+  .sidebar { display:none; }
+  /* Colonne principale : elle occupe toute la hauteur restante de l'écran,
+     et la zone du calendrier (.cal-viewport) prend tout l'espace sous la
+     légende. C'est ce qui permet de swiper n'importe où, même en vue
+     semaine ou jour où le contenu est court. */
+  .main-col { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; }
+
+  /* Desktop / wide-viewport layout: real browser window, not a phone frame.
+     Triggered by width, not aspect ratio, so it also fires on a tall
+     desktop monitor — the calendar always fills the actual window. */
+  body.is-wide { height:100%; overflow:hidden; }
+  body.is-wide #app { max-width:none; width:100%; height:100vh; height:100dvh; margin:0; overflow:hidden; }
+  body.is-wide .shell { flex-direction:row; min-height:0; height:100%; overflow:hidden; }
+  body.is-wide .sidebar { display:flex; flex-direction:column; align-items:center; gap:12px; width:76px; flex-shrink:0; padding:18px 0; background:var(--surface); box-shadow:var(--shadow); overflow-y:auto; }
+  .side-item { display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; }
+  .side-label { font-size:9.5px; color:var(--ink-soft); font-weight:700; text-align:center; max-width:60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .side-item.active .side-label { color:var(--ink); }
+  body.is-wide .main-col { flex:1; min-width:0; min-height:0; height:100%; display:flex; flex-direction:column; overflow:hidden; }
+  body.is-wide header { padding:14px 28px 8px; flex-shrink:0; }
+  body.is-wide header .header-actions { display:none; }
+  body.is-wide .month-title { font-size:20px; }
+  body.is-wide .legend, body.is-wide .select-bar { padding:0 28px 10px; flex-shrink:0; }
+  body.is-wide .cal-wrap { flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+  body.is-wide .weekdays { flex-shrink:0; padding:0 28px; }
+  body.is-wide .weekdays span { font-size:12.5px; }
+  body.is-wide .grid { flex:1; min-height:0; display:grid; grid-auto-rows:1fr; gap:10px; padding:0 28px 20px; }
+  body.is-wide .day-cell { min-height:0; height:100%; padding:10px 12px 8px; gap:5px; border-radius:14px; }
+  body.is-wide .day-num { font-size:15px; }
+  body.is-wide .ev-line { font-size:12.5px; height:25px; line-height:21px; border-radius:7px; padding:0 7px; border-width:2px; }
+  body.is-wide .more { font-size:12px; }
+  body.is-wide .fab-row { position:static; padding:8px 28px 16px; flex-shrink:0; }
+  body.is-wide .fab, body.is-wide .fab-undo, body.is-wide .fab-view { width:48px; height:48px; font-size:21px; }
+  body.is-wide .view-opt { width:38px; height:38px; font-size:14px; }
+  body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
+
+  /* Transition douce ("pfitt") lors du changement de mois/semaine/jour,
+     via swipe ou via les flèches. Un vrai glissement : l'ancien et le
+     nouveau mois sont visibles en même temps et se déplacent ensemble,
+     façon carrousel — pas un fondu séparé avec un trou entre les deux.
+     N'anime que la carte du calendrier (transform, GPU) pour rester
+     fluide même sur un téléphone modeste. */
+  .cal-viewport { position:relative; overflow:hidden; touch-action:pan-y; flex:1; min-height:0; }
+  body.is-wide .cal-viewport { flex:1; min-height:0; display:flex; flex-direction:column; }
+
+  /* ---------- Vue Jour : frise horaire verticale ----------
+     Sur téléphone, la vue Jour occupe exactement l'écran (pas de défilement
+     de la page) ; c'est la frise elle-même qui défile si besoin. */
+  body.day-mode:not(.is-wide) #app { height:100vh; height:100dvh; min-height:0; overflow:hidden; }
+  .day-wrap { display:flex; flex-direction:column; height:100%; min-height:0; overflow:hidden; }
+  .day-allday { flex-shrink:0; position:relative; display:flex; flex-wrap:wrap; gap:6px; padding:2px 12px 8px 58px; }
+  .day-allday-lab { position:absolute; left:12px; top:9px; width:38px; text-align:right; font-size:10.5px; font-weight:700; color:var(--ink-soft); line-height:1.1; }
+  .allday-chip { border-radius:10px; padding:3px; cursor:pointer; max-width:100%; }
+  .day-scroll { --hh:32px; flex:1; min-height:0; overflow-y:auto; padding:0 12px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
+  .day-scroll::after { content:''; display:block; height:80px; }
+  body.is-wide .day-scroll::after { height:12px; }
+  .tl { position:relative; }
+  .tl-night { position:absolute; left:46px; right:0; top:0; background:var(--surface-soft); border-radius:6px 6px 0 0; }
+  .tl-line { position:absolute; left:46px; right:0; height:0; border-top:1px solid var(--line); pointer-events:none; }
+  .tl-line.edge { border-top-color: color-mix(in srgb, var(--ink-soft) 45%, var(--line)); }
+  .tl-lab { position:absolute; left:0; width:38px; text-align:right; font-size:10.5px; font-weight:700; color:var(--ink-soft); line-height:1; transform:translateY(-50%); pointer-events:none; }
+  .tl-lab.first { transform:none; }
+  .tl-grid { position:absolute; left:46px; right:0; top:0; bottom:0; }
+  .tl-ev { position:absolute; border-radius:8px; overflow:hidden; padding:2px; cursor:pointer; min-height:18px; box-shadow:0 0 0 1px var(--surface); }
+  .tl-ev .event-plate { display:block; width:fit-content; max-width:100%; padding:2px 6px; border-radius:6px; overflow:hidden; }
+  .tl-ev .event-title { font-size:12px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tl-ev .event-meta { font-size:11px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* Cartes courtes (moins de 45 min) : pas de hauteur minimale ni de marge,
+     pour ne pas déborder sur la carte suivante ni rogner le titre. */
+  .tl-ev.s { min-height:0; padding:0; border-radius:6px; }
+  .tl-ev.s .event-plate { padding:0 5px; border-radius:5px; }
+  .tl-ev.s .event-title { font-size:10.5px; line-height:12px; }
+  .tl-now { position:absolute; left:-5px; right:0; height:0; border-top:2px solid #E5484D; z-index:3; pointer-events:none; }
+  .tl-now::before { content:''; position:absolute; left:-1px; top:-5px; width:8px; height:8px; border-radius:50%; background:#E5484D; }
+
+  /* ---------- Semaine avec heures (téléphone en paysage) ---------- */
+  .wk-row { display:flex; flex-shrink:0; padding:0 12px; }
+  .wk-gutter { width:46px; flex:none; font-size:10px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; justify-content:flex-end; padding-right:6px; }
+  .wk-h { flex:1; min-width:0; background:none; border:none; color:var(--ink); display:flex; align-items:baseline; justify-content:center; gap:5px; padding:2px 0 5px; cursor:pointer; font-family:'Quicksand',sans-serif; }
+  .wk-dn { font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; }
+  .wk-dd { font-size:15px; font-weight:700; }
+  .wk-h.today .wk-dn { color:var(--ink); }
+  .wk-h.today .wk-dd { background:var(--ink); color:var(--surface); border-radius:999px; padding:0 7px; }
+  .wk-allday { padding-bottom:6px; max-height:64px; overflow-y:auto; }
+  .wk-allcell { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; padding:0 1px; }
+  .wk-chip { border:1.6px solid transparent; border-radius:10px; padding:1px 7px; cursor:pointer; min-width:0; color:var(--ink); font-size:11px; line-height:13px; font-weight:700; overflow-wrap:anywhere; }
+  .wk-col { position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .wk-col.today { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+
+  /* ---------- Téléphone en paysage : mise en page compacte ----------
+     L'écran ne fait que ~360 px de haut : on rogne les marges, et les trois
+     boutons flottants passent en colonne sur le bord droit au lieu de
+     manger une ligne entière en bas. */
+  body.compact-h header { padding:6px 16px 4px; }
+  body.compact-h .month-title { font-size:16px; }
+  body.compact-h .legend, body.compact-h .select-bar { padding:0 16px 6px; gap:6px; }
+  body.compact-h .select-bar { margin:0 16px 6px; padding:6px 10px; }
+  body.compact-h .legend-chip { padding:3px 9px 3px 6px; font-size:11.5px; }
+  body.compact-h .sidebar { width:60px; gap:8px; padding:8px 0; }
+  body.compact-h .cal-viewport { margin-right:56px; }
+  body.compact-h .fab-row { position:fixed; left:auto; right:8px; top:50%; bottom:auto; transform:translateY(-50%); flex-direction:column; padding:0; gap:8px; }
+  body.compact-h .fab, body.compact-h .fab-undo, body.compact-h .fab-view { width:40px; height:40px; font-size:18px; }
+  body.compact-h .fab.apply { width:auto; font-size:12px; padding:0 12px; }
+  body.compact-h .view-opt { width:36px; height:36px; font-size:13px; }
+  body.compact-h .view-menu { bottom:auto; left:auto; right:calc(100% + 8px); top:50%; transform:translateY(-50%); flex-direction:row; }
+  body.compact-h .grid { gap:4px; padding:0 16px 8px; }
+  body.compact-h .day-cell { padding:3px 5px; gap:2px; }
+  body.compact-h .day-num { font-size:11px; }
+  body.compact-h .ev-line { height:14px; line-height:11px; font-size:9.5px; padding:0 4px; border-width:1.5px; }
+  body.compact-h .weekdays { padding:0 16px; }
+  body.compact-h .weekdays span { font-size:10px; }
+
+  /* Paysage : le titre de la période et la légende partagent la même ligne,
+     pour laisser un maximum de hauteur à la frise. */
+  body.compact-h .main-col { display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
+  body.compact-h header { grid-column:1; grid-row:1; padding:4px 8px 4px 16px; }
+  body.compact-h .legend, body.compact-h .select-bar { grid-column:2; grid-row:1; align-self:center; justify-content:flex-end; flex-wrap:nowrap; overflow:hidden; margin:0; padding:0 12px 0 0; }
+  body.compact-h .cal-viewport { grid-column:1 / -1; grid-row:2; }
+  body.compact-h .sidebar { gap:6px; }
+  .wk-col .tl-ev.s { min-height:11px; }
+  .wk-col .tl-ev.s .event-title { font-size:9.5px; line-height:11px; }
+
+  /* Cartes de la semaine : pastel, texte sombre, bande de couleur à gauche. */
+  .day-scroll.wk .tl-line { border-top-color: color-mix(in srgb, var(--line) 45%, transparent); }
+  .day-scroll.wk .wk-col { border-left-color: color-mix(in srgb, var(--line) 55%, transparent); }
+  .wk-ev { position:absolute; border-radius:10px; overflow:clip; cursor:pointer; color:var(--ink); padding:3px 4px 3px 10px; }
+  .wk-bar { position:absolute; left:0; top:0; bottom:0; width:5px; }
+  .wk-text { position:sticky; top:2px; min-width:0; }
+  .wk-title { font-size:11px; line-height:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-title.wrap { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .wk-time { font-size:10px; line-height:12px; font-weight:600; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-ev.s .wk-title { font-size:10.5px; line-height:12px; }
+  .wk-ev.xs { padding:0 3px 0 9px; min-height:11px; }
+  .wk-ev.xs .wk-title { font-size:9.5px; line-height:11px; }
+  .wk-avs { position:absolute; right:3px; bottom:3px; display:flex; gap:2px; }
+  .wk-av { width:14px; height:14px; border-radius:50%; color:#fff; font-size:8px; font-weight:700; font-family:'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; }
+
+  .wk-line { display:flex; align-items:center; gap:3px; min-width:0; }
+  .wk-line .wk-title { flex:1; min-width:0; }
+  .wk-avs-inline { display:flex; gap:2px; flex:none; }
+  .wk-avs-inline .wk-av { width:12px; height:12px; font-size:7px; }
+  .wk-ev.xs .wk-avs-inline .wk-av { width:8px; height:8px; }
+
+  .pdot { display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:-.06em; margin-right:.32em; box-shadow:0 0 0 1px rgba(127,127,127,.55); flex:none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  /* ---------- Supabase ---------- */
+  const SUPABASE_URL = 'https://dobozrtzmzbxfgpcjesq.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_65knnUG6E1RCT95lEW7apg_uta_GZnY';
+
+  /* ---------- Google Agenda ----------
+     Colle ici l'identifiant client OAuth récupéré dans Google Cloud
+     (il ressemble à 1234567890-abcdef.apps.googleusercontent.com).
+     Cet identifiant est public, il n'y a aucun risque à le laisser dans
+     le fichier — c'est le "secret client", lui, qui reste côté serveur,
+     dans les secrets Supabase. Tant que cette ligne est vide, l'app
+     fonctionne normalement, sans la synchronisation Google.
+     Marche à suivre complète : voir guide_google.md */
+  const GOOGLE_CLIENT_ID = '';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true }
+  });
+  let rtChannel = null;
+  let landscapePhone = false;   // téléphone tenu à l'horizontale
+
+  const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
+  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
   const PRESET_ICON = { 'Matin':'🌅','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'🔵','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
   /* Pastilles de couleur : ces cinq ronds emoji sont enregistrés tels quels
      dans la base (donc lisibles partout, même dans Google Agenda), mais
