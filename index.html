@@ -242,7 +242,7 @@
   .day-allday-lab { position:absolute; left:12px; top:9px; width:38px; text-align:right; font-size:10.5px; font-weight:700; color:var(--ink-soft); line-height:1.1; }
   .allday-chip { border-radius:10px; padding:3px; cursor:pointer; max-width:100%; }
   .day-scroll { --hh:32px; flex:1; min-height:0; overflow-y:auto; padding:0 12px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
-  .day-scroll::after { content:''; display:block; height:92px; }
+  .day-scroll::after { content:''; display:block; height:80px; }
   body.is-wide .day-scroll::after { height:12px; }
   .tl { position:relative; }
   .tl-night { position:absolute; left:46px; right:0; top:0; background:var(--surface-soft); border-radius:6px 6px 0 0; }
@@ -255,6 +255,11 @@
   .tl-ev .event-plate { display:block; width:fit-content; max-width:100%; padding:2px 6px; border-radius:6px; overflow:hidden; }
   .tl-ev .event-title { font-size:12px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .tl-ev .event-meta { font-size:11px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* Cartes courtes (moins de 45 min) : pas de hauteur minimale ni de marge,
+     pour ne pas déborder sur la carte suivante ni rogner le titre. */
+  .tl-ev.s { min-height:0; padding:0; border-radius:6px; }
+  .tl-ev.s .event-plate { padding:0 5px; border-radius:5px; }
+  .tl-ev.s .event-title { font-size:10.5px; line-height:12px; }
   .tl-now { position:absolute; left:-5px; right:0; height:0; border-top:2px solid #E5484D; z-index:3; pointer-events:none; }
   .tl-now::before { content:''; position:absolute; left:-1px; top:-5px; width:8px; height:8px; border-radius:50%; background:#E5484D; }
 </style>
@@ -1298,7 +1303,7 @@
     layoutDayEvents(timed).forEach(it=>{
       const e = it.ev;
       const u1 = tlU(it.s), u2 = tlU(it.e);
-      const card = document.createElement('div'); card.className = 'tl-ev';
+      const card = document.createElement('div'); card.className = 'tl-ev' + ((it.e - it.s) < 45 ? ' s' : '');
       card.style.background = stripeBg(colorsOf(e));
       card.style.top = `calc(var(--hh) * ${u1})`;
       card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
@@ -1347,10 +1352,10 @@
     const viewport = document.querySelector('.cal-viewport');
     const scroll = viewport ? viewport.querySelector('.day-scroll') : null;
     if (!scroll) return;
-    const bottomPad = isWide() ? 12 : 92;
+    const bottomPad = isWide() ? 12 : 80;
     const avail = scroll.clientHeight - bottomPad;
     if (avail > 0) {
-      dayHH = Math.max(28, Math.min(60, Math.floor(avail / TL_TOTAL)));
+      dayHH = Math.max(24, Math.min(60, Math.floor(avail / TL_TOTAL)));
       viewport.querySelectorAll('.day-scroll').forEach(s=>s.style.setProperty('--hh', dayHH + 'px'));
     }
     if (scroll.scrollHeight > scroll.clientHeight + 2) {
@@ -1969,6 +1974,16 @@
     scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
     scrim.appendChild(sheet);
     document.body.appendChild(scrim);
+    // Le réglage fait dans fillWheelCol a lieu avant que la fenêtre soit
+    // affichée : le navigateur ignore alors la position de défilement et
+    // la roulette reste sur 00. On la règle donc une seconde fois, une
+    // fois la fenêtre à l'écran.
+    const midRep = Math.floor(WHEEL_REPEAT/2);
+    const hourCol = sheet.querySelector('#wp-hour'), minCol = sheet.querySelector('#wp-min');
+    hourCol.scrollTop = (midRep*WHEEL_HOURS.length + hIdx) * WHEEL_ITEM_H;
+    minCol.scrollTop = (midRep*WHEEL_MINUTES.length + mIdx) * WHEEL_ITEM_H;
+    wheelOpacity(hourCol, midRep*WHEEL_HOURS.length + hIdx);
+    wheelOpacity(minCol, midRep*WHEEL_MINUTES.length + mIdx);
   }
 
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
