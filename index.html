@@ -359,6 +359,9 @@
   .cal-ico { width:18px; height:18px; border:1.8px solid currentColor; border-radius:4px; position:relative; display:flex; align-items:flex-end; justify-content:center; box-sizing:border-box; }
   .cal-ico::before { content:''; position:absolute; top:3px; left:0; right:0; border-top:1.6px solid currentColor; }
   .cal-ico span { font-family:'Quicksand',sans-serif; font-size:9px; font-weight:700; line-height:1; margin-bottom:1px; }
+
+  .line-ico { flex:none; vertical-align:-3px; }
+  .ghost-btn .line-ico { margin-right:4px; }
 </style>
 </head>
 <body>
@@ -920,6 +923,13 @@
     return wrap;
   }
 
+  // Icônes en trait fin, dans le même style que le calendrier "aujourd'hui".
+  function lineIcon(inner, size){
+    const n = size || 18;
+    return `<svg class="line-ico" width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+  }
+  function searchIcon(size){ return lineIcon('<circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>', size); }
+  function logIcon(size){ return lineIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.2"/>', size); }
   // Icône "aujourd'hui" : un petit calendrier qui affiche le numéro du jour.
   function todayIcon(){ return `<span class="cal-ico"><span>${new Date().getDate()}</span></span>`; }
   function goToday(){
@@ -936,9 +946,9 @@
     bar.innerHTML = `
       <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">📅</div><span class="side-label">Agenda</span></div>
       <div class="side-item" id="side-today"><div class="icon-btn">${todayIcon()}</div><span class="side-label">Auj.</span></div>
-      <div class="side-item" id="side-search"><div class="icon-btn">🔍</div><span class="side-label">Recherche</span></div>
+      <div class="side-item" id="side-search"><div class="icon-btn">${searchIcon()}</div><span class="side-label">Recherche</span></div>
       <div class="side-item" aria-hidden="true" style="visibility:hidden"><div class="icon-btn"></div><span class="side-label">&nbsp;</span></div>
-      <div class="side-item" id="side-log"><div class="icon-btn">🕓</div><span class="side-label">Journal</span></div>
+      <div class="side-item" id="side-log"><div class="icon-btn">${logIcon()}</div><span class="side-label">Journal</span></div>
       <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
     `;
     bar.querySelector('#side-today').onclick=goToday;
@@ -1047,7 +1057,7 @@
       </div>
       <div class="header-actions">
         <button class="icon-btn" id="go-today" aria-label="Aujourd'hui">${todayIcon()}</button>
-        <button class="icon-btn" id="open-search" aria-label="Rechercher">🔍</button>
+        <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
         <span class="icon-slot" aria-hidden="true"></span>
         <button class="avatar" id="open-switch" style="background:${p.color}">${p.name[0].toUpperCase()}</button>
       </div>
@@ -2171,7 +2181,7 @@
       <div id="google-box"></div>
 
       <hr class="section-sep">
-      <button class="ghost-btn" id="open-log-btn">🕓 Voir le journal</button>
+      <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
     const list = sheet.querySelector('#who-list');
