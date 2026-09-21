@@ -262,6 +262,44 @@
   .tl-ev.s .event-title { font-size:10.5px; line-height:12px; }
   .tl-now { position:absolute; left:-5px; right:0; height:0; border-top:2px solid #E5484D; z-index:3; pointer-events:none; }
   .tl-now::before { content:''; position:absolute; left:-1px; top:-5px; width:8px; height:8px; border-radius:50%; background:#E5484D; }
+
+  /* ---------- Semaine avec heures (téléphone en paysage) ---------- */
+  .wk-row { display:flex; flex-shrink:0; padding:0 12px; }
+  .wk-gutter { width:46px; flex:none; font-size:10px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; justify-content:flex-end; padding-right:6px; }
+  .wk-h { flex:1; min-width:0; background:none; border:none; color:var(--ink); display:flex; align-items:baseline; justify-content:center; gap:5px; padding:2px 0 5px; cursor:pointer; font-family:'Quicksand',sans-serif; }
+  .wk-dn { font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; }
+  .wk-dd { font-size:15px; font-weight:700; }
+  .wk-h.today .wk-dn { color:var(--ink); }
+  .wk-h.today .wk-dd { background:var(--ink); color:var(--surface); border-radius:999px; padding:0 7px; }
+  .wk-allday { padding-bottom:6px; max-height:64px; overflow-y:auto; }
+  .wk-allcell { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; padding:0 1px; }
+  .wk-chip { border-radius:6px; padding:2px; cursor:pointer; min-width:0; }
+  .wk-chip-t { display:block; background:rgba(14,16,19,.58); color:#fff; border-radius:4px; padding:0 4px; font-size:10px; line-height:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .wk-col { position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
+  .wk-col.today { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+
+  /* ---------- Téléphone en paysage : mise en page compacte ----------
+     L'écran ne fait que ~360 px de haut : on rogne les marges, et les trois
+     boutons flottants passent en colonne sur le bord droit au lieu de
+     manger une ligne entière en bas. */
+  body.compact-h header { padding:6px 16px 4px; }
+  body.compact-h .month-title { font-size:16px; }
+  body.compact-h .legend, body.compact-h .select-bar { padding:0 16px 6px; gap:6px; }
+  body.compact-h .select-bar { margin:0 16px 6px; padding:6px 10px; }
+  body.compact-h .legend-chip { padding:3px 9px 3px 6px; font-size:11.5px; }
+  body.compact-h .sidebar { width:60px; gap:8px; padding:8px 0; }
+  body.compact-h .cal-viewport { margin-right:56px; }
+  body.compact-h .fab-row { position:fixed; left:auto; right:8px; top:50%; bottom:auto; transform:translateY(-50%); flex-direction:column; padding:0; gap:8px; }
+  body.compact-h .fab, body.compact-h .fab-undo, body.compact-h .fab-view { width:40px; height:40px; font-size:18px; }
+  body.compact-h .fab.apply { width:auto; font-size:12px; padding:0 12px; }
+  body.compact-h .view-opt { width:36px; height:36px; font-size:13px; }
+  body.compact-h .view-menu { bottom:auto; left:auto; right:calc(100% + 8px); top:50%; transform:translateY(-50%); flex-direction:row; }
+  body.compact-h .grid { gap:4px; padding:0 16px 8px; }
+  body.compact-h .day-cell { padding:3px 5px; gap:2px; }
+  body.compact-h .day-num { font-size:11px; }
+  body.compact-h .ev-line { height:14px; line-height:11px; font-size:9.5px; padding:0 4px; border-width:1.5px; }
+  body.compact-h .weekdays { padding:0 16px; }
+  body.compact-h .weekdays span { font-size:10px; }
 </style>
 </head>
 <body>
@@ -287,6 +325,7 @@
     auth: { persistSession: true, autoRefreshToken: true }
   });
   let rtChannel = null;
+  let landscapePhone = false;   // téléphone tenu à l'horizontale
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
   const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','DOM','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
@@ -651,7 +690,7 @@
     if (auth.loading) { root.appendChild(renderLoading()); return; }
     if (!auth.session) { root.appendChild(renderAuthScreen()); return; }
     if (!state.myProfile) { root.appendChild(renderHouseholdSetup()); return; }
-    document.body.classList.toggle('day-mode', view.mode==='day');
+    document.body.classList.toggle('day-mode', usesTimeline());
     const shell = document.createElement('div'); shell.className='shell';
     shell.appendChild(renderSidebar());
     const main = document.createElement('div'); main.className='main-col';
@@ -893,7 +932,7 @@
     });
     newEl.style.transform = `translateX(${goingNext ? '100%' : '-100%'})`;
     viewport.appendChild(newEl);
-    if (view.mode==='day') syncDayScroll(oldEl, [newEl]);
+    if (usesTimeline()) syncDayScroll(oldEl, [newEl]);
     initMarquees();
 
     void newEl.offsetWidth; // force le navigateur à appliquer l'état de départ avant d'animer
@@ -1016,7 +1055,7 @@
   }
 
   function renderCalendar(){
-    if (view.mode==='week') return renderWeekView();
+    if (view.mode==='week') return landscapePhone ? renderWeekHours() : renderWeekView();
     if (view.mode==='day') return renderDayView();
     return renderMonthView();
   }
@@ -1110,7 +1149,7 @@
         nextCard.style.transform = `translate3d(${width}px,0,0)`;
         viewport.appendChild(prevCard);
         viewport.appendChild(nextCard);
-        if (view.mode==='day') syncDayScroll(curEl, [prevCard, nextCard]);
+        if (usesTimeline()) syncDayScroll(curEl, [prevCard, nextCard]);
         initMarquees();
       }
       if (!dragging) return;
@@ -1256,13 +1295,7 @@
 
     const visible = state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)));
     const allDay = visible.filter(e=>!e.start);
-    const timed = visible.filter(e=>e.start).map(e=>{
-      const s = toMin(e.start);
-      let en = e.end ? toMin(e.end) : s + 60;      // sans heure de fin : 1 h
-      if (en <= s) en = e.end ? 1440 : s + 60;      // fin "avant" le début : on va jusqu'à minuit
-      en = Math.min(en, 1440);
-      return { ev:e, s, e:en };
-    });
+    const timed = timedItems(visible);
 
     const colorsOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
     const namesOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
@@ -1288,37 +1321,10 @@
     const tl = document.createElement('div'); tl.className = 'tl';
     tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
 
-    // Bande de nuit, filets et libellés des heures.
-    let html = `<div class="tl-night" style="height:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
-    html += `<div class="tl-lab first" style="top:0">00h</div>`;
-    html += `<div class="tl-line edge" style="top:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
-    for (let h=6; h<=23; h++) {
-      const u = tlU(h*60);
-      html += `<div class="tl-line" style="top:calc(var(--hh) * ${u})"></div>`;
-      html += `<div class="tl-lab" style="top:calc(var(--hh) * ${u})">${pad2(h)}h</div>`;
-    }
-    tl.innerHTML = html;
+    tl.innerHTML = tlBackgroundHtml();
 
     const grid = document.createElement('div'); grid.className = 'tl-grid';
-    layoutDayEvents(timed).forEach(it=>{
-      const e = it.ev;
-      const u1 = tlU(it.s), u2 = tlU(it.e);
-      const card = document.createElement('div'); card.className = 'tl-ev' + ((it.e - it.s) < 45 ? ' s' : '');
-      card.style.background = stripeBg(colorsOf(e));
-      card.style.top = `calc(var(--hh) * ${u1})`;
-      card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
-      card.style.left = (it.col/it.n*100).toFixed(3) + '%';
-      card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
-      // Deux lignes (titre + horaire) seulement si la carte est assez haute ;
-      // sinon le titre seul, sur une ligne, tronqué proprement.
-      const tall = (u2-u1) >= 1.25;
-      card.innerHTML = `<div class="event-plate">
-          <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
-          ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(namesOf(e))}${e.reminder?' ⏰':''}</div>` : ''}
-        </div>`;
-      card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
-      grid.appendChild(card);
-    });
+    layoutDayEvents(timed).forEach(it=>grid.appendChild(makeTlCard(it, ds, false)));
 
     // Trait rouge de l'heure actuelle, sur la vue d'aujourd'hui.
     if (ds === todayStr()) {
@@ -1344,32 +1350,167 @@
     return wrap;
   }
 
+
+  // Événements horodatés -> intervalles en minutes (sans heure de fin : 1 h ;
+  // fin "avant" le début : jusqu'à minuit).
+  function timedItems(evs){
+    return evs.filter(e=>e.start).map(e=>{
+      const s = toMin(e.start);
+      let en = e.end ? toMin(e.end) : s + 60;
+      if (en <= s) en = e.end ? 1440 : s + 60;
+      en = Math.min(en, 1440);
+      return { ev:e, s, e:en };
+    });
+  }
+  // Fond de la frise : bande de nuit, filets et libellés des heures.
+  function tlBackgroundHtml(){
+    let html = `<div class="tl-night" style="height:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
+    html += `<div class="tl-lab first" style="top:0">00h</div>`;
+    html += `<div class="tl-line edge" style="top:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
+    for (let h=6; h<=23; h++) {
+      const u = tlU(h*60);
+      html += `<div class="tl-line" style="top:calc(var(--hh) * ${u})"></div>`;
+      html += `<div class="tl-lab" style="top:calc(var(--hh) * ${u})">${pad2(h)}h</div>`;
+    }
+    return html;
+  }
+  // Une carte d'événement sur la frise. En mode "compact" (colonnes étroites
+  // de la semaine) : titre seul, sur une ligne.
+  function makeTlCard(it, ds, compact){
+    const e = it.ev;
+    const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+    const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
+    const u1 = tlU(it.s), u2 = tlU(it.e);
+    const card = document.createElement('div');
+    card.className = 'tl-ev' + ((compact || (it.e - it.s) < 45) ? ' s' : '');
+    card.style.background = stripeBg(cols);
+    card.style.top = `calc(var(--hh) * ${u1})`;
+    card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
+    card.style.left = (it.col/it.n*100).toFixed(3) + '%';
+    card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
+    const tall = !compact && (u2-u1) >= 1.25;
+    card.innerHTML = `<div class="event-plate">
+        <div class="event-title">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</div>
+        ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' ⏰':''}</div>` : ''}
+      </div>`;
+    card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
+    return card;
+  }
+  function usesTimeline(){ return view.mode==='day' || (view.mode==='week' && landscapePhone); }
+  function minuteFromY(clientY, el){
+    const rect = el.getBoundingClientRect();
+    const u = (clientY - rect.top) / dayHH;
+    let min = Math.floor(tlMin(Math.max(0, Math.min(TL_TOTAL, u))) / 15) * 15;
+    return Math.max(0, Math.min(23*60+45, min));
+  }
+
+  /* ---------- Semaine avec heures (téléphone en paysage) ----------
+     Sept colonnes, du lundi au dimanche, avec la même frise horaire que la
+     vue Jour. Les cartes y sont réduites au titre. Toucher un en-tête de
+     colonne ouvre ce jour en vue Jour. */
+  const WK_NAMES = ['lun','mar','mer','jeu','ven','sam','dim'];
+  function renderWeekHours(){
+    const mon = mondayOf(view.weekAnchor || todayStr());
+    const days = [];
+    for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+    const today = todayStr();
+    const wrap = document.createElement('div');
+    wrap.className = 'cal-wrap day-wrap';
+
+    const head = document.createElement('div'); head.className = 'wk-row';
+    head.innerHTML = `<span class="wk-gutter"></span>` + days.map((ds,i)=>
+      `<button type="button" class="wk-h${ds===today?' today':''}" data-ds="${ds}"><span class="wk-dn">${WK_NAMES[i]}</span><span class="wk-dd">${Number(ds.slice(8,10))}</span></button>`).join('');
+    head.querySelectorAll('.wk-h').forEach(b=>{
+      b.onclick = ()=>{ view.dayAnchor = b.dataset.ds; view.mode = 'day'; view._autoSwitched = false; dayScrollTop = null; render(); };
+    });
+    wrap.appendChild(head);
+
+    const perDay = days.map(ds=>state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id))));
+    if (perDay.some(list=>list.some(e=>!e.start))) {
+      const row = document.createElement('div'); row.className = 'wk-row wk-allday';
+      row.innerHTML = `<span class="wk-gutter">Journée</span>`;
+      perDay.forEach((list,i)=>{
+        const cell = document.createElement('div'); cell.className = 'wk-allcell';
+        list.filter(e=>!e.start).forEach(e=>{
+          const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
+          const chip = document.createElement('div'); chip.className = 'wk-chip';
+          chip.style.background = stripeBg(cols);
+          chip.innerHTML = `<span class="wk-chip-t">${e.icon?e.icon+' ':''}${escapeHtml(e.title)}</span>`;
+          chip.onclick = ()=>openEventForm(e, days[i]);
+          cell.appendChild(chip);
+        });
+        row.appendChild(cell);
+      });
+      wrap.appendChild(row);
+    }
+
+    const scroll = document.createElement('div'); scroll.className = 'day-scroll';
+    scroll.style.setProperty('--hh', dayHH + 'px');
+    scroll.addEventListener('scroll', ()=>{ dayScrollTop = scroll.scrollTop; });
+    const tl = document.createElement('div'); tl.className = 'tl';
+    tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
+    tl.innerHTML = tlBackgroundHtml();
+    const grid = document.createElement('div'); grid.className = 'tl-grid';
+    days.forEach((ds,i)=>{
+      const col = document.createElement('div');
+      col.className = 'wk-col' + (ds===today ? ' today' : '');
+      col.style.left = (i/7*100).toFixed(4) + '%';
+      col.style.width = (100/7).toFixed(4) + '%';
+      layoutDayEvents(timedItems(perDay[i])).forEach(it=>col.appendChild(makeTlCard(it, ds, true)));
+      if (ds === today) {
+        const n = new Date();
+        const now = document.createElement('div'); now.className = 'tl-now';
+        now.style.top = `calc(var(--hh) * ${tlU(n.getHours()*60 + n.getMinutes())})`;
+        col.appendChild(now);
+      }
+      col.onclick = (ev)=>{
+        const min = minuteFromY(ev.clientY, col);
+        openEventForm(null, ds, null, `${pad2(Math.floor(min/60))}:${pad2(min%60)}`);
+      };
+      grid.appendChild(col);
+    });
+    tl.appendChild(grid);
+    scroll.appendChild(tl);
+    wrap.appendChild(scroll);
+    return wrap;
+  }
+
+  // Heure sur laquelle caler la frise quand elle doit défiler : maintenant si
+  // aujourd'hui est affiché, sinon le premier événement.
+  function timelineFocusMin(){
+    const today = todayStr();
+    let days;
+    if (view.mode === 'week') {
+      const mon = mondayOf(view.weekAnchor || today);
+      days = [];
+      for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+    } else {
+      days = [view.dayAnchor || today];
+    }
+    if (days.includes(today)) { const n = new Date(); return n.getHours()*60 + n.getMinutes(); }
+    const mins = state.events.filter(e=>days.includes(e.date) && e.start).map(e=>toMin(e.start));
+    return mins.length ? Math.min(...mins) : 8*60;
+  }
+
   // Calcule la hauteur d'une heure pour que 00h–24h (avec la nuit écrasée)
   // tienne dans l'écran, puis cale le défilement si ça ne suffit pas :
   // sur l'heure actuelle pour aujourd'hui, sinon sur le premier événement.
   function fitDayView(){
-    if (view.mode !== 'day') return;
+    if (!usesTimeline()) return;
     const viewport = document.querySelector('.cal-viewport');
     const scroll = viewport ? viewport.querySelector('.day-scroll') : null;
     if (!scroll) return;
     const bottomPad = isWide() ? 12 : 80;
     const avail = scroll.clientHeight - bottomPad;
     if (avail > 0) {
-      dayHH = Math.max(24, Math.min(60, Math.floor(avail / TL_TOTAL)));
+      dayHH = Math.max(landscapePhone ? 30 : 24, Math.min(60, Math.floor(avail / TL_TOTAL)));
       viewport.querySelectorAll('.day-scroll').forEach(s=>s.style.setProperty('--hh', dayHH + 'px'));
     }
     if (scroll.scrollHeight > scroll.clientHeight + 2) {
       if (dayScrollTop !== null) {
         scroll.scrollTop = dayScrollTop;
       } else {
-        const ds = view.dayAnchor || todayStr();
-        let focus = 12*60;
-        if (ds === todayStr()) { const n = new Date(); focus = n.getHours()*60 + n.getMinutes(); }
-        else {
-          const mins = state.events.filter(e=>e.date===ds && e.start).map(e=>toMin(e.start));
-          if (mins.length) focus = Math.min(...mins);
-        }
-        scroll.scrollTop = Math.max(0, tlU(focus)*dayHH - scroll.clientHeight/3);
+        scroll.scrollTop = Math.max(0, tlU(timelineFocusMin())*dayHH - scroll.clientHeight/3);
       }
     }
   }
@@ -1409,10 +1550,10 @@
         b.textContent = VIEW_ICONS[m];
         b.setAttribute('aria-label', VIEW_LABELS[m]);
         b.onclick = ()=>{
-          view.mode = m; view.viewMenuOpen = false;
+          view.mode = m; view.viewMenuOpen = false; view._autoSwitched = false;
           if (m==='week' && !view.weekAnchor) view.weekAnchor = todayStr();
           if (m==='day' && !view.dayAnchor) view.dayAnchor = todayStr();
-          if (m==='day') dayScrollTop = null;
+          if (m==='day' || m==='week') dayScrollTop = null;
           render();
         };
         menu.appendChild(b);
@@ -1989,17 +2130,62 @@
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function escapeAttr(s){ return escapeHtml(s); }
 
+  function detectLandscapePhone(){
+    // On s'appuie sur l'orientation réelle de l'écran (pas sur la taille de
+    // la fenêtre) : quand le clavier s'ouvre, la fenêtre rétrécit mais le
+    // téléphone n'a pas tourné.
+    let land;
+    try {
+      land = (screen.orientation && screen.orientation.type)
+        ? screen.orientation.type.indexOf('landscape') === 0
+        : Math.abs(window.orientation || 0) === 90;
+    } catch(e){ land = window.innerWidth > window.innerHeight; }
+    const small = Math.min(screen.width || 9999, screen.height || 9999) < 600;
+    return !!land && small;
+  }
+  // Tourner le téléphone : Jour (vertical) <-> Semaine (horizontal). Seules
+  // les bascules faites automatiquement sont défaites au retour ; un choix
+  // fait avec les boutons J/S/M n'est jamais écrasé.
+  function applyOrientationSwitch(lp){
+    dayScrollTop = null;
+    view.viewMenuOpen = false;
+    if (lp) {
+      if (view.mode === 'day') {
+        view.weekAnchor = view.dayAnchor || todayStr();
+        view.mode = 'week';
+        view._autoSwitched = true;
+      } else { view._autoSwitched = false; }
+    } else if (view._autoSwitched && view.mode === 'week') {
+      const mon = mondayOf(view.weekAnchor || todayStr());
+      const days = [];
+      for (let i=0;i<7;i++){ const d = new Date(mon); d.setDate(mon.getDate()+i); days.push(dstr(d.getFullYear(), d.getMonth(), d.getDate())); }
+      if (!(view.dayAnchor && days.includes(view.dayAnchor))) view.dayAnchor = days.includes(todayStr()) ? todayStr() : days[0];
+      view.mode = 'day';
+      view._autoSwitched = false;
+    } else { view._autoSwitched = false; }
+  }
+  function stashFormFields(){
+    // Une rotation redessine l'écran : on garde ce qui est en cours de saisie.
+    if (view.sheet === 'form' && view.editingEvent) {
+      const t = document.getElementById('f-title'); if (t) view.editingEvent.title = t.value;
+      const d = document.getElementById('f-date'); if (d && d.value) view.editingEvent.date = d.value;
+    }
+  }
   function updateLayout(){
     // Width-based, not aspect-based: a real browser window gets the
     // full desktop layout whether it's wide-short or narrow-tall.
-    // Only re-render when the wide/narrow classification actually
-    // changes — a height-only resize (e.g. a mobile virtual keyboard
-    // opening) must NOT re-render, or it wipes the DOM and steals
-    // focus from whatever field the person just tapped.
-    const wide = window.innerWidth >= 780;
-    const changed = document.body.classList.contains('is-wide') !== wide;
+    // Only re-render when the layout classification actually changes —
+    // a height-only resize (e.g. a mobile virtual keyboard opening)
+    // must NOT re-render, or it wipes the DOM and steals focus from
+    // whatever field the person just tapped.
+    const lp = detectLandscapePhone();
+    const wide = window.innerWidth >= 780 || lp;   // paysage sur téléphone : mise en page large, compacte
+    const changedWide = document.body.classList.contains('is-wide') !== wide;
+    const changedLp = lp !== landscapePhone;
     document.body.classList.toggle('is-wide', wide);
-    if (changed) render();
+    document.body.classList.toggle('compact-h', lp);
+    if (changedLp) { landscapePhone = lp; applyOrientationSwitch(lp); }
+    if (changedWide || changedLp) { stashFormFields(); render(); }
   }
   let layoutTimer = null;
   window.addEventListener('resize', ()=>{
@@ -2007,12 +2193,16 @@
     layoutTimer = setTimeout(updateLayout, 120);
   });
   window.addEventListener('orientationchange', ()=>{
-    updateLayout();
-    // Après une rotation, la hauteur d'une heure de la vue Jour doit être
-    // recalculée pour la nouvelle taille d'écran.
-    setTimeout(()=>{ if (view.mode==='day') fitDayView(); }, 300);
+    // Les dimensions de la fenêtre se mettent à jour un peu après la rotation.
+    setTimeout(updateLayout, 150);
+    setTimeout(()=>{ updateLayout(); fitDayView(); }, 450);
   });
-  document.body.classList.toggle('is-wide', window.innerWidth >= 780);
+  if (screen.orientation && screen.orientation.addEventListener) {
+    screen.orientation.addEventListener('change', ()=>{ updateLayout(); setTimeout(()=>{ updateLayout(); fitDayView(); }, 450); });
+  }
+  landscapePhone = detectLandscapePhone();
+  document.body.classList.toggle('is-wide', window.innerWidth >= 780 || landscapePhone);
+  document.body.classList.toggle('compact-h', landscapePhone);
 
   /* ---------- Boot ---------- */
   async function boot(){
