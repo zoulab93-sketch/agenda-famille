@@ -375,6 +375,25 @@
      (paysage téléphone), où les deux libellés côte à côte seraient serrés. */
   body.compact-h .sel-deselect { font-size:0; }
   body.compact-h .sel-deselect::before { content:'Désélec.'; font-size:13px; }
+
+  /* ---------- Page de garde (chargement) ----------
+     Dégradé clair -> obscur en clin d'œil au nom "EarthShade" ; nom du
+     projet dans la police déjà utilisée pour les titres de l'app (pas de
+     nouvelle police à charger), et trois points qui pulsent au lieu du
+     mot "Chargement". */
+  #splash {
+    position:fixed; inset:0; z-index:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    background:linear-gradient(155deg, #E7EDF2 0%, #6B7280 46%, #23262B 100%);
+  }
+  :root:not([data-theme="light"]) #splash { @media (prefers-color-scheme: dark) { background:linear-gradient(155deg, #4A515C 0%, #262B32 55%, #0E1013 100%); } }
+  :root[data-theme="dark"] #splash { background:linear-gradient(155deg, #4A515C 0%, #262B32 55%, #0E1013 100%); }
+  .splash-word { font-family:'Quicksand',sans-serif; font-weight:700; font-size:38px; letter-spacing:.01em; color:#fff; text-shadow:0 2px 18px rgba(0,0,0,.25); }
+  .splash-dots { display:flex; gap:9px; }
+  .splash-dots span { width:8px; height:8px; border-radius:50%; background:#fff; opacity:.4; animation:splashPulse 1.3s ease-in-out infinite; }
+  .splash-dots span:nth-child(2) { animation-delay:.15s; }
+  .splash-dots span:nth-child(3) { animation-delay:.3s; }
+  @keyframes splashPulse { 0%,100% { opacity:.3; transform:scale(.8); } 50% { opacity:1; transform:scale(1); } }
 </style>
 </head>
 <body>
@@ -831,8 +850,9 @@
 
   /* ---------- Loading ---------- */
   function renderLoading(){
-    const wrap = document.createElement('div'); wrap.id='onboarding';
-    wrap.innerHTML = `<div class="icon">📅</div><p>Chargement…</p>`;
+    const wrap = document.createElement('div'); wrap.id='splash';
+    wrap.innerHTML = `<div class="splash-word">EarthShade</div>
+      <div class="splash-dots"><span></span><span></span><span></span></div>`;
     return wrap;
   }
 
@@ -841,7 +861,7 @@
     const wrap = document.createElement('div'); wrap.id='onboarding';
     const mode = view.authMode || 'signin';
     wrap.innerHTML = `
-      <div class="icon">📅</div>
+      <div class="icon">${calendarIcon(40)}</div>
       <h1>${mode==='signup' ? 'Créer un compte' : 'Se connecter'}</h1>
       <p>${mode==='signup' ? 'Un compte par personne, pour un agenda toujours synchronisé entre vous.' : 'Connecte-toi pour retrouver ton agenda familial.'}</p>
       <div class="field"><label for="auth-email">Email</label><input id="auth-email" type="text" placeholder="toi@exemple.com" value="${escapeAttr(view._authEmail||'')}" autocomplete="email"></div>
@@ -893,7 +913,7 @@
     const mode = view.hhMode || 'create';
     let chosenColor = PALETTE[0];
     wrap.innerHTML = `
-      <div class="icon">🏡</div>
+      <div class="icon">${homeIcon(40)}</div>
       <h1>${mode==='join' ? 'Rejoindre un foyer' : 'Créer votre foyer'}</h1>
       <p>${mode==='join' ? "Entre le code d'invitation donné par l'autre parent." : "Tu es la première personne du foyer. L'autre parent pourra te rejoindre ensuite avec un code."}</p>
       <div class="field"><label for="hh-name">Ton prénom</label><input id="hh-name" type="text" placeholder="ex. Léo" maxlength="20"></div>
@@ -941,6 +961,8 @@
     const n = size || 18;
     return `<svg class="line-ico" width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
   }
+  function homeIcon(size){ return lineIcon('<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9.5h12V10"/><line x1="9.5" y1="19.5" x2="9.5" y2="14" /><line x1="14.5" y1="19.5" x2="14.5" y2="14" />', size); }
+  function calendarIcon(size){ return lineIcon('<rect x="3.5" y="5" width="17" height="15" rx="3.2"/><line x1="3.5" y1="10.2" x2="20.5" y2="10.2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', size); }
   function searchIcon(size){ return lineIcon('<circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>', size); }
   function logIcon(size){ return lineIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.2"/>', size); }
   // Icône "aujourd'hui" : un petit calendrier qui affiche le numéro du jour.
@@ -957,7 +979,7 @@
     const bar = document.createElement('div'); bar.className='sidebar';
     const p = activeProfile();
     bar.innerHTML = `
-      <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">📅</div><span class="side-label">Agenda</span></div>
+      <div class="side-item active"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">${calendarIcon(18)}</div><span class="side-label">Agenda</span></div>
       <div class="side-item" id="side-today"><div class="icon-btn">${todayIcon()}</div><span class="side-label">Auj.</span></div>
       <div class="side-item" id="side-search"><div class="icon-btn">${searchIcon()}</div><span class="side-label">Recherche</span></div>
       <div class="side-item" aria-hidden="true" style="visibility:hidden"><div class="icon-btn"></div><span class="side-label">&nbsp;</span></div>
