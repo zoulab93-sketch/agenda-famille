@@ -25,9 +25,6 @@
     --shadow: 0 1px 2px rgba(35,38,43,.06), 0 4px 14px rgba(35,38,43,.06);
     --palette-1: #3B6EA5; --palette-2: #E8735C; --palette-3: #3FA796;
     --palette-4: #C4547A; --palette-5: #D9A441; --palette-6: #6A5DAD;
-    /* Part de la couleur du profil mélangée au fond des lignes du mois.
-       Plus élevée en mode sombre, sinon les bandes de couleur se noient
-       dans le gris foncé. */
     --tint: 22%;
   }
   :root:not([data-theme="light"]) {
@@ -88,11 +85,6 @@
   .day-cell.picked { border-color:var(--palette-3); background: color-mix(in srgb, var(--palette-3) 12%, var(--surface)); }
   .pick-mark { position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:var(--palette-3); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; }
   .day-num { font-size:12px; font-weight:700; padding-left:2px; }
-  /* Le fond (teinte pastel) et la bordure (couleurs pleines de TOUS les
-     participants, en diagonale) sont posés en JS sur deux couches de
-     fond : la première s'arrête à l'intérieur de la bordure, la seconde
-     se voit à travers la bordure transparente. Contrairement à
-     border-image, ça respecte les coins arrondis. */
   .ev-line { height:17px; line-height:14px; border-radius:6px; padding:0 4px; font-size:9.5px; font-weight:700; color:var(--ink); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; border:1.6px solid transparent; }
   .ev-line-text { display:inline-block; white-space:nowrap; }
   .ev-line.marquee { text-overflow:clip; }
@@ -125,11 +117,6 @@
   .sheet-header h2 { margin:0; font-size:18px; }
   .sheet-close { background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer; padding:4px; }
 
-  /* La carte d'un événement porte directement les couleurs de ses
-     participants, en bandes diagonales (le fond est posé en JS via
-     stripeBg). Les bandes gardent leur éclat d'origine et seul le texte
-     est posé sur une petite plaque sombre : c'est ce qui le rend lisible
-     même sur le jaune, sur lequel du blanc seul ne tenait pas. */
   .event-row { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:12px; margin-bottom:6px; color:#fff; }
   .event-info { flex:1; min-width:0; }
   .event-plate { display:inline-block; max-width:100%; background:rgba(14,16,19,.58); border-radius:9px; padding:5px 10px; }
@@ -137,8 +124,6 @@
   .event-meta { font-size:12px; color:rgba(255,255,255,.88); }
   .event-del { background:none; border:none; color:rgba(255,255,255,.85); font-size:16px; cursor:pointer; padding:4px 6px; }
   .empty-note { color:var(--ink-soft); font-size:14px; text-align:center; padding:18px 0; }
-  /* Bandeau discret en bas de l'écran : sert à dire qu'une
-     synchronisation Google n'a pas abouti, sans bloquer l'app. */
   .toast { position:fixed; left:50%; bottom:96px; transform:translate(-50%, 14px); z-index:40;
            max-width:min(92vw,520px); background:var(--ink); color:var(--surface);
            font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:12px;
@@ -157,14 +142,8 @@
   .preset { flex-shrink:0; padding:7px 12px; border-radius:10px; background:var(--surface-soft); border:none; font-size:12.5px; font-weight:700; color:var(--ink); cursor:pointer; }
   .bulk-note { background:var(--surface-soft); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); margin-bottom:14px; }
   .reminder-note { font-size:12px; color:var(--ink-soft); margin-top:7px; }
-  /* Séparateur de section : un filet qui s'efface sur les bords, plus
-     doux qu'un trait net d'un bord à l'autre. Sert à aérer la fiche
-     "Mon compte", qui empile plusieurs sujets sans rapport entre eux. */
   .section-sep { border:0; height:1px; background:linear-gradient(90deg, transparent, var(--line) 18%, var(--line) 82%, transparent); margin:26px 0 18px; }
   .section-title { font-size:12px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 12px 2px; }
-  /* Petite pastille "⏰ 15 min" posée sur la carte d'un événement qui a
-     un rappel. Fond sombre translucide pour rester lisible quelle que
-     soit la couleur des participants derrière. */
   .rem-badge { flex-shrink:0; font-size:11px; font-weight:700; color:#fff; background:rgba(16,18,21,.45); border-radius:999px; padding:3px 8px; white-space:nowrap; }
 
   .log-row { padding:10px 4px; border-bottom:1px solid var(--line); font-size:13.5px; }
@@ -190,15 +169,8 @@
 
   .shell { display:flex; flex-direction:column; flex:1; min-height:0; }
   .sidebar { display:none; }
-  /* Colonne principale : elle occupe toute la hauteur restante de l'écran,
-     et la zone du calendrier (.cal-viewport) prend tout l'espace sous la
-     légende. C'est ce qui permet de swiper n'importe où, même en vue
-     semaine ou jour où le contenu est court. */
   .main-col { display:flex; flex-direction:column; flex:1; min-width:0; min-height:0; }
 
-  /* Desktop / wide-viewport layout: real browser window, not a phone frame.
-     Triggered by width, not aspect ratio, so it also fires on a tall
-     desktop monitor — the calendar always fills the actual window. */
   body.is-wide { height:100%; overflow:hidden; }
   body.is-wide #app { max-width:none; width:100%; height:100vh; height:100dvh; margin:0; overflow:hidden; }
   body.is-wide .shell { flex-direction:row; min-height:0; height:100%; overflow:hidden; }
@@ -224,18 +196,9 @@
   body.is-wide .view-opt { width:38px; height:38px; font-size:14px; }
   body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
 
-  /* Transition douce ("pfitt") lors du changement de mois/semaine/jour,
-     via swipe ou via les flèches. Un vrai glissement : l'ancien et le
-     nouveau mois sont visibles en même temps et se déplacent ensemble,
-     façon carrousel — pas un fondu séparé avec un trou entre les deux.
-     N'anime que la carte du calendrier (transform, GPU) pour rester
-     fluide même sur un téléphone modeste. */
   .cal-viewport { position:relative; overflow:hidden; touch-action:pan-y; flex:1; min-height:0; }
   body.is-wide .cal-viewport { flex:1; min-height:0; display:flex; flex-direction:column; }
 
-  /* ---------- Vue Jour : frise horaire verticale ----------
-     Sur téléphone, la vue Jour occupe exactement l'écran (pas de défilement
-     de la page) ; c'est la frise elle-même qui défile si besoin. */
   body.day-mode:not(.is-wide) #app { height:100vh; height:100dvh; min-height:0; overflow:hidden; }
   .day-wrap { display:flex; flex-direction:column; height:100%; min-height:0; overflow:hidden; }
   .day-allday { flex-shrink:0; position:relative; display:flex; flex-wrap:wrap; gap:6px; padding:2px 12px 8px 58px; }
@@ -255,15 +218,12 @@
   .tl-ev .event-plate { display:block; width:fit-content; max-width:100%; padding:2px 6px; border-radius:6px; overflow:hidden; }
   .tl-ev .event-title { font-size:12px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .tl-ev .event-meta { font-size:11px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  /* Cartes courtes (moins de 45 min) : pas de hauteur minimale ni de marge,
-     pour ne pas déborder sur la carte suivante ni rogner le titre. */
   .tl-ev.s { min-height:0; padding:0; border-radius:6px; }
   .tl-ev.s .event-plate { padding:0 5px; border-radius:5px; }
   .tl-ev.s .event-title { font-size:10.5px; line-height:12px; }
   .tl-now { position:absolute; left:-5px; right:0; height:0; border-top:2px solid #E5484D; z-index:3; pointer-events:none; }
   .tl-now::before { content:''; position:absolute; left:-1px; top:-5px; width:8px; height:8px; border-radius:50%; background:#E5484D; }
 
-  /* ---------- Semaine avec heures (téléphone en paysage) ---------- */
   .wk-row { display:flex; flex-shrink:0; padding:0 12px; }
   .wk-gutter { width:46px; flex:none; font-size:10px; font-weight:700; color:var(--ink-soft); display:flex; align-items:center; justify-content:flex-end; padding-right:6px; }
   .wk-h { flex:1; min-width:0; background:none; border:none; color:var(--ink); display:flex; align-items:baseline; justify-content:center; gap:5px; padding:2px 0 5px; cursor:pointer; font-family:'Quicksand',sans-serif; }
@@ -277,10 +237,6 @@
   .wk-col { position:absolute; top:0; bottom:0; border-left:1px solid var(--line); }
   .wk-col.today { background: color-mix(in srgb, var(--ink) 5%, transparent); }
 
-  /* ---------- Téléphone en paysage : mise en page compacte ----------
-     L'écran ne fait que ~360 px de haut : on rogne les marges, et les trois
-     boutons flottants passent en colonne sur le bord droit au lieu de
-     manger une ligne entière en bas. */
   body.compact-h header { padding:6px 16px 4px; }
   body.compact-h .month-title { font-size:16px; }
   body.compact-h .legend, body.compact-h .select-bar { padding:0 16px 6px; gap:6px; }
@@ -300,8 +256,6 @@
   body.compact-h .weekdays { padding:0 16px; }
   body.compact-h .weekdays span { font-size:10px; }
 
-  /* Paysage : le titre de la période et la légende partagent la même ligne,
-     pour laisser un maximum de hauteur à la frise. */
   body.compact-h .main-col { display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
   body.compact-h header { grid-column:1; grid-row:1; padding:4px 8px 4px 16px; }
   body.compact-h .legend, body.compact-h .select-bar { grid-column:2; grid-row:1; align-self:center; justify-content:flex-end; flex-wrap:nowrap; overflow:hidden; margin:0; padding:0 12px 0 0; }
@@ -310,7 +264,6 @@
   .wk-col .tl-ev.s { min-height:11px; }
   .wk-col .tl-ev.s .event-title { font-size:9.5px; line-height:11px; }
 
-  /* Cartes de la semaine : pastel, texte sombre, bande de couleur à gauche. */
   .day-scroll.wk .tl-line { border-top-color: color-mix(in srgb, var(--line) 45%, transparent); }
   .day-scroll.wk .wk-col { border-left-color: color-mix(in srgb, var(--line) 55%, transparent); }
   .wk-ev { position:absolute; border-radius:10px; overflow:clip; cursor:pointer; color:var(--ink); padding:3px 4px 3px 10px; }
@@ -333,11 +286,10 @@
 
   .pdot { display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:-.06em; margin-right:.32em; box-shadow:0 0 0 1px rgba(127,127,127,.55); flex:none; }
 
-  .icon-slot { width:30px; height:30px; flex-shrink:0; }   /* emplacement réservé pour une future icône */
+  .icon-slot { width:30px; height:30px; flex-shrink:0; }
   .day-cell { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
   .wk-h.picked { background: color-mix(in srgb, var(--palette-3) 25%, transparent); border-radius:8px; }
 
-  /* Semaine en liste (téléphone en vertical) */
   .ag-wrap { position:relative; height:100%; overflow-y:auto; padding:4px 14px 0 8px; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; }
   .ag-wrap::after { content:''; display:block; height:96px; }
   .ag-day { position:relative; display:flex; gap:10px; padding:8px 0 10px; }
@@ -363,24 +315,15 @@
   .line-ico { flex:none; vertical-align:-3px; }
   .ghost-btn .line-ico { margin-right:4px; }
 
-  /* Bouton "Appliquer" (sélection multiple) : rond avec coche, badge du
-     nombre de jours en haut à droite, dans le même style que le + et le ↺. */
   .apply-wrap { position:relative; flex-shrink:0; }
   .fab.apply { background:var(--palette-3); color:#0E1013; width:58px; height:58px; font-size:inherit; padding:0; }
   .fab.apply:disabled { opacity:.4; cursor:not-allowed; }
   .apply-badge { position:absolute; right:-3px; top:-3px; min-width:20px; height:20px; padding:0 4px; border-radius:999px; background:var(--palette-2); color:#fff; font:700 11px 'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); pointer-events:none; }
   body.is-wide .apply-badge { border-color:var(--bg); }
   body.compact-h .fab.apply { width:48px; height:48px; }
-  /* "Désélectionner" -> "Désélec." seulement sur le petit écran compact
-     (paysage téléphone), où les deux libellés côte à côte seraient serrés. */
   body.compact-h .sel-deselect { font-size:0; }
   body.compact-h .sel-deselect::before { content:'Désélec.'; font-size:13px; }
 
-  /* ---------- Page de garde (chargement) ----------
-     Dégradé clair -> obscur en clin d'œil au nom "EarthShade" ; nom du
-     projet dans la police déjà utilisée pour les titres de l'app (pas de
-     nouvelle police à charger), et trois points qui pulsent au lieu du
-     mot "Chargement". */
   #splash {
     position:fixed; inset:0; z-index:1;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
@@ -406,37 +349,22 @@
   const SUPABASE_URL = 'https://dobozrtzmzbxfgpcjesq.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_65knnUG6E1RCT95lEW7apg_uta_GZnY';
 
-  /* ---------- Google Agenda ----------
-     Colle ici l'identifiant client OAuth récupéré dans Google Cloud
-     (il ressemble à 1234567890-abcdef.apps.googleusercontent.com).
-     Cet identifiant est public, il n'y a aucun risque à le laisser dans
-     le fichier — c'est le "secret client", lui, qui reste côté serveur,
-     dans les secrets Supabase. Tant que cette ligne est vide, l'app
-     fonctionne normalement, sans la synchronisation Google.
-     Marche à suivre complète : voir guide_google.md */
   const GOOGLE_CLIENT_ID = '';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true }
   });
   let rtChannel = null;
-  let landscapePhone = false;   // téléphone tenu à l'horizontale
+  let landscapePhone = false;
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
   const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
   const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
-  /* Pastilles de couleur : ces ronds emoji sont enregistrés tels quels
-     dans la base (donc lisibles partout, même dans Google Agenda), mais
-     l'app les dessine en pastilles CSS aux couleurs choisies. */
   const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#5AB0FF', '⚫':'#1B2A6B', '🟣':'#A05CD6' };
-  /* Anciennes icônes des modèles : un événement déjà créé avec l'ancienne
-     icône ET le titre du modèle s'affiche aussi en pastille, sans rien
-     modifier dans la base. Une icône choisie à la main n'est pas touchée. */
   const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
   function iconHtml(e){
     let ic = e && e.icon ? e.icon : '';
     if (!ic) return '';
     const norm = x=>x.replace(/\uFE0F/g, '');
-    // Titre comparé sans tenir compte des majuscules : "Dom", "DOM", "dom".
     const key = Object.keys(PRESET_ICON).find(k=>k.toLowerCase() === String(e.title||'').trim().toLowerCase());
     if (key && LEGACY_PRESET_ICON[key] && norm(LEGACY_PRESET_ICON[key]) === norm(ic)) ic = PRESET_ICON[key];
     if (DOT_COLORS[ic]) return `<span class="pdot" style="background:${DOT_COLORS[ic]}"></span>`;
@@ -458,10 +386,6 @@
     'Réunion': { start:'09:00', end:'17:00' }
   };
   const ICON_CHOICES = ['','📌','🏠','🩺','🎓','🎉','🚗','🍽️','🛌','⭐','❤️'];
-  // Rappels proposés, en minutes avant le début de l'événement.
-  // NULL = aucun rappel. Ces valeurs sont exactement celles que Google
-  // Agenda attend, ce qui évite toute conversion au moment de la
-  // synchronisation.
   const REMINDER_CHOICES = [
     { min: null, label: 'Aucun' },
     { min: 15,   label: '15 min' },
@@ -493,7 +417,6 @@
     authMode:'signin', hhMode:'create', _authEmail:'', _formFrom:null
   };
 
-  /* ---------- Local-only UI prefs (per device, doesn't need sync) ---------- */
   function loadHidden(){
     try { return JSON.parse(localStorage.getItem('af_hidden') || '[]'); } catch(e){ return []; }
   }
@@ -511,7 +434,6 @@
   function activeProfile(){ return state.profiles.find(p=>p.id===state.activeId); }
   function profileById(id){ return state.profiles.find(p=>p.id===id); }
 
-  /* ---------- Supabase data layer ---------- */
   async function afterLogin(){
     const { data: prof, error } = await sb.from('profiles').select('*').eq('user_id', auth.session.user.id).maybeSingle();
     if (error || !prof) { state.myProfile = null; state.household = null; return; }
@@ -540,9 +462,6 @@
     state.log = (log || []).map(l=>({ id: l.id, who: l.who, action: l.action, ts: new Date(l.ts).getTime() }));
     state.activeId = state.myProfile ? state.myProfile.id : null;
 
-    // Le foyer est-il relié à Google ? On ne demande que les colonnes
-    // inoffensives : le jeton lui-même est hors de portée du navigateur,
-    // la base refuserait de le donner.
     try {
       const { data: link } = await sb.from('google_link')
         .select('household_id, connected_email, connected_at')
@@ -615,9 +534,6 @@
     render();
   }
   async function createGuestProfile(name, color){
-    // Profil "invité" : pas de compte, pas d'email, juste une entrée dans
-    // le foyer (utile pour les enfants) qu'on peut ajouter aux événements
-    // comme n'importe quel autre membre.
     const { error } = await sb.from('profiles').insert({ household_id: state.household.id, name, color });
     if (error) throw error;
     await logActivity(`a ajouté le profil « ${name} »`);
@@ -630,16 +546,7 @@
     await reloadHouseholdData();
   }
 
-  /* ---------- Pont vers Google Agenda ----------
-     Toute la mécanique OAuth vit dans la fonction serveur : ici on ne
-     fait que l'appeler. La synchronisation ne doit jamais empêcher
-     d'utiliser l'app — un événement enregistré dans le foyer reste
-     enregistré même si Google est injoignable — mais elle ne doit pas
-     non plus échouer sans rien dire, d'où le petit bandeau. */
   function appRedirectUri(){
-    // Toujours la forme "dossier", même si l'URL affiche index.html :
-    // Google exige que l'adresse de retour corresponde au caractère près
-    // à celle déclarée dans la console.
     return location.origin + location.pathname.replace(/index\.html$/, '');
   }
   function googleConfigured(){ return !!GOOGLE_CLIENT_ID; }
@@ -652,8 +559,8 @@
       redirect_uri: appRedirectUri(),
       response_type: 'code',
       scope: 'https://www.googleapis.com/auth/calendar',
-      access_type: 'offline',   // pour obtenir un jeton durable
-      prompt: 'consent',        // sans ça, Google ne renvoie le jeton durable qu'une seule fois
+      access_type: 'offline',
+      prompt: 'consent',
       state: state_
     });
     location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
@@ -666,8 +573,6 @@
     const oauthError = url.searchParams.get('error');
     if (!code && !oauthError) return false;
 
-    // On nettoie l'adresse tout de suite : le code ne sert qu'une fois,
-    // et il n'a rien à faire dans l'historique du navigateur.
     history.replaceState({}, '', appRedirectUri());
 
     if (oauthError) { toast("Connexion Google annulée."); return false; }
@@ -691,14 +596,12 @@
   }
 
   async function syncToGoogle(action, payload){
-    if (!state.googleLinked) return;   // foyer non connecté : rien à faire
+    if (!state.googleLinked) return;
     try {
       const { data, error } = await sb.functions.invoke('google-calendar', { body: { action, ...payload } });
       if (error) throw error;
       if (data && data.error) throw new Error(data.error);
     } catch(err){
-      // L'événement est déjà sauvegardé dans le foyer : on prévient sans
-      // bloquer, plutôt que de faire croire que tout s'est bien passé.
       toast("L'événement est enregistré, mais Google Agenda n'a pas suivi.");
       console.warn('Synchronisation Google :', err);
     }
@@ -730,11 +633,6 @@
       const cur = curEvents.find(c=>c.id===e.id);
       return !cur || JSON.stringify(cur)!==JSON.stringify(e);
     });
-    // On met l'historique de côté plutôt que de le jeter : si l'annulation
-    // échoue (réseau coupé, règle de sécurité), on le remet en place pour
-    // que le bouton reste utilisable, et on le dit clairement — sinon
-    // l'écran se redessine comme si tout allait bien et l'action est
-    // perdue en silence.
     const keptUndo = state._undo;
     state._undo = null;
     try {
@@ -743,8 +641,6 @@
       for (const e of toRestore) await upsertEventDb(e);
       await logActivity('a annulé la dernière action');
       await reloadHouseholdData();
-      // L'annulation doit se répercuter chez Google, sinon l'agenda
-      // partagé garde une version que plus personne ne voit dans l'app.
       googleIdsToDrop.forEach(gid=>syncToGoogle('remove', { google_event_id: gid }));
       toRestore.forEach(e=>syncToGoogle('push', { event_id: e.id }));
     } catch(err){
@@ -753,10 +649,9 @@
     }
     render();
   }
-  // Suppression d'un événement (depuis la fiche du jour ou le formulaire).
   async function removeEvent(e){
     snapshot();
-    const googleId = e.googleId; // à retenir avant que la ligne disparaisse
+    const googleId = e.googleId;
     try {
       await deleteEventDb(e.id);
       await logActivity(`a supprimé « ${e.title} »`);
@@ -784,11 +679,7 @@
     tinted.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
     return `linear-gradient(135deg, ${stops.join(', ')})`;
   }
-  // Une couleur unie n'est pas acceptée comme couche de fond "non finale" :
-  // on l'enveloppe dans un dégradé à deux arrêts identiques.
   function asLayer(bg){ return bg.startsWith('linear-gradient') ? bg : `linear-gradient(${bg}, ${bg})`; }
-  // Fond d'une ligne du mois : teinte pastel à l'intérieur, couleurs pleines
-  // de tous les participants sur la bordure.
   function lineBg(colors){
     return `${asLayer(pastelStripeBg(colors))} padding-box, ${asLayer(stripeBg(colors))} border-box`;
   }
@@ -810,9 +701,6 @@
     main.appendChild(renderLegend());
     const viewport = document.createElement('div'); viewport.className='cal-viewport';
     const calEl = renderCalendar();
-    // Le geste est écouté sur toute la zone du calendrier (qui occupe la
-    // hauteur restante), pas seulement sur la carte : en vue semaine ou
-    // jour, la carte est courte mais on peut swiper partout dessous.
     attachSwipeNav(viewport);
     viewport.appendChild(calEl);
     main.appendChild(viewport);
@@ -848,7 +736,6 @@
     });
   }
 
-  /* ---------- Loading ---------- */
   function renderLoading(){
     const wrap = document.createElement('div'); wrap.id='splash';
     wrap.innerHTML = `<div class="splash-word">EarthShade</div>
@@ -856,7 +743,6 @@
     return wrap;
   }
 
-  /* ---------- Auth (sign up / sign in) ---------- */
   function renderAuthScreen(){
     const wrap = document.createElement('div'); wrap.id='onboarding';
     const mode = view.authMode || 'signin';
@@ -894,7 +780,6 @@
         } else {
           const { error } = await sb.auth.signInWithPassword({ email, password: pass });
           if (error) throw error;
-          // Succès : le listener onAuthStateChange prend le relais et ré-affiche l'appli.
           return;
         }
       } catch(err){
@@ -907,7 +792,6 @@
     return wrap;
   }
 
-  /* ---------- Household setup (create / join) ---------- */
   function renderHouseholdSetup(){
     const wrap = document.createElement('div'); wrap.id='onboarding';
     const mode = view.hhMode || 'create';
@@ -956,7 +840,6 @@
     return wrap;
   }
 
-  // Icônes en trait fin, dans le même style que le calendrier "aujourd'hui".
   function lineIcon(inner, size){
     const n = size || 18;
     return `<svg class="line-ico" width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
@@ -965,13 +848,12 @@
   function calendarIcon(size){ return lineIcon('<rect x="3.5" y="5" width="17" height="15" rx="3.2"/><line x1="3.5" y1="10.2" x2="20.5" y2="10.2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', size); }
   function searchIcon(size){ return lineIcon('<circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>', size); }
   function logIcon(size){ return lineIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.2"/>', size); }
-  // Icône "aujourd'hui" : un petit calendrier qui affiche le numéro du jour.
   function todayIcon(){ return `<span class="cal-ico"><span>${new Date().getDate()}</span></span>`; }
   function goToday(){
     const t = new Date();
     view.year = t.getFullYear(); view.month = t.getMonth();
     view.weekAnchor = todayStr(); view.dayAnchor = todayStr();
-    dayScrollTop = null; agendaScrollTop = null; // la vue Jour se recale sur l'heure actuelle
+    dayScrollTop = null; agendaScrollTop = null;
     render();
   }
 
@@ -993,7 +875,6 @@
     return bar;
   }
 
-  /* ---------- Header ---------- */
   function headerLabel(){
     if (view.mode==='week') {
       const mon = mondayOf(view.weekAnchor || todayStr());
@@ -1019,12 +900,6 @@
   }
   function navPrev(){ agendaScrollTop = null; stepPrev(); renderWithTransition('prev'); }
   function navNext(){ agendaScrollTop = null; stepNext(); renderWithTransition('next'); }
-  /* Anime le changement de vue avec un vrai glissement "carrousel" :
-     l'ancien et le nouveau mois sont tous les deux dans le DOM en même
-     temps, côte à côte, et se déplacent ensemble — pas un fondu qui
-     laisse un trou vide entre les deux. Seule la carte du calendrier
-     bouge (transform, GPU), le reste de la page (en-tête, légende) se
-     met à jour instantanément à côté, sans animer. */
   let navBusy = false;
   function renderWithTransition(dir){
     const viewport = document.querySelector('.cal-viewport');
@@ -1033,21 +908,14 @@
     if (!viewport || !oldEl || reduceMotion || navBusy) { render(); return; }
     navBusy = true;
 
-    // En-tête et légende changent tout de suite (libellé du mois, etc.),
-    // seule la zone du calendrier est animée.
     const oldHeader = document.querySelector('header');
     if (oldHeader) oldHeader.replaceWith(renderHeader());
     const oldLegend = document.querySelector('.legend, .select-bar');
     if (oldLegend) oldLegend.replaceWith(renderLegend());
 
-    // Le geste de swipe est écouté sur la zone (viewport), qui reste en
-    // place : rien à rattacher à la nouvelle carte.
     const newEl = renderCalendar();
     const goingNext = dir === 'next';
 
-    // Mesurer la hauteur AVANT de passer les éléments en position absolue
-    // (sinon le conteneur s'effondre à 0 dès que son seul enfant en flux
-    // normal en sort, et on mesurerait une hauteur déjà nulle).
     viewport.style.minHeight = viewport.offsetHeight + 'px';
 
     [oldEl, newEl].forEach(el=>{
@@ -1059,7 +927,7 @@
     if (usesTimeline()) syncDayScroll(oldEl, [newEl]);
     initMarquees();
 
-    void newEl.offsetWidth; // force le navigateur à appliquer l'état de départ avant d'animer
+    void newEl.offsetWidth;
 
     const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
     oldEl.style.transition = `transform ${dur} ${ease}`;
@@ -1079,7 +947,7 @@
       navBusy = false;
     };
     newEl.addEventListener('transitionend', cleanup, { once:true });
-    setTimeout(cleanup, 320); // filet de sécurité si transitionend ne se déclenche pas
+    setTimeout(cleanup, 320);
   }
   function renderHeader(){
     const h = document.createElement('header');
@@ -1105,7 +973,6 @@
     return h;
   }
 
-  /* ---------- Legend / select bar ---------- */
   function renderLegend(){
     if (view.selectMode) {
       const bar = document.createElement('div');
@@ -1119,7 +986,6 @@
         clearBtn.onclick = ()=>{ view.selectedDays=[]; render(); };
         actions.appendChild(clearBtn);
       }
-      // Seule façon de quitter la sélection maintenant que l'icône a disparu.
       const cancelBtn = document.createElement('button'); cancelBtn.textContent='Annuler';
       cancelBtn.onclick = ()=>{ view.selectMode=false; view.selectedDays=[]; render(); };
       actions.appendChild(cancelBtn);
@@ -1143,7 +1009,6 @@
     return wrap;
   }
 
-  /* ---------- Calendar ---------- */
   function eventsFor(dateStr){
     return state.events.filter(e=>e.date===dateStr && e.participants.some(id=>!state.hidden.includes(id)));
   }
@@ -1159,15 +1024,11 @@
     return d;
   }
 
-  /* ---------- Appui long : entrer en sélection multiple ----------
-     Un appui long (~0,45 s) sur une case de jour lance le mode sélection
-     avec cette case déjà cochée ; ensuite, un simple toucher coche ou
-     décoche. Le mouvement du doigt (défilement, swipe) annule l'appui long. */
   let ignoreClickUntil = 0;
   function enterSelectMode(ds){
     view.selectMode = true;
     view.selectedDays = [ds];
-    ignoreClickUntil = Date.now() + 700;   // le relâchement du doigt ne doit pas décocher la case
+    ignoreClickUntil = Date.now() + 700;
     try { if (navigator.vibrate) navigator.vibrate(20); } catch(e){}
     render();
   }
@@ -1178,6 +1039,7 @@
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       sx = e.clientX; sy = e.clientY;
       clear();
+      try { el.setPointerCapture(e.pointerId); } catch(err){}
       timer = setTimeout(()=>{ timer = null; cb(); }, 450);
     });
     el.addEventListener('pointermove', (e)=>{
@@ -1221,18 +1083,7 @@
     return renderMonthView();
   }
 
-  /* Swipe tactile gauche/droite pour naviguer entre mois/semaines/jours :
-     la carte suit le doigt en direct (comme Google Agenda) — l'ancien et
-     le nouveau mois sont visibles et bougent ensemble pendant tout le
-     geste, sans coupure ni animation "boîte noire" qui ne démarre qu'au
-     relâchement. On exige un mouvement nettement plus horizontal que
-     vertical avant de capturer le geste, pour ne pas gêner le défilement
-     vertical normal de la page. */
   function buildNeighborCard(dir){
-    // Construit la carte du mois/semaine/jour précédent (dir<0) ou suivant
-    // (dir>0) sans toucher à l'affichage courant : on avance/recule
-    // temporairement la vue, on rend la carte, puis on remet la vue en
-    // place.
     if (dir < 0) stepPrev(); else stepNext();
     const el = renderCalendar();
     if (dir < 0) stepNext(); else stepPrev();
@@ -1240,18 +1091,11 @@
   }
   function attachSwipeNav(el){
     let startX = 0, startY = 0, startT = 0;
-    let tracking = false;  // un doigt est posé, direction pas encore tranchée
-    let dragging = false;  // geste capturé comme un swipe horizontal
+    let tracking = false;
+    let dragging = false;
     let viewport = null, curEl = null, prevCard = null, nextCard = null, width = 1;
     let pendingDx = 0, rafId = 0;
 
-    // Les mises à jour de position ne sont écrites qu'une fois par frame
-    // (via requestAnimationFrame), jamais directement dans le handler de
-    // touchmove : sur un écran 90/120 Hz, le tactile peut envoyer plus
-    // d'événements que l'écran ne peut afficher, et écrire le style à
-    // chaque événement ne fait que gaspiller du travail sans rien
-    // afficher de plus fluide. translate3d (et non translateX/calc) pour
-    // rester strictement sur le thread de composition GPU.
     function scheduleFrame(dx){
       pendingDx = dx;
       if (rafId) return;
@@ -1290,8 +1134,8 @@
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
       if (!dragging) {
-        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; // pas encore assez de mouvement
-        if (Math.abs(dx) < Math.abs(dy) * 1.2) { tracking = false; return; } // plutôt un scroll vertical, on laisse faire
+        if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+        if (Math.abs(dx) < Math.abs(dy) * 1.2) { tracking = false; return; }
         dragging = true;
         viewport = document.querySelector('.cal-viewport');
         curEl = viewport ? viewport.querySelector('.cal-wrap') : null;
@@ -1314,7 +1158,7 @@
         initMarquees();
       }
       if (!dragging) return;
-      e.preventDefault(); // on a le geste : plus de scroll vertical pendant le glissement
+      e.preventDefault();
       scheduleFrame(dx);
     }, { passive:false });
 
@@ -1327,11 +1171,8 @@
       const touch = (e.changedTouches && e.changedTouches[0]) || null;
       const dx = touch ? touch.clientX - startX : 0;
       const dt = Math.max(1, Date.now() - startT);
-      const speed = Math.abs(dx) / dt; // px/ms
+      const speed = Math.abs(dx) / dt;
       const goingPrev = dx > 0;
-      // On termine le changement de page si le glissement est assez ample,
-      // ou assez rapide (un petit coup sec compte aussi, pas seulement une
-      // grande amplitude).
       const complete = Math.abs(dx) > width * 0.32 || speed > 0.55;
       const dur = '.22s'; const ease = 'cubic-bezier(.22,.61,.36,1)';
       [curEl, prevCard, nextCard].forEach(x=>{ x.style.transition = `transform ${dur} ${ease}`; });
@@ -1357,7 +1198,7 @@
         }
       };
       curEl.addEventListener('transitionend', finish, { once:true });
-      setTimeout(finish, 320); // filet de sécurité si transitionend ne se déclenche pas
+      setTimeout(finish, 320);
     }
 
     el.addEventListener('touchend', settle, { passive:true });
@@ -1410,22 +1251,13 @@
     return wrap;
   }
 
-  /* ---------- Vue Jour : frise horaire verticale ----------
-     Les heures défilent de haut en bas, chaque événement est posé à son
-     heure de début et sa hauteur suit sa durée. Les événements qui se
-     chevauchent se partagent la largeur, côte à côte.
-
-     Pour ne pas gaspiller l'écran, la nuit (00h–5h30) est écrasée en une
-     fine bande en haut : tout le reste (5h30–minuit) garde sa pleine
-     échelle. La hauteur d'une heure est calculée pour que la journée
-     tienne exactement dans l'écran, sans défilement. */
-  const DAY_START_MIN = 330;   // 5h30 : début de la plage à pleine échelle
-  const NIGHT_UNITS = 0.6;     // hauteur (en "heures") de la bande de nuit
+  const DAY_START_MIN = 330;
+  const NIGHT_UNITS = 0.6;
   function tlU(min){ return min < DAY_START_MIN ? (min/DAY_START_MIN)*NIGHT_UNITS : NIGHT_UNITS + (min-DAY_START_MIN)/60; }
   function tlMin(u){ return u < NIGHT_UNITS ? (u/NIGHT_UNITS)*DAY_START_MIN : DAY_START_MIN + (u-NIGHT_UNITS)*60; }
   const TL_TOTAL = tlU(1440);
-  let dayHH = 32;              // hauteur d'une heure, en px (recalculée à l'affichage)
-  let dayScrollTop = null;     // position de défilement mémorisée entre deux jours
+  let dayHH = 32;
+  let dayScrollTop = null;
   function toMin(t){
     if (!t) return null;
     const p = t.split(':');
@@ -1433,7 +1265,6 @@
   }
   function pad2(n){ return String(n).padStart(2,'0'); }
 
-  // Répartit les événements qui se chevauchent en colonnes.
   function layoutDayEvents(items){
     items.sort((a,b)=> a.s-b.s || b.e-a.e);
     const clusters = [];
@@ -1462,7 +1293,6 @@
     const colorsOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
     const namesOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
 
-    // Bande "Toute la journée" : fixe, au-dessus de la frise qui défile.
     if (allDay.length) {
       const bar = document.createElement('div'); bar.className = 'day-allday';
       bar.innerHTML = `<span class="day-allday-lab">Journée</span>`;
@@ -1488,7 +1318,6 @@
     const grid = document.createElement('div'); grid.className = 'tl-grid';
     layoutDayEvents(timed).forEach(it=>grid.appendChild(makeTlCard(it, ds, false)));
 
-    // Trait rouge de l'heure actuelle, sur la vue d'aujourd'hui.
     if (ds === todayStr()) {
       const n = new Date();
       const now = document.createElement('div'); now.className = 'tl-now';
@@ -1496,8 +1325,6 @@
       grid.appendChild(now);
     }
 
-    // Toucher un créneau vide : nouveau formulaire, heure de début pré-remplie
-    // (arrondie au quart d'heure inférieur).
     grid.onclick = (ev)=>{
       const rect = grid.getBoundingClientRect();
       const u = (ev.clientY - rect.top) / dayHH;
@@ -1512,9 +1339,6 @@
     return wrap;
   }
 
-
-  // Événements horodatés -> intervalles en minutes (sans heure de fin : 1 h ;
-  // fin "avant" le début : jusqu'à minuit).
   function timedItems(evs){
     return evs.filter(e=>e.start).map(e=>{
       const s = toMin(e.start);
@@ -1524,7 +1348,6 @@
       return { ev:e, s, e:en };
     });
   }
-  // Fond de la frise : bande de nuit, filets et libellés des heures.
   function tlBackgroundHtml(){
     let html = `<div class="tl-night" style="height:calc(var(--hh) * ${NIGHT_UNITS})"></div>`;
     html += `<div class="tl-lab first" style="top:0">00h</div>`;
@@ -1536,8 +1359,6 @@
     }
     return html;
   }
-  // Une carte d'événement sur la frise. En mode "compact" (colonnes étroites
-  // de la semaine) : titre seul, sur une ligne.
   function makeTlCard(it, ds, compact){
     const e = it.ev;
     const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
@@ -1559,7 +1380,6 @@
     return card;
   }
 
-  // Bande verticale aux couleurs de tous les participants (bord gauche des cartes de la semaine).
   function vStripe(colors){
     if (!colors.length) colors = ['#999'];
     if (colors.length === 1) return colors[0];
@@ -1567,9 +1387,6 @@
     colors.forEach((c,i)=>{ stops.push(`${c} ${(i*step).toFixed(2)}%`, `${c} ${((i+1)*step).toFixed(2)}%`); });
     return `linear-gradient(to bottom, ${stops.join(', ')})`;
   }
-  // Carte de la vue Semaine (paysage) : fond pastel, texte sombre, bande de
-  // couleur à gauche, ronds d'initiales en bas à droite. Le titre reste collé
-  // en haut de l'écran (position:sticky) quand la carte déborde de la vue.
   function makeWkCard(it, ds){
     const e = it.ev;
     const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
@@ -1586,9 +1403,6 @@
     card.appendChild(bar);
     const tall = dur >= 120;
     const narrow = it.n > 1;
-    // Ronds d'initiales : en bas à droite sur les grandes cartes, sur la ligne
-    // du titre (à droite) sur les cartes courtes, et de simples pastilles de
-    // couleur sur les cartes de moins de 45 min, trop basses pour une lettre.
     const makeAvs = (max, cls)=>{
       const wrap = document.createElement('span'); wrap.className = cls;
       const list = e.participants.map(id=>profileById(id)).filter(Boolean);
@@ -1625,11 +1439,6 @@
     return Math.max(0, Math.min(23*60+45, min));
   }
 
-  /* ---------- Semaine en liste (téléphone en vertical) ----------
-     Chaque jour est une section : nom du jour et numéro à gauche
-     (aujourd'hui en corail), cartes pleine largeur à droite, avec le titre,
-     l'horaire et les ronds d'initiales des participants. Un appui long sur
-     le nom du jour lance la sélection multiple. */
   let agendaScrollTop = null;
   const AG_DAYNAMES = ['lun.','mar.','mer.','jeu.','ven.','sam.','dim.'];
   function renderWeekAgenda(){
@@ -1645,7 +1454,7 @@
         .filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)))
         .sort((a,b)=>{
           const aa = !a.start, bb = !b.start;
-          if (aa !== bb) return aa ? -1 : 1;             // "toute la journée" d'abord
+          if (aa !== bb) return aa ? -1 : 1;
           return (a.start||'').localeCompare(b.start||'');
         });
       const day = document.createElement('div');
@@ -1703,7 +1512,6 @@
     }
     return wrap;
   }
-  // Après un affichage : retrouver la position dans la liste, ou se placer sur aujourd'hui.
   function restoreAgendaScroll(){
     const w = document.querySelector('.cal-viewport .ag-wrap');
     if (!w) return;
@@ -1712,10 +1520,6 @@
     w.scrollTop = t ? Math.max(0, t.offsetTop - 6) : 0;
   }
 
-  /* ---------- Semaine avec heures (téléphone en paysage) ----------
-     Sept colonnes, du lundi au dimanche, avec la même frise horaire que la
-     vue Jour. Les cartes y sont réduites au titre. Toucher un en-tête de
-     colonne ouvre ce jour en vue Jour. */
   const WK_NAMES = ['lun','mar','mer','jeu','ven','sam','dim'];
   function renderWeekHours(){
     const mon = mondayOf(view.weekAnchor || todayStr());
@@ -1769,7 +1573,7 @@
     const tl = document.createElement('div'); tl.className = 'tl';
     tl.style.height = `calc(var(--hh) * ${TL_TOTAL})`;
     tl.innerHTML = tlBackgroundHtml();
-    scroll.classList.add('wk');   // quadrillage plus discret
+    scroll.classList.add('wk');
     const grid = document.createElement('div'); grid.className = 'tl-grid';
     days.forEach((ds,i)=>{
       const col = document.createElement('div');
@@ -1795,8 +1599,6 @@
     return wrap;
   }
 
-  // Heure sur laquelle caler la frise quand elle doit défiler : maintenant si
-  // aujourd'hui est affiché, sinon le premier événement.
   function timelineFocusMin(){
     const today = todayStr();
     let days;
@@ -1812,9 +1614,6 @@
     return mins.length ? Math.min(...mins) : 8*60;
   }
 
-  // Calcule la hauteur d'une heure pour que 00h–24h (avec la nuit écrasée)
-  // tienne dans l'écran, puis cale le défilement si ça ne suffit pas :
-  // sur l'heure actuelle pour aujourd'hui, sinon sur le premier événement.
   function fitDayView(){
     if (!usesTimeline()) return;
     const viewport = document.querySelector('.cal-viewport');
@@ -1834,15 +1633,12 @@
       }
     }
   }
-  // Pendant une transition entre deux jours, la carte voisine reprend la
-  // même position de défilement que la carte courante, pour éviter un saut.
   function syncDayScroll(from, tos){
     const a = from.querySelector('.day-scroll');
     if (!a) return;
     tos.forEach(t=>{ const b = t.querySelector('.day-scroll'); if (b) b.scrollTop = a.scrollTop; });
   }
 
-  /* ---------- Floating buttons ---------- */
   function renderFabRow(){
     const row = document.createElement('div'); row.className='fab-row';
     if (view.selectMode) {
@@ -1898,7 +1694,6 @@
     return row;
   }
 
-  /* ---------- Day sheet ---------- */
   function renderDaySheet(){
     const scrim = document.createElement('div'); scrim.className='scrim';
     scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
@@ -1906,10 +1701,6 @@
     const ds = view.openDay;
     const d = new Date(ds+'T00:00:00');
     const label = d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
-    // Même filtre que la grille du mois et que la vue « Jour » : ce que la
-    // légende masque n'apparaît pas ici non plus. On compte quand même les
-    // événements masqués pour le signaler en bas de la fiche, sinon un jour
-    // pourrait sembler vide à tort.
     const allOfDay = state.events.filter(e=>e.date===ds);
     const evs = allOfDay
       .filter(e=>e.participants.some(id=>!state.hidden.includes(id)))
@@ -1958,15 +1749,12 @@
     return scrim;
   }
 
-  /* ---------- Event form ---------- */
   function openEventForm(event, dateStr, bulkDates, startTime){
     view.editingEvent = event ? {...event, participants:[...event.participants]} : {
       id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null,
       participants: state.activeId?[state.activeId]:[]
     };
     view._bulkDates = bulkDates || null;
-    // On retient d'où on vient : fermer le formulaire ramène à la fiche du
-    // jour si on en venait, sinon directement au calendrier.
     view._formFrom = view.sheet;
     view.sheet='form';
     render();
@@ -2028,8 +1816,6 @@
       };
       presetsWrap.appendChild(b);
     });
-    // Rappel : aucun, ou un délai avant le début de l'événement. La
-    // valeur est stockée en minutes, comme l'attend Google Agenda.
     const remWrap = sheet.querySelector('#f-reminder');
     const remNote = sheet.querySelector('#f-reminder-note');
     function drawReminders(){
@@ -2044,8 +1830,6 @@
         btn.onclick = ()=>{ ev.reminder = r.min; drawReminders(); };
         remWrap.appendChild(btn);
       });
-      // Sans heure de début, Google déclenche le rappel à partir de
-      // minuit : on le dit plutôt que de laisser croire à un bug.
       remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
         ? "Sans heure de début, le rappel se comptera à partir de minuit."
         : '';
@@ -2074,7 +1858,7 @@
       openTimeWheel(ev.start, (val)=>{
         ev.start = val;
         sheet.querySelector('#f-start-btn').textContent = val || '--:--';
-        drawReminders(); // la note sur "à partir de minuit" dépend de l'heure de début
+        drawReminders();
       });
     };
     sheet.querySelector('#f-end-btn').onclick = ()=>{
@@ -2106,8 +1890,6 @@
           pushedIds.push(ev.id);
         }
         await reloadHouseholdData();
-        // Envoi vers Google en arrière-plan : l'enregistrement dans le
-        // foyer est déjà fait, on ne fait pas attendre l'utilisateur.
         pushedIds.forEach(id=>syncToGoogle('push', { event_id: id }));
         view.sheet = null;
       } catch(err){
@@ -2115,8 +1897,6 @@
       }
       render();
     };
-    // Suppression : elle vit ici (et dans la fiche du jour) car les cartes
-    // de la vue Jour sont trop étroites pour porter un bouton corbeille.
     if (!bulk && !isNew) {
       const del = document.createElement('button');
       del.type = 'button'; del.className = 'danger-btn';
@@ -2134,7 +1914,6 @@
     return scrim;
   }
 
-  /* ---------- Log sheet ---------- */
   function renderLogSheet(){
     const scrim = document.createElement('div'); scrim.className='scrim';
     scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
@@ -2157,7 +1936,6 @@
     return scrim;
   }
 
-  /* ---------- Search sheet ---------- */
   function renderSearchSheet(){
     const scrim = document.createElement('div'); scrim.className='scrim';
     scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
@@ -2195,7 +1973,6 @@
     return scrim;
   }
 
-  /* ---------- Account sheet ---------- */
   function renderSwitchSheet(){
     const scrim = document.createElement('div'); scrim.className='scrim';
     scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet=null; render(); } };
@@ -2276,12 +2053,6 @@
     return scrim;
   }
 
-  /* ---------- Bloc "Google Agenda" de la fiche compte ----------
-     Google sert de copie de secours : tout ce qui est saisi dans l'app
-     est recopié dans un agenda Google partagé, qui survivra même si la
-     base de données disparaît. D'où le bouton de sauvegarde complète :
-     sans lui, seuls les événements créés APRÈS la connexion seraient
-     protégés. */
   function renderGoogleBox(box){
     box.innerHTML = '';
     const note = document.createElement('div');
@@ -2338,8 +2109,6 @@
     btn.disabled = true;
     let done = 0;
     try {
-      // Le serveur traite par lots : on rappelle tant qu'il en reste,
-      // en affichant l'avancement plutôt qu'un bouton figé.
       for (let pass=0; pass<200; pass++) {
         btn.textContent = `Sauvegarde en cours… ${done} envoyé${done>1?'s':''}`;
         const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'push_all', limit:40 } });
@@ -2358,7 +2127,6 @@
     }
   }
 
-  /* ---------- Custom time wheel picker ---------- */
   const WHEEL_HOURS = Array.from({length:24},(_,i)=>i);
   const WHEEL_MINUTES = [0,5,10,15,20,25,30,35,40,45,50,55];
   const WHEEL_ITEM_H = 44;
@@ -2438,10 +2206,6 @@
     scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
     scrim.appendChild(sheet);
     document.body.appendChild(scrim);
-    // Le réglage fait dans fillWheelCol a lieu avant que la fenêtre soit
-    // affichée : le navigateur ignore alors la position de défilement et
-    // la roulette reste sur 00. On la règle donc une seconde fois, une
-    // fois la fenêtre à l'écran.
     const midRep = Math.floor(WHEEL_REPEAT/2);
     const hourCol = sheet.querySelector('#wp-hour'), minCol = sheet.querySelector('#wp-min');
     hourCol.scrollTop = (midRep*WHEEL_HOURS.length + hIdx) * WHEEL_ITEM_H;
@@ -2456,9 +2220,6 @@
 
 
   function detectLandscapePhone(){
-    // On s'appuie sur l'orientation réelle de l'écran (pas sur la taille de
-    // la fenêtre) : quand le clavier s'ouvre, la fenêtre rétrécit mais le
-    // téléphone n'a pas tourné.
     let land;
     try {
       land = (screen.orientation && screen.orientation.type)
@@ -2468,9 +2229,6 @@
     const small = Math.min(screen.width || 9999, screen.height || 9999) < 600;
     return !!land && small;
   }
-  // Tourner le téléphone ne change plus de vue : la Semaine s'affiche en liste
-  // (vertical) ou en colonnes avec heures (horizontal) ; le Jour n'est
-  // accessible qu'avec le bouton J.
   function applyOrientationSwitch(lp){
     dayScrollTop = null;
     agendaScrollTop = null;
@@ -2478,21 +2236,14 @@
     view._autoSwitched = false;
   }
   function stashFormFields(){
-    // Une rotation redessine l'écran : on garde ce qui est en cours de saisie.
     if (view.sheet === 'form' && view.editingEvent) {
       const t = document.getElementById('f-title'); if (t) view.editingEvent.title = t.value;
       const d = document.getElementById('f-date'); if (d && d.value) view.editingEvent.date = d.value;
     }
   }
   function updateLayout(){
-    // Width-based, not aspect-based: a real browser window gets the
-    // full desktop layout whether it's wide-short or narrow-tall.
-    // Only re-render when the layout classification actually changes —
-    // a height-only resize (e.g. a mobile virtual keyboard opening)
-    // must NOT re-render, or it wipes the DOM and steals focus from
-    // whatever field the person just tapped.
     const lp = detectLandscapePhone();
-    const wide = window.innerWidth >= 780 || lp;   // paysage sur téléphone : mise en page large, compacte
+    const wide = window.innerWidth >= 780 || lp;
     const changedWide = document.body.classList.contains('is-wide') !== wide;
     const changedLp = lp !== landscapePhone;
     document.body.classList.toggle('is-wide', wide);
@@ -2506,7 +2257,6 @@
     layoutTimer = setTimeout(updateLayout, 120);
   });
   window.addEventListener('orientationchange', ()=>{
-    // Les dimensions de la fenêtre se mettent à jour un peu après la rotation.
     setTimeout(updateLayout, 150);
     setTimeout(()=>{ updateLayout(); fitDayView(); }, 450);
   });
@@ -2517,15 +2267,11 @@
   document.body.classList.toggle('is-wide', window.innerWidth >= 780 || landscapePhone);
   document.body.classList.toggle('compact-h', landscapePhone);
 
-  /* ---------- Boot ---------- */
   async function boot(){
     render();
     const { data: { session } } = await sb.auth.getSession();
     auth.session = session; auth.loading = false;
     if (session) { try { await afterLogin(); } catch(e){} }
-    // Retour de Google après autorisation : on échange le code avant le
-    // premier affichage utile, pour que la fiche compte montre déjà
-    // l'état connecté.
     if (session && location.search.includes('code=')) {
       const linked = await finishGoogleConnect();
       if (linked) { try { await reloadHouseholdData(); } catch(e){} }
@@ -2534,7 +2280,7 @@
     sb.auth.onAuthStateChange((event, session)=>{
       const hadSession = !!auth.session, hasSession = !!session;
       auth.session = session;
-      if (!hadSession && !hasSession) return; // no real change (e.g. redundant initial fire) — don't steal focus with a needless re-render
+      if (!hadSession && !hasSession) return;
       if (session) {
         afterLogin().then(render).catch(()=>render());
       } else {
