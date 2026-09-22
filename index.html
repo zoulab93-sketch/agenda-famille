@@ -362,6 +362,19 @@
 
   .line-ico { flex:none; vertical-align:-3px; }
   .ghost-btn .line-ico { margin-right:4px; }
+
+  /* Bouton "Appliquer" (sélection multiple) : rond avec coche, badge du
+     nombre de jours en haut à droite, dans le même style que le + et le ↺. */
+  .apply-wrap { position:relative; flex-shrink:0; }
+  .fab.apply { background:var(--palette-3); color:#0E1013; width:58px; height:58px; font-size:inherit; padding:0; }
+  .fab.apply:disabled { opacity:.4; cursor:not-allowed; }
+  .apply-badge { position:absolute; right:-3px; top:-3px; min-width:20px; height:20px; padding:0 4px; border-radius:999px; background:var(--palette-2); color:#fff; font:700 11px 'Quicksand',sans-serif; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); pointer-events:none; }
+  body.is-wide .apply-badge { border-color:var(--bg); }
+  body.compact-h .fab.apply { width:48px; height:48px; }
+  /* "Désélectionner" -> "Désélec." seulement sur le petit écran compact
+     (paysage téléphone), où les deux libellés côte à côte seraient serrés. */
+  body.compact-h .sel-deselect { font-size:0; }
+  body.compact-h .sel-deselect::before { content:'Désélec.'; font-size:13px; }
 </style>
 </head>
 <body>
@@ -1079,7 +1092,8 @@
       bar.innerHTML = `<span>${n ? n+' jour'+(n>1?'s':'')+' sélectionné'+(n>1?'s':'') : 'Touchez des jours à sélectionner'}</span>`;
       const actions = document.createElement('div'); actions.style.cssText = 'display:flex;gap:14px;flex-shrink:0;';
       if (n) {
-        const clearBtn = document.createElement('button'); clearBtn.textContent='Vider';
+        const clearBtn = document.createElement('button'); clearBtn.className='sel-deselect';
+        clearBtn.textContent='Désélectionner';
         clearBtn.onclick = ()=>{ view.selectedDays=[]; render(); };
         actions.appendChild(clearBtn);
       }
@@ -1811,13 +1825,16 @@
     const row = document.createElement('div'); row.className='fab-row';
     if (view.selectMode) {
       const n = view.selectedDays.length;
+      const applyWrap = document.createElement('div'); applyWrap.className='apply-wrap';
       const applyBtn = document.createElement('button');
       applyBtn.className='fab apply';
-      applyBtn.textContent = n ? `Appliquer à ${n} jour${n>1?'s':''}` : 'Sélectionnez des jours';
+      applyBtn.setAttribute('aria-label', n ? `Appliquer à ${n} jour${n>1?'s':''}` : 'Sélectionnez des jours');
+      applyBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
       applyBtn.disabled = !n;
-      applyBtn.style.opacity = n?1:.5;
       applyBtn.onclick = ()=>{ if(n) openEventForm(null, view.selectedDays[0], [...view.selectedDays]); };
-      row.appendChild(applyBtn);
+      applyWrap.appendChild(applyBtn);
+      if (n) { const badge = document.createElement('span'); badge.className='apply-badge'; badge.textContent = n; applyWrap.appendChild(badge); }
+      row.appendChild(applyWrap);
       return row;
     }
 
