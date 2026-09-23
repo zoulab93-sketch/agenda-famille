@@ -1006,8 +1006,24 @@
     return wrap;
   }
 
+  function compareEvents(a, b){
+    const aa = !a.start, bb = !b.start;
+    if (aa !== bb) return aa ? -1 : 1;
+    const s = (a.start||'').localeCompare(b.start||'');
+    if (s) return s;
+    const dur = e=>{
+      if (!e.start) return 0;
+      const st = toMin(e.start);
+      let en = e.end ? toMin(e.end) : st + 60;
+      if (en <= st) en = 1440;
+      return en - st;
+    };
+    return dur(b) - dur(a) || (a.title||'').localeCompare(b.title||'', 'fr');
+  }
   function eventsFor(dateStr){
-    return state.events.filter(e=>e.date===dateStr && e.participants.some(id=>!state.hidden.includes(id)));
+    return state.events
+      .filter(e=>e.date===dateStr && e.participants.some(id=>!state.hidden.includes(id)))
+      .sort(compareEvents);
   }
   function addDays(dateStr, n){
     const d = new Date(dateStr+'T00:00:00');
@@ -1287,7 +1303,7 @@
     const wrap = document.createElement('div');
     wrap.className = 'cal-wrap day-wrap';
 
-    const visible = state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)));
+    const visible = eventsFor(ds);
     const allDay = visible.filter(e=>!e.start);
     const timed = timedItems(visible);
 
@@ -1453,11 +1469,7 @@
       const ds = dstr(d.getFullYear(), d.getMonth(), d.getDate());
       const evs = state.events
         .filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)))
-        .sort((a,b)=>{
-          const aa = !a.start, bb = !b.start;
-          if (aa !== bb) return aa ? -1 : 1;
-          return (a.start||'').localeCompare(b.start||'');
-        });
+        .sort(compareEvents);
       const day = document.createElement('div');
       day.className = 'ag-day' + (ds===today ? ' today' : '');
 
@@ -1549,7 +1561,7 @@
     });
     wrap.appendChild(head);
 
-    const perDay = days.map(ds=>state.events.filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id))));
+    const perDay = days.map(ds=>eventsFor(ds));
     if (perDay.some(list=>list.some(e=>!e.start))) {
       const row = document.createElement('div'); row.className = 'wk-row wk-allday';
       row.innerHTML = `<span class="wk-gutter">Journée</span>`;
@@ -1705,7 +1717,7 @@
     const allOfDay = state.events.filter(e=>e.date===ds);
     const evs = allOfDay
       .filter(e=>e.participants.some(id=>!state.hidden.includes(id)))
-      .sort((a,b)=> (a.start||'').localeCompare(b.start||''));
+      .sort(compareEvents);
     const hiddenCount = allOfDay.length - evs.length;
     sheet.innerHTML = `<div class="sheet-handle"></div>
       <div class="sheet-header"><h2 style="text-transform:capitalize">${label}</h2><button class="sheet-close" id="close-day">✕</button></div>
@@ -1950,7 +1962,7 @@
       resultsWrap.innerHTML = '';
       const query = q.trim().toLowerCase();
       if (!query) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Tape un mot-clé pour chercher dans tous les événements.'; resultsWrap.appendChild(p); return; }
-      const matches = state.events.filter(e=>e.title.toLowerCase().includes(query)).sort((a,b)=>a.date.localeCompare(b.date));
+      const matches = state.events.filter(e=>e.title.toLowerCase().includes(query)).sort((a,b)=>a.date.localeCompare(b.date) || compareEvents(a,b));
       if (!matches.length) { const p=document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement trouvé.'; resultsWrap.appendChild(p); return; }
       matches.forEach(e=>{
         const row = document.createElement('div'); row.className='event-row';
