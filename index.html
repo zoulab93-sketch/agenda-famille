@@ -384,10 +384,16 @@
   let landscapePhone = false;
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
-  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Réunion','Tutorat','Vacances nounou','Centre aéré'];
-  const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
+  const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Tutorat','Vacances nounou','Centre aéré'];
+  const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🔵','RH':'⚪','RTT':'⚪','CA':'🟠','Tutorat':'🔵','Vacances nounou':'🔵','Centre aéré':'🔵' };
   const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#5AB0FF', '⚫':'#1B2A6B', '🟣':'#A05CD6' };
-  const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
+  // Couleurs des cas, reprises de cas-calendar (clé = nom du cas)
+  const CASE_COLORS = { 'Matin':'#90CAF8', 'Soir':'#00887A', 'Soir rouge':'#E53935', 'Dom':'#CF93D9', 'Consultation':'#3949AB', 'CA':'#FB8C00', 'Formation':'#00ACC2', 'Tutorat':'#00ACC2', 'Vacances nounou':'#FFD54F', 'Centre aéré':'#7CB342', 'RH':'#FFFFFF', 'RTT':'#FFFFFF' };
+  function caseColorByTitle(t){
+    const k = Object.keys(CASE_COLORS).find(n=>n.toLowerCase() === String(t||'').trim().toLowerCase());
+    return k ? CASE_COLORS[k] : null;
+  }
+  const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️', 'Formation':'🎓', 'Tutorat':'📚', 'Vacances nounou':'🧳', 'Centre aéré':'🏕️' };
   function impHtml(e){ return e && e.important ? '<span class="imp-mark">★</span>' : ''; }
   function iconHtml(e){
     let ic = e && e.icon ? e.icon : '';
@@ -395,11 +401,13 @@
     const norm = x=>x.replace(/\uFE0F/g, '');
     const key = Object.keys(PRESET_ICON).find(k=>k.toLowerCase() === String(e.title||'').trim().toLowerCase());
     if (key && LEGACY_PRESET_ICON[key] && norm(LEGACY_PRESET_ICON[key]) === norm(ic)) ic = PRESET_ICON[key];
-    if (DOT_COLORS[ic]) return `<span class="pdot" style="background:${DOT_COLORS[ic]}"></span>`;
+    if (DOT_COLORS[ic]) return `<span class="pdot" style="background:${caseColorByTitle(e && e.title) || DOT_COLORS[ic]}"></span>`;
     return escapeHtml(ic) + ' ';
   }
   // Couleur de pastille d'un événement « cas » (null si l'icône n'est pas une pastille)
   function caseColorOf(e){
+    const byTitle = caseColorByTitle(e && e.title);
+    if (byTitle) return byTitle;
     let ic = e && e.icon ? e.icon : '';
     if (!ic) return null;
     const norm = x=>x.replace(/\uFE0F/g, '');
@@ -435,8 +443,7 @@
     'Vacances nounou': { start:'', end:'' },
     'Consultation': { start:'08:00', end:'17:00' },
     'Formation': { start:'09:00', end:'17:00' },
-    'Tutorat': { start:'09:00', end:'17:00' },
-    'Réunion': { start:'09:00', end:'17:00' }
+    'Tutorat': { start:'09:00', end:'17:00' }
   };
   const ICON_CHOICES = ['','📌','🏠','🩺','🎓','🎉','🚗','🍽️','🛌','⭐','❤️'];
   const REMINDER_CHOICES = [
