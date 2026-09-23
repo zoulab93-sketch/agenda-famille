@@ -391,11 +391,16 @@
     { min: 15,   label: '15 min' },
     { min: 30,   label: '30 min' },
     { min: 60,   label: '1 h' },
+    { min: 120,  label: '2 h' },
     { min: 1440, label: '24 h' }
   ];
   function reminderLabel(min){
+    if (min === null || min === undefined) return '';
     const found = REMINDER_CHOICES.find(r=>r.min===min);
-    return found && found.min !== null ? found.label : '';
+    if (found) return found.label;
+    const h = Math.floor(min/60), m = min%60;
+    if (!h) return m + ' min';
+    return h + ' h' + (m ? ' ' + String(m).padStart(2,'0') : '');
   }
   const WEEKDAYS = ['L','M','M','J','V','S','D'];
   const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
@@ -1799,17 +1804,26 @@
       <button class="save-btn" id="f-save">Enregistrer</button>
     `;
     const iconWrap = sheet.querySelector('#f-icons');
+    let iconsOpen = false;
+    function chipBtn(text, on, onClick, big){
+      const b = document.createElement('button'); b.type='button';
+      b.className='chip'+(on?' on':'');
+      b.style.background = on?'var(--ink)':'var(--surface)';
+      b.style.borderColor = on?'var(--ink)':'var(--line)';
+      if (big) b.style.fontSize='16px';
+      b.textContent = text;
+      b.onclick = onClick;
+      return b;
+    }
     function drawIcons(){
       iconWrap.innerHTML='';
+      if (!iconsOpen) {
+        iconWrap.appendChild(chipBtn((ev.icon || '∅') + '  ▾', true, ()=>{ iconsOpen = true; drawIcons(); }, true));
+        return;
+      }
       ICON_CHOICES.forEach(ic=>{
         const on = (ev.icon||'')===ic;
-        const b = document.createElement('button'); b.type='button';
-        b.className='chip'+(on?' on':''); b.style.background = on?'var(--ink)':'var(--surface)';
-        b.style.borderColor = on?'var(--ink)':'var(--line)';
-        b.style.fontSize='16px';
-        b.textContent = ic || '∅';
-        b.onclick = ()=>{ ev.icon = ic; drawIcons(); };
-        iconWrap.appendChild(b);
+        iconWrap.appendChild(chipBtn(ic || '∅', on, ()=>{ ev.icon = ic; iconsOpen = false; drawIcons(); }, true));
       });
     }
     drawIcons();
@@ -1831,18 +1845,29 @@
     });
     const remWrap = sheet.querySelector('#f-reminder');
     const remNote = sheet.querySelector('#f-reminder-note');
+    let remOpen = false;
     function drawReminders(){
       remWrap.innerHTML = '';
-      REMINDER_CHOICES.forEach(r=>{
-        const on = (ev.reminder ?? null) === r.min;
-        const btn = document.createElement('button'); btn.type='button';
-        btn.className = 'chip' + (on?' on':'');
-        btn.style.background = on ? 'var(--ink)' : 'var(--surface)';
-        btn.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
-        btn.textContent = r.label;
-        btn.onclick = ()=>{ ev.reminder = r.min; drawReminders(); };
-        remWrap.appendChild(btn);
-      });
+      const cur = ev.reminder ?? null;
+      const isCustom = cur !== null && !REMINDER_CHOICES.some(r=>r.min===cur);
+      if (!remOpen) {
+        const lab = cur === null ? 'Aucun' : reminderLabel(cur);
+        remWrap.appendChild(chipBtn(lab + '  ▾', true, ()=>{ remOpen = true; drawReminders(); }));
+      } else {
+        REMINDER_CHOICES.forEach(r=>{
+          remWrap.appendChild(chipBtn(r.label, cur === r.min, ()=>{ ev.reminder = r.min; remOpen = false; drawReminders(); }));
+        });
+        remWrap.appendChild(chipBtn(isCustom ? '✏️ ' + reminderLabel(cur) : '✏️ Perso', isCustom, ()=>{
+          const base = isCustom ? cur : 90;
+          const startVal = String(Math.floor(base/60)).padStart(2,'0') + ':' + String(base%60).padStart(2,'0');
+          openTimeWheel(startVal, (val)=>{
+            if (!val) return;
+            const mins = toMin(val);
+            if (!mins) { toast('Choisis une durée d\'au moins 5 minutes.'); return; }
+            ev.reminder = mins; remOpen = false; drawReminders();
+          }, { title: 'Rappel combien de temps avant ?', clearLabel: null, units: true });
+        }));
+      }
       remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
         ? "Sans heure de début, le rappel se comptera à partir de minuit."
         : '';
@@ -2181,7 +2206,10 @@
     });
   }
 
-  function openTimeWheel(currentValue, onConfirm){
+  function openTimeWheel(currentValue, onConfirm, opts){
+    opts = opts || {};
+    const wpTitle = opts.title || "Choisir l'heure";
+    const clearLabel = opts.clearLabel === undefined ? 'Aucune heure' : opts.clearLabel;
     let h = 8, m = 0;
     if (currentValue) {
       const parts = currentValue.split(':');
@@ -2196,22 +2224,22 @@
     const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
     const sheet = document.createElement('div'); sheet.className='sheet';
     sheet.innerHTML = `
-      <div class="sheet-header"><h2>Choisir l'heure</h2><button class="sheet-close" id="wp-close">✕</button></div>
+      <div class="sheet-header"><h2>${escapeHtml(wpTitle)}</h2><button class="sheet-close" id="wp-close">✕</button></div>
       <div class="wheel-frame">
         <div class="wheel-highlight"></div>
         <div class="wheel-picker">
           <div class="wheel-col" id="wp-hour"></div>
-          <div class="wheel-colon">:</div>
-          <div class="wheel-col" id="wp-min"></div>
+          <div class="wheel-colon">${opts.units ? 'h' : ':'}</div>
+          <div class="wheel-col" id="wp-min"></div>${opts.units ? '<div class="wheel-colon">min</div>' : ''}
         </div>
       </div>
-      <button class="ghost-btn" id="wp-clear">Aucune heure</button>
+      ${clearLabel ? `<button class="ghost-btn" id="wp-clear">${escapeHtml(clearLabel)}</button>` : ''}
       <button class="save-btn" id="wp-set">Définir</button>
     `;
     fillWheelCol(sheet.querySelector('#wp-hour'), WHEEL_HOURS, hIdx, (v)=>{ curH=v; });
     fillWheelCol(sheet.querySelector('#wp-min'), WHEEL_MINUTES, mIdx, (v)=>{ curM=v; });
     sheet.querySelector('#wp-close').onclick = ()=>scrim.remove();
-    sheet.querySelector('#wp-clear').onclick = ()=>{ onConfirm(''); scrim.remove(); };
+    if (clearLabel) sheet.querySelector('#wp-clear').onclick = ()=>{ onConfirm(''); scrim.remove(); };
     sheet.querySelector('#wp-set').onclick = ()=>{
       onConfirm(`${String(curH).padStart(2,'0')}:${String(curM).padStart(2,'0')}`);
       scrim.remove();
