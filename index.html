@@ -469,6 +469,8 @@
   const VIEW_LABELS = { day:'Jour', week:'Semaine', month:'Mois' };
 
   let auth = { session: null, loading: true };
+  const backfill = { running:false, done:0 }; // sauvegarde Google du passé en cours
+  let lastRenderedSheet = null;
   let state = {
     profiles: [], household: null, myProfile: null, activeId: null,
     events: [], log: [], hidden: loadHidden(), _undo: null,
@@ -543,7 +545,7 @@
     let t = null;
     const onChange = ()=>{
       clearTimeout(t);
-      t = setTimeout(async ()=>{ await reloadHouseholdData(); render(); }, 200);
+      t = setTimeout(async ()=>{ if (backfill.running) return; await reloadHouseholdData(); render(); }, 200);
     };
     rtChannel = sb.channel('household-'+hid)
       .on('postgres_changes', { event:'*', schema:'public', table:'events', filter:'household_id=eq.'+hid }, onChange)
@@ -769,6 +771,11 @@
     if (!auth.loading) hideBootSplash();
     const root = document.getElementById('app');
     cancelLongPresses();
+    // Garde la position de défilement de la feuille ouverte quand l'écran est redessiné
+    // (mise à jour en temps réel, sauvegarde Google en cours…), sinon elle remonte en haut.
+    const prevSheetEl = root.querySelector('.sheet');
+    const prevSheetScroll = prevSheetEl ? prevSheetEl.scrollTop : 0;
+    const prevSheetKey = lastRenderedSheet;
     root.innerHTML = '';
     document.body.classList.remove('day-mode');
     if (auth.loading) { root.appendChild(renderLoading()); return; }
@@ -793,6 +800,11 @@
     if (view.sheet==='log') root.appendChild(renderLogSheet());
     if (view.sheet==='switch') root.appendChild(renderSwitchSheet());
     if (view.sheet==='search') root.appendChild(renderSearchSheet());
+    lastRenderedSheet = view.sheet || null;
+    if (lastRenderedSheet && lastRenderedSheet === prevSheetKey && prevSheetScroll) {
+      const ns = root.querySelector('.sheet');
+      if (ns) ns.scrollTop = prevSheetScroll;
+    }
     initMarquees();
     fitDayView();
     restoreAgendaScroll();
@@ -2241,11 +2253,12 @@
     note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Connectée${state.googleEmail?' — '+escapeHtml(state.googleEmail):''}.<br><b>${saved}</b> événement${saved>1?'s':''} sur <b>${total}</b> déjà recopié${saved>1?'s':''} dans Google.`;
     box.appendChild(note);
 
-    if (saved < total) {
+    if (saved < total || backfill.running) {
       const back = document.createElement('button');
-      back.className = 'ghost-btn';
-      back.textContent = `⬆ Sauvegarder les ${total-saved} événements manquants`;
-      back.onclick = ()=>runBackfill(back);
+      back.className = 'ghost-btn'; back.id = 'backfill-btn';
+      back.textContent = backfill.running ? backfillLabel() : `⬆ Sauvegarder les ${total-saved} événements manquants`;
+      back.disabled = backfill.running;
+      back.onclick = runBackfill;
       box.appendChild(back);
     }
 
@@ -2266,12 +2279,16 @@
     box.appendChild(off);
   }
 
-  async function runBackfill(btn){
-    btn.disabled = true;
+  function backfillLabel(){ return `Sauvegarde en cours… ${backfill.done} envoyé${backfill.done>1?'s':''}`; }
+  async function runBackfill(){
+    if (backfill.running) return;
+    backfill.running = true; backfill.done = 0;
+    const btnNow = ()=>document.getElementById('backfill-btn');
     let done = 0;
     try {
       for (let pass=0; pass<200; pass++) {
-        btn.textContent = `Sauvegarde en cours… ${done} envoyé${done>1?'s':''}`;
+        backfill.done = done;
+        { const b = btnNow(); if (b) { b.disabled = true; b.textContent = backfillLabel(); } }
         const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'push_all', limit:40 } });
         if (error) throw error;
         if (data && data.error) throw new Error(data.error);
@@ -2279,11 +2296,14 @@
         if (data && data.failures && data.failures.length) console.warn('Non envoyés :', data.failures);
         if (!data || !data.remaining || !data.done) break;
       }
+      backfill.running = false;
       await reloadHouseholdData();
       toast(`Sauvegarde terminée : ${done} événement${done>1?'s':''} envoyé${done>1?'s':''} dans Google.`);
       render();
     } catch(err){
-      btn.disabled = false;
+      backfill.running = false;
+      await reloadHouseholdData().catch(()=>{});
+      render();
       toast('Sauvegarde interrompue : ' + ((err&&err.message)||'erreur'));
     }
   }
