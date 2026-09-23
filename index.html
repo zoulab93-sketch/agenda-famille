@@ -87,6 +87,15 @@
   .day-cell.picked { border-color:var(--palette-3); background: color-mix(in srgb, var(--palette-3) 12%, var(--surface)); }
   .pick-mark { position:absolute; top:4px; right:4px; width:16px; height:16px; border-radius:50%; background:var(--palette-3); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; }
   .day-num { font-size:12px; font-weight:700; padding-left:2px; }
+  /* Événements marqués « Important » : double liseré + étoile */
+  .imp-mark { color:#F2C14E; margin-right:3px; }
+  .ev-line.imp { border:2px solid var(--ink); }
+  .ev-line.imp .imp-mark { color:var(--ink); margin-right:2px; }
+  .day-num .imp-day { color:#C99A1E; font-size:.8em; margin-left:2px; }
+  .event-row.imp { position:relative; box-shadow:0 0 0 2.5px var(--surface), 0 0 0 5px var(--ink); margin:12px 6px 14px; }
+  .imp-badge { position:absolute; top:-10px; right:-10px; width:26px; height:26px; border-radius:50%; background:#F2C14E; border:2.5px solid var(--surface); color:#23262B; display:flex; align-items:center; justify-content:center; font-size:13px; line-height:1; pointer-events:none; }
+  .tl-ev.imp { box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ink); z-index:3; overflow:visible; }
+  .allday-chip.imp { box-shadow:0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
   .ev-line { height:17px; line-height:14px; border-radius:6px; padding:0 4px; font-size:9.5px; font-weight:700; color:var(--ink); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; border:1.6px solid transparent; }
   .ev-line-text { display:inline-block; white-space:nowrap; }
   .ev-line.marquee { text-overflow:clip; }
@@ -363,6 +372,7 @@
   const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🎓','RH':'⚪','RTT':'⚪','CA':'🟠','Réunion':'🗣️','Tutorat':'📚','Vacances nounou':'🧳','Centre aéré':'🏕️' };
   const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#5AB0FF', '⚫':'#1B2A6B', '🟣':'#A05CD6' };
   const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️' };
+  function impHtml(e){ return e && e.important ? '<span class="imp-mark">★</span>' : ''; }
   function iconHtml(e){
     let ic = e && e.icon ? e.icon : '';
     if (!ic) return '';
@@ -463,6 +473,7 @@
       id: e.id, title: e.title, date: e.date,
       start: e.start_time || '', end: e.end_time || '', icon: e.icon || '',
       reminder: (e.reminder_min === null || e.reminder_min === undefined) ? null : Number(e.reminder_min),
+      important: !!e.important,
       googleId: e.google_event_id || null,
       participants: (e.event_participants || []).map(p=>p.profile_id)
     }));
@@ -502,6 +513,7 @@
       id: ev.id, household_id: state.household.id, title: ev.title, date: ev.date,
       start_time: ev.start || null, end_time: ev.end || null, icon: ev.icon || null,
       reminder_min: (ev.reminder === null || ev.reminder === undefined) ? null : ev.reminder,
+      important: !!ev.important,
       created_by: state.myProfile.id
     });
     if (error) throw error;
@@ -1078,10 +1090,10 @@
     let linesHtml = '';
     evs.slice(0,maxLines).forEach(e=>{
       const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-      linesHtml += `<div class="ev-line" style="background:${lineBg(cols)}"><span class="ev-line-text">${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
+      linesHtml += `<div class="ev-line${e.important?' imp':''}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     const dnum = Number(ds.slice(8,10));
-    cell.innerHTML = `<div class="day-num">${dnum}</div>${linesHtml}${evs.length>maxLines?`<div class="more">+${evs.length-maxLines} autre${evs.length-maxLines>1?'s':''}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
+    cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}</div>${linesHtml}${evs.length>maxLines?`<div class="more">+${evs.length-maxLines} autre${evs.length-maxLines>1?'s':''}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
     cell.onclick = ()=>{
       if (Date.now() < ignoreClickUntil) return;
       if (view.selectMode) {
@@ -1323,7 +1335,8 @@
       allDay.forEach(e=>{
         const chip = document.createElement('div'); chip.className = 'allday-chip';
         chip.style.background = stripeBg(colorsOf(e));
-        chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
+        if (e.important) chip.classList.add('imp');
+        chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${impHtml(e)}${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
         chip.onclick = ()=>openEventForm(e, ds);
         bar.appendChild(chip);
       });
@@ -1389,7 +1402,7 @@
     const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
     const u1 = tlU(it.s), u2 = tlU(it.e);
     const card = document.createElement('div');
-    card.className = 'tl-ev' + ((compact || (it.e - it.s) < 45) ? ' s' : '');
+    card.className = 'tl-ev' + ((compact || (it.e - it.s) < 45) ? ' s' : '') + (e.important ? ' imp' : '');
     card.style.background = stripeBg(cols);
     card.style.top = `calc(var(--hh) * ${u1})`;
     card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
@@ -1397,7 +1410,7 @@
     card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
     const tall = !compact && (u2-u1) >= 1.25;
     card.innerHTML = `<div class="event-plate">
-        <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+        <div class="event-title">${impHtml(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
         ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' ⏰':''}</div>` : ''}
       </div>`;
     card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
@@ -1740,7 +1753,8 @@
       const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
       const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
       row.style.background = stripeBg(cols);
-      row.innerHTML = `<div class="event-info"><div class="event-plate">
+      if (e.important) row.classList.add('imp');
+      row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
           <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
         </div></div>
@@ -1771,7 +1785,7 @@
 
   function openEventForm(event, dateStr, bulkDates, startTime){
     view.editingEvent = event ? {...event, participants:[...event.participants]} : {
-      id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null,
+      id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null, important: false,
       participants: state.activeId?[state.activeId]:[]
     };
     view._bulkDates = bulkDates || null;
@@ -1795,7 +1809,7 @@
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
       <div class="preset-row" id="presets"></div>
       <div class="form-row"><label>Titre</label><input type="text" id="f-title" placeholder="ex. Anniversaire de Mamie" value="${escapeAttr(ev.title)}"></div>
-      <div class="form-row"><label>Icône</label><div class="chips" id="f-icons"></div></div>
+      <div class="form-row"><label>Icône</label><div style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-imp"></div></div></div>
       ${bulk?'':`<div class="form-row"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
       <div class="form-row time-row">
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
@@ -1817,8 +1831,18 @@
       b.onclick = onClick;
       return b;
     }
+    const impWrap = sheet.querySelector('#f-imp');
+    function drawImportant(){
+      impWrap.innerHTML = '';
+      const on = !!ev.important;
+      const b = chipBtn('', on, ()=>{ ev.important = !ev.important; drawImportant(); });
+      b.innerHTML = on ? '<span style="color:#F2C14E">★</span> Important' : '☆ Important';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      impWrap.appendChild(b);
+    }
     function drawIcons(){
       iconWrap.innerHTML='';
+      impWrap.style.display = iconsOpen ? 'none' : '';
       if (!iconsOpen) {
         iconWrap.appendChild(chipBtn((ev.icon || '∅') + '  ▾', true, ()=>{ iconsOpen = true; drawIcons(); }, true));
         return;
@@ -1828,6 +1852,7 @@
         iconWrap.appendChild(chipBtn(ic || '∅', on, ()=>{ ev.icon = ic; iconsOpen = false; drawIcons(); }, true));
       });
     }
+    drawImportant();
     drawIcons();
     const presetsWrap = sheet.querySelector('#presets');
     SHIFT_PRESETS.forEach(name=>{
@@ -1917,7 +1942,7 @@
         if (bulk) {
           for (const ds of bulk) {
             const newId = uid();
-            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, participants: [...ev.participants] });
+            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, important: !!ev.important, participants: [...ev.participants] });
             pushedIds.push(newId);
           }
           await logActivity(`a ajouté « ${title} » sur ${bulk.length} jours`);
@@ -1997,7 +2022,8 @@
         const d = new Date(e.date+'T00:00:00');
         const dateLabel = d.toLocaleDateString('fr-FR',{weekday:'short', day:'numeric', month:'short'});
         row.style.background = stripeBg(cols);
-        row.innerHTML = `<div class="event-info"><div class="event-plate">
+        if (e.important) row.classList.add('imp');
+        row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
             <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
             <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
           </div></div>
