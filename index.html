@@ -2329,9 +2329,9 @@
     const me = state.myProfile ? state.myProfile.id : null;
     return (state.links || []).filter(l=>l.profile_id===me);
   }
-  // Appel de la fonction serveur « agendas-lies » ; renvoie ses données ou lève une erreur lisible
+  // Appel de la fonction serveur « agenda-lies » ; renvoie ses données ou lève une erreur lisible
   async function callLinks(body){
-    const { data, error } = await sb.functions.invoke('agendas-lies', { body });
+    const { data, error } = await sb.functions.invoke('agenda-lies', { body });
     if (error) {
       let msg = error.message || 'erreur inconnue';
       try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch(e){}
