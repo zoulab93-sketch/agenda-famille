@@ -345,6 +345,22 @@
   .cal-ico span { font-family:'Quicksand',sans-serif; font-size:9px; font-weight:700; line-height:1; margin-bottom:1px; }
 
   .line-ico { flex:none; vertical-align:-3px; }
+  /* Agendas liés (1.2) : petit maillon sur les événements importés, écrans de gestion */
+  .lnk-ico { display:inline-block; width:.9em; height:.9em; vertical-align:-.12em; margin-right:.25em; opacity:.8; flex:none; }
+  .link-card { display:flex; gap:12px; align-items:flex-start; padding:12px; border-radius:14px; background:var(--surface-soft); margin-bottom:10px; }
+  .link-badge { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:19px; flex-shrink:0; }
+  .link-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .link-name { font-weight:700; font-size:15.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .link-meta { font-size:12.5px; color:var(--ink-soft); line-height:1.35; }
+  .link-meta.err { color:var(--palette-4); }
+  .link-actions { display:flex; gap:16px; margin-top:6px; flex-wrap:wrap; }
+  .link-actions button { background:none; border:none; padding:6px 0; font-weight:700; font-size:13.5px; cursor:pointer; color:var(--ink); font-family:'Karla',sans-serif; }
+  .link-actions button.danger { color:var(--palette-4); }
+  .link-actions button:disabled { opacity:.45; cursor:default; }
+  .form-note { font-size:13px; margin-top:8px; line-height:1.4; }
+  .form-note.ok { color:var(--palette-3); }
+  .form-note.err { color:var(--palette-4); }
+  .field-locked { opacity:.55; }
   .ghost-btn .line-ico { margin-right:4px; }
 
   .apply-wrap { position:relative; flex-shrink:0; }
@@ -384,7 +400,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.2</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -413,6 +429,13 @@
   }
   const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️', 'Formation':'🎓', 'Tutorat':'📚', 'Vacances nounou':'🧳', 'Centre aéré':'🏕️' };
   function impHtml(e){ return e && e.important ? '<span class="imp-mark">★</span>' : ''; }
+  // Agendas liés : un événement importé (et non détaché) porte un petit maillon
+  const LINK_PATHS = '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>';
+  const LINK_SVG = '<svg class="lnk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="Agenda lié">' + LINK_PATHS + '</svg>';
+  function isLinked(e){ return !!(e && e.sourceId && !e.detache); }
+  function lnk(e){ return isLinked(e) ? LINK_SVG : ''; }
+  function linkById(id){ return (state.links || []).find(l=>l.id===id) || null; }
+  const LINK_ICONS = ['', '🎵', '⚽', '🏫', '💼', '🎨', '🏊', '📌', '⭐'];
   function iconHtml(e){
     let ic = e && e.icon ? e.icon : '';
     if (!ic) return '';
@@ -489,7 +512,8 @@
   let state = {
     profiles: [], household: null, myProfile: null, activeId: null,
     events: [], log: [], hidden: loadHidden(), _undo: null,
-    googleLinked: false, googleEmail: ''
+    googleLinked: false, googleEmail: '',
+    links: [], maskedBySource: {}
   };
   let view = {
     year: new Date().getFullYear(), month: new Date().getMonth(),
@@ -540,10 +564,19 @@
       reminder: (e.reminder_min === null || e.reminder_min === undefined) ? null : Number(e.reminder_min),
       important: !!e.important,
       googleId: e.google_event_id || null,
-      participants: (e.event_participants || []).map(p=>p.profile_id)
+      participants: (e.event_participants || []).map(p=>p.profile_id),
+      sourceId: e.source_id || null, detache: !!e.detache, masque: !!e.masque
     }));
+    // Événements d'agendas liés masqués par l'utilisateur : ni affichés, ni comptés
+    state.maskedBySource = {};
+    state.events.forEach(e=>{ if (e.masque && e.sourceId) state.maskedBySource[e.sourceId] = (state.maskedBySource[e.sourceId]||0) + 1; });
+    state.events = state.events.filter(e=>!e.masque);
     state.log = (log || []).map(l=>({ id: l.id, who: l.who, action: l.action, ts: new Date(l.ts).getTime() }));
     state.activeId = state.myProfile ? state.myProfile.id : null;
+    try {
+      const { data: links } = await sb.from('agendas_lies').select('*').eq('household_id', hid).order('created_at');
+      state.links = links || [];
+    } catch(e){ state.links = []; }
 
     try {
       const { data: link } = await sb.from('google_link')
@@ -567,6 +600,7 @@
       .on('postgres_changes', { event:'*', schema:'public', table:'event_participants' }, onChange)
       .on('postgres_changes', { event:'*', schema:'public', table:'profiles', filter:'household_id=eq.'+hid }, onChange)
       .on('postgres_changes', { event:'*', schema:'public', table:'activity_log', filter:'household_id=eq.'+hid }, onChange)
+      .on('postgres_changes', { event:'*', schema:'public', table:'agendas_lies', filter:'household_id=eq.'+hid }, onChange)
       .subscribe();
   }
   async function logActivity(action){
@@ -712,7 +746,8 @@
     const prevEvents = state._undo.events;
     const curEvents = state.events;
     const prevIds = new Set(prevEvents.map(e=>e.id));
-    const toDelete = curEvents.filter(e=>!prevIds.has(e.id));
+    // Un événement arrivé entre-temps par un agenda lié n'est pas « à défaire »
+    const toDelete = curEvents.filter(e=>!prevIds.has(e.id) && !e.sourceId);
     const toRestore = prevEvents.filter(e=>{
       const cur = curEvents.find(c=>c.id===e.id);
       return !cur || JSON.stringify(cur)!==JSON.stringify(e);
@@ -723,6 +758,8 @@
       const googleIdsToDrop = toDelete.map(e=>e.googleId).filter(Boolean);
       for (const e of toDelete) await deleteEventDb(e.id);
       for (const e of toRestore) await upsertEventDb(e);
+      // Un événement importé qu'on avait masqué redevient visible
+      for (const e of toRestore) if (e.sourceId) await sb.from('events').update({ masque:false }).eq('id', e.id);
       await logActivity('a annulé la dernière action');
       await reloadHouseholdData();
       googleIdsToDrop.forEach(gid=>syncToGoogle('remove', { google_event_id: gid }));
@@ -740,10 +777,12 @@
     const nd = days.length;
     snapshot();
     try {
-      for (const e of list) await deleteEventDb(e.id);
+      // Les événements d'agendas liés sont masqués plutôt que supprimés
+      // (sinon ils reviendraient à la prochaine actualisation)
+      for (const e of list) { if (isLinked(e)) await hideImportedDb(e); else await deleteEventDb(e.id); }
       await logActivity(`a supprimé ${list.length} événement${list.length>1?'s':''} sur ${nd} jour${nd>1?'s':''}`);
       await reloadHouseholdData();
-      list.forEach(e=>{ if (e.googleId) syncToGoogle('remove', { google_event_id: e.googleId }); });
+      list.forEach(e=>{ if (e.googleId && !isLinked(e)) syncToGoogle('remove', { google_event_id: e.googleId }); });
       view.selectMode = false; view.selectedDays = [];
       toast(`${list.length} événement${list.length>1?'s':''} supprimé${list.length>1?'s':''} — ↺ pour annuler`);
     } catch(err){
@@ -752,9 +791,23 @@
     }
     render();
   }
+  async function hideImportedDb(e){
+    const { error } = await sb.from('events').update({ masque:true, google_event_id:null }).eq('id', e.id);
+    if (error) throw error;
+    if (e.googleId) syncToGoogle('remove', { google_event_id: e.googleId });
+  }
   async function removeEvent(e){
     snapshot();
     const googleId = e.googleId;
+    if (isLinked(e)) {
+      try {
+        await hideImportedDb(e);
+        await logActivity(`a masqué « ${e.title} »`);
+        await reloadHouseholdData();
+        toast('Événement masqué — ↺ pour annuler');
+      } catch(err){ alert('Erreur : '+err.message); }
+      return;
+    }
     try {
       await deleteEventDb(e.id);
       await logActivity(`a supprimé « ${e.title} »`);
@@ -836,6 +889,8 @@
     if (view.sheet==='log') root.appendChild(renderLogSheet());
     if (view.sheet==='switch') root.appendChild(renderSwitchSheet());
     if (view.sheet==='search') root.appendChild(renderSearchSheet());
+    if (view.sheet==='links') root.appendChild(renderLinksSheet());
+    if (view.sheet==='linkform') root.appendChild(renderLinkForm());
     lastRenderedSheet = view.sheet || null;
     if (lastRenderedSheet && lastRenderedSheet === prevSheetKey && prevSheetScroll) {
       const ns = root.querySelector('.sheet');
@@ -1311,7 +1366,7 @@
     const lineEvs = caseMode ? evs.filter(e=>!caseColorOf(e)) : evs; // en mode cas : les événements hors cas, en lignes classiques
     lineEvs.slice(0,maxLines).forEach(e=>{
       const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-      linesHtml += `<div class="ev-line${e.important?' imp':''}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
+      linesHtml += `<div class="ev-line${e.important?' imp':''}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     const dnum = Number(ds.slice(8,10));
     cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}</div>${linesHtml}${lineEvs.length>maxLines?`<div class="more" data-n="${lineEvs.length-maxLines}">${moreLabel(lineEvs.length-maxLines)}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
@@ -1571,7 +1626,7 @@
         const chip = document.createElement('div'); chip.className = 'allday-chip';
         chip.style.background = stripeBg(colorsOf(e));
         if (e.important) chip.classList.add('imp');
-        chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${impHtml(e)}${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
+        chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${impHtml(e)}${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
         chip.onclick = ()=>openEventForm(e, ds);
         bar.appendChild(chip);
       });
@@ -1645,7 +1700,7 @@
     card.style.width = `calc(${(100/it.n).toFixed(3)}% - 2px)`;
     const tall = !compact && (u2-u1) >= 1.25;
     card.innerHTML = `<div class="event-plate">
-        <div class="event-title">${impHtml(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
+        <div class="event-title">${impHtml(e)}${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
         ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' ⏰':''}</div>` : ''}
       </div>`;
     card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
@@ -1694,7 +1749,7 @@
     };
     const text = document.createElement('div'); text.className = 'wk-text';
     const line = document.createElement('div'); line.className = 'wk-line';
-    line.innerHTML = `<div class="wk-title${tall?' wrap':''}">${iconHtml(e)}${escapeHtml(e.title)}</div>`;
+    line.innerHTML = `<div class="wk-title${tall?' wrap':''}">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>`;
     if (!tall && e.participants.length) line.appendChild(makeAvs(narrow ? 1 : 2, 'wk-avs-inline'));
     text.appendChild(line);
     card.appendChild(text);
@@ -1755,7 +1810,7 @@
         const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
         const card = document.createElement('div'); card.className = 'ag-card';
         card.style.background = pastelStripeBg(cols);
-        card.innerHTML = `<div class="ag-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+        card.innerHTML = `<div class="ag-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="ag-time">${e.start ? e.start + (e.end ? ' – ' + e.end : '') : 'Toute la journée'}</div>`;
         const people = e.participants.map(id=>profileById(id)).filter(Boolean);
         if (people.length) {
@@ -1826,7 +1881,7 @@
           const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
           const chip = document.createElement('div'); chip.className = 'wk-chip';
           chip.style.background = lineBg(cols);
-          chip.innerHTML = iconHtml(e) + escapeHtml(e.title);
+          chip.innerHTML = lnk(e) + iconHtml(e) + escapeHtml(e.title);
           chip.onclick = ()=>openEventForm(e, days[i]);
           cell.appendChild(chip);
         });
@@ -1991,7 +2046,7 @@
       row.style.background = stripeBg(cols);
       if (e.important) row.classList.add('imp');
       row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
-          <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+          <div class="event-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
         </div></div>
         ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
@@ -2040,6 +2095,8 @@
     const ev = view.editingEvent;
     const isNew = !state.events.some(x=>x.id===ev.id);
     const bulk = view._bulkDates;
+    const linked = !bulk && !isNew && isLinked(ev);
+    const srcLink = linked ? linkById(ev.sourceId) : null;
     sheet.innerHTML = `
       <div class="sheet-header"><h2>${bulk?`Nouvel événement (${bulk.length} jours)`:(isNew?'Nouvel événement':'Modifier')}</h2><button class="sheet-close" id="close-form">✕</button></div>
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
@@ -2055,6 +2112,17 @@
       <div class="form-row"><label>Qui participe ?</label><div class="chips" id="f-participants"></div></div>
       <button class="save-btn" id="f-save">Enregistrer</button>
     `;
+    if (linked) {
+      // Événement d'un agenda lié : titre, date et heures suivent la source
+      const note = document.createElement('div'); note.className = 'bulk-note';
+      note.innerHTML = `${LINK_SVG}Vient de « <b>${escapeHtml(srcLink ? srcLink.nom : 'agenda lié')}</b> ». Le titre, la date et les heures suivent le lien ; le reste peut se régler ici.`;
+      sheet.querySelector('.sheet-header').after(note);
+      sheet.querySelector('#presets').style.display = 'none';
+      ['#f-title', '#f-date', '#f-start-btn', '#f-end-btn'].forEach(sel=>{
+        const el = sheet.querySelector(sel);
+        if (el) { el.disabled = true; el.classList.add('field-locked'); }
+      });
+    }
     const iconWrap = sheet.querySelector('#f-icons');
     let iconsOpen = false;
     function chipBtn(text, on, onClick, big){
@@ -2209,7 +2277,36 @@
       }
       render();
     };
-    if (!bulk && !isNew) {
+    if (linked) {
+      const hide = document.createElement('button');
+      hide.type = 'button'; hide.className = 'ghost-btn';
+      hide.textContent = 'Masquer cet événement';
+      hide.onclick = async ()=>{
+        hide.disabled = true;
+        await removeEvent(ev);
+        view.sheet = null;
+        render();
+      };
+      sheet.appendChild(hide);
+      const detach = document.createElement('button');
+      detach.type = 'button'; detach.className = 'ghost-btn';
+      detach.textContent = 'Détacher (copie modifiable)';
+      detach.onclick = async ()=>{
+        if (!confirm(`Détacher « ${ev.title} » ?\n\nIl deviendra un événement normal, modifiable, et ne suivra plus les changements de « ${srcLink ? srcLink.nom : 'la source'} ».`)) return;
+        detach.disabled = true;
+        try {
+          const { error } = await sb.from('events').update({ detache:true }).eq('id', ev.id);
+          if (error) throw error;
+          await logActivity(`a détaché « ${ev.title} » de son agenda lié`);
+          await reloadHouseholdData();
+          toast('Événement détaché : tu peux maintenant le modifier librement.');
+          const fresh = state.events.find(x=>x.id===ev.id);
+          if (fresh) { view.editingEvent = {...fresh, participants:[...fresh.participants]}; render(); return; }
+        } catch(err){ alert('Erreur : ' + ((err && err.message) || 'inconnue')); }
+        view.sheet = null; render();
+      };
+      sheet.appendChild(detach);
+    } else if (!bulk && !isNew) {
       const del = document.createElement('button');
       del.type = 'button'; del.className = 'danger-btn';
       del.textContent = '🗑 Supprimer cet événement';
@@ -2222,6 +2319,214 @@
       };
       sheet.appendChild(del);
     }
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+
+  /* ---------- Agendas liés (1.2) ---------- */
+  function myLinks(){
+    const me = state.myProfile ? state.myProfile.id : null;
+    return (state.links || []).filter(l=>l.profile_id===me);
+  }
+  // Appel de la fonction serveur « agendas-lies » ; renvoie ses données ou lève une erreur lisible
+  async function callLinks(body){
+    const { data, error } = await sb.functions.invoke('agendas-lies', { body });
+    if (error) {
+      let msg = error.message || 'erreur inconnue';
+      try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch(e){}
+      throw new Error(msg);
+    }
+    if (data && data.error) throw new Error(data.error);
+    return data || {};
+  }
+  function fmtAgo(iso){
+    if (!iso) return 'jamais actualisé';
+    const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return "actualisé à l'instant";
+    if (min < 60) return `actualisé il y a ${min} min`;
+    if (min < 24*60) return `actualisé il y a ${Math.round(min/60)} h`;
+    return 'actualisé le ' + fmtTime(new Date(iso).getTime());
+  }
+  function syncSummary(results){
+    const r = (results || [])[0];
+    if (!r) return 'Rien à actualiser.';
+    if (r.error) return `« ${r.nom} » : ${r.error}`;
+    const parts = [];
+    if (r.added) parts.push(`${r.added} ajouté${r.added>1?'s':''}`);
+    if (r.updated) parts.push(`${r.updated} modifié${r.updated>1?'s':''}`);
+    if (r.removed) parts.push(`${r.removed} retiré${r.removed>1?'s':''}`);
+    return `« ${r.nom} » : ` + (parts.length ? parts.join(', ') : 'déjà à jour') + '.';
+  }
+  function fmtDateShort(ds){
+    if (!ds) return '';
+    return new Date(ds+'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function renderLinksSheet(){
+    const scrim = document.createElement('div'); scrim.className='scrim';
+    scrim.onclick = (e)=>{ if(e.target===scrim){ view.sheet='switch'; render(); } };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const me = activeProfile();
+    const links = myLinks();
+    sheet.innerHTML = `<div class="sheet-handle"></div>
+      <div class="sheet-header"><h2>Mes agendas liés</h2><button class="sheet-close" id="close-links">✕</button></div>
+      <div id="links-list"></div>
+      ${links.length > 1 ? '<button class="ghost-btn" id="links-refresh-all">Tout actualiser</button>' : ''}
+      <button class="save-btn" id="links-add" style="margin-top:10px;">+ Ajouter un lien</button>`;
+    const list = sheet.querySelector('#links-list');
+    if (!links.length) {
+      const p = document.createElement('div'); p.className = 'bulk-note';
+      p.innerHTML = "Colle ici le lien d'un agenda (chorale, club, école, ou ton agenda Google au format iCal) : ses événements arriveront tout seuls dans EarthShade, à ton nom, et se mettront à jour chaque heure.";
+      list.appendChild(p);
+    }
+    links.forEach(l=>{
+      const count = state.events.filter(e=>e.sourceId===l.id && !e.detache).length;
+      const masked = state.maskedBySource[l.id] || 0;
+      const isErr = /^Erreur/.test(l.dernier_statut || '');
+      const busy = view._linkBusy === l.id;
+      const card = document.createElement('div'); card.className = 'link-card';
+      card.innerHTML = `
+        <div class="link-badge" style="background:${me ? me.color : 'var(--ink)'}">${l.icone ? escapeHtml(l.icone) : lineIcon(LINK_PATHS, 20)}</div>
+        <div class="link-body">
+          <div class="link-name">${escapeHtml(l.nom)}</div>
+          <div class="link-meta">${busy ? 'Actualisation en cours…' : `${count} événement${count>1?'s':''} · ${fmtAgo(l.derniere_actualisation)}`}</div>
+          ${isErr && !busy ? `<div class="link-meta err">${escapeHtml(l.dernier_statut)}</div>` : ''}
+          ${masked ? `<div class="link-meta">${masked} masqué${masked>1?'s':''}</div>` : ''}
+          <div class="link-meta">${l.envoyer_google ? 'Envoyé aussi vers Agenda Famille' : 'Pas envoyé vers Google'}</div>
+          <div class="link-actions">
+            <button type="button" data-act="refresh" ${busy?'disabled':''}>Actualiser</button>
+            ${masked ? `<button type="button" data-act="unhide" ${busy?'disabled':''}>Réafficher les masqués</button>` : ''}
+            <button type="button" class="danger" data-act="delete" ${busy?'disabled':''}>Supprimer</button>
+          </div>
+        </div>`;
+      const run = async (body, okMsg)=>{
+        view._linkBusy = l.id; render();
+        try {
+          const data = await callLinks(body);
+          await reloadHouseholdData();
+          toast(okMsg ? okMsg(data) : syncSummary(data.results));
+        } catch(err){ toast('Échec : ' + err.message); }
+        view._linkBusy = null; render();
+      };
+      card.querySelector('[data-act="refresh"]').onclick = ()=>run({ action:'actualiser', lien_id:l.id });
+      const un = card.querySelector('[data-act="unhide"]');
+      if (un) un.onclick = ()=>run({ action:'reafficher', lien_id:l.id }, ()=>`${masked} événement${masked>1?'s':''} réaffiché${masked>1?'s':''}.`);
+      card.querySelector('[data-act="delete"]').onclick = ()=>{
+        if (!confirm(`Supprimer l'agenda lié « ${l.nom} » ?\n\nSes événements disparaîtront d'EarthShade (et de Google Agenda). Ceux que tu as détachés restent.`)) return;
+        run({ action:'supprimer_lien', lien_id:l.id }, (d)=>`« ${l.nom} » supprimé (${d.removed||0} événement${(d.removed||0)>1?'s':''} retiré${(d.removed||0)>1?'s':''}).`);
+      };
+      list.appendChild(card);
+    });
+    sheet.querySelector('#close-links').onclick = ()=>{ view.sheet='switch'; render(); };
+    const all = sheet.querySelector('#links-refresh-all');
+    if (all) all.onclick = async ()=>{
+      all.disabled = true; all.textContent = 'Actualisation en cours…';
+      try {
+        const data = await callLinks({ action:'actualiser' });
+        await reloadHouseholdData();
+        const errs = (data.results||[]).filter(r=>r.error).length;
+        toast(errs ? `${errs} agenda${errs>1?'s':''} en erreur — voir le détail.` : 'Tous les agendas liés sont à jour.');
+      } catch(err){ toast('Échec : ' + err.message); }
+      render();
+    };
+    sheet.querySelector('#links-add').onclick = ()=>{
+      view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, checked:null, error:'', saving:false };
+      view.sheet = 'linkform'; render();
+    };
+    scrim.appendChild(sheet);
+    return scrim;
+  }
+
+  function renderLinkForm(){
+    const d = view._linkDraft || (view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, checked:null, error:'', saving:false });
+    const scrim = document.createElement('div'); scrim.className='scrim center';
+    const back = ()=>{ view.sheet='links'; render(); };
+    scrim.onclick = (e)=>{ if(e.target===scrim && !d.saving) back(); };
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const ok = d.checked && d.checked.url === d.url.trim();
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>Ajouter un agenda</h2><button class="sheet-close" id="lk-close">✕</button></div>
+      <div class="form-row"><label>Lien reçu</label>
+        <input type="text" id="lk-url" placeholder="https://… ou webcal://…" value="${escapeAttr(d.url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="ghost-btn" id="lk-check" type="button">${d.checking ? 'Vérification…' : 'Vérifier le lien'}</button>
+        ${ok ? `<div class="form-note ok">✓ ${d.checked.count} événement${d.checked.count>1?'s':''} trouvé${d.checked.count>1?'s':''}${d.checked.first ? ` · du ${fmtDateShort(d.checked.first)} au ${fmtDateShort(d.checked.last)}` : ''}</div>` : ''}
+        ${d.error ? `<div class="form-note err">${escapeHtml(d.error)}</div>` : ''}
+      </div>
+      <div class="form-row"><label>Nom dans EarthShade</label><input type="text" id="lk-name" maxlength="40" placeholder="ex. Chorale" value="${escapeAttr(d.nom)}"></div>
+      <div class="form-row"><label>Icône</label><div class="chips" id="lk-icons"></div></div>
+      ${state.googleLinked ? `<div class="form-row"><label>Google Agenda</label><div class="chips" id="lk-google"></div></div>` : ''}
+      <button class="save-btn" id="lk-save" ${ok && !d.saving ? '' : 'disabled'}>${d.saving ? 'Import en cours…' : 'Ajouter'}</button>
+      ${ok ? '' : '<div class="reminder-note" style="text-align:center;">Vérifie d\'abord le lien.</div>'}`;
+    const urlIn = sheet.querySelector('#lk-url');
+    urlIn.oninput = ()=>{
+      const wasOk = d.checked && d.checked.url === d.url.trim();
+      d.url = urlIn.value; d.error = '';
+      const nowOk = d.checked && d.checked.url === d.url.trim();
+      if (wasOk !== nowOk) { render(); const i = document.getElementById('lk-url'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+    };
+    sheet.querySelector('#lk-name').oninput = (e)=>{ d.nom = e.target.value; };
+    const iconsWrap = sheet.querySelector('#lk-icons');
+    LINK_ICONS.forEach(ic=>{
+      const on = (d.icone||'') === ic;
+      const b = document.createElement('button'); b.type='button';
+      b.className = 'chip' + (on?' on':'');
+      b.style.background = on ? 'var(--ink)' : 'var(--surface)';
+      b.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
+      b.style.fontSize = '16px';
+      b.innerHTML = ic ? escapeHtml(ic) : lineIcon(LINK_PATHS, 16);
+      b.setAttribute('aria-label', ic ? 'Icône ' + ic : 'Icône maillon');
+      b.onclick = ()=>{ d.icone = ic; render(); };
+      iconsWrap.appendChild(b);
+    });
+    const gWrap = sheet.querySelector('#lk-google');
+    if (gWrap) {
+      [[true, 'Envoyer aussi vers Agenda Famille'], [false, 'Ne pas envoyer']].forEach(([val, lab])=>{
+        const on = d.google === val;
+        const b = document.createElement('button'); b.type='button';
+        b.className = 'chip' + (on?' on':'');
+        b.style.background = on ? 'var(--ink)' : 'var(--surface)';
+        b.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
+        b.textContent = lab;
+        b.onclick = ()=>{ d.google = val; render(); };
+        gWrap.appendChild(b);
+      });
+    }
+    sheet.querySelector('#lk-close').onclick = ()=>{ if (!d.saving) back(); };
+    sheet.querySelector('#lk-check').onclick = async ()=>{
+      const url = d.url.trim();
+      if (!url) { d.error = 'Colle d\'abord le lien.'; render(); return; }
+      d.checking = true; d.error = ''; render();
+      try {
+        const res = await callLinks({ action:'apercu', url });
+        d.checked = { url, count: res.count || 0, first: res.first, last: res.last };
+        if (!d.nom.trim() && res.name) d.nom = String(res.name).slice(0, 40);
+        if (!res.count) d.error = "Le lien fonctionne, mais aucun événement n'est prévu entre le mois dernier et l'an prochain.";
+      } catch(err){ d.checked = null; d.error = err.message; }
+      d.checking = false; render();
+    };
+    sheet.querySelector('#lk-save').onclick = async ()=>{
+      const nom = d.nom.trim();
+      if (!nom) { const n = document.getElementById('lk-name'); if (n) n.focus(); d.error = 'Donne un nom à cet agenda.'; render(); return; }
+      d.saving = true; d.error = ''; render();
+      try {
+        const { data: row, error } = await sb.from('agendas_lies').insert({
+          household_id: state.household.id, profile_id: state.myProfile.id,
+          nom, url: d.url.trim(), icone: d.icone || null, envoyer_google: !!(state.googleLinked && d.google)
+        }).select().single();
+        if (error) throw error;
+        await logActivity(`a lié l'agenda « ${nom} »`);
+        const data = await callLinks({ action:'actualiser', lien_id: row.id });
+        await reloadHouseholdData();
+        view._linkDraft = null;
+        view.sheet = 'links';
+        toast(syncSummary(data.results));
+      } catch(err){
+        d.saving = false; d.error = "Ajout impossible : " + ((err && err.message) || 'erreur inconnue');
+        await reloadHouseholdData().catch(()=>{});
+      }
+      render();
+    };
     scrim.appendChild(sheet);
     return scrim;
   }
@@ -2271,7 +2576,7 @@
         row.style.background = stripeBg(cols);
         if (e.important) row.classList.add('imp');
         row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
-            <div class="event-title">${iconHtml(e)}${escapeHtml(e.title)}</div>
+            <div class="event-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
             <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
           </div></div>
           ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}`;
@@ -2310,6 +2615,7 @@
       <div id="google-box"></div>
 
       <hr class="section-sep">
+      <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
       <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
@@ -2361,6 +2667,7 @@
       } catch(err){ errBox.textContent = err.message || 'Erreur.'; }
     };
     sheet.querySelector('#open-log-btn').onclick = ()=>{ view.sheet='log'; render(); };
+    sheet.querySelector('#open-links-btn').onclick = ()=>{ view.sheet='links'; render(); };
     sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
     scrim.appendChild(sheet);
     return scrim;
