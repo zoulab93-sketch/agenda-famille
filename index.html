@@ -76,7 +76,12 @@
   .icon-btn.active { background:var(--ink); color:var(--surface); }
   .avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-family:'Quicksand',sans-serif; cursor:pointer; border:none; font-size:12px; flex-shrink:0; }
 
-  .legend { display:flex; gap:8px; padding:0 16px 10px; flex-wrap:wrap; flex-shrink:0; }
+  .legend { display:flex; gap:8px; padding:0 16px 10px; flex-wrap:nowrap; flex-shrink:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
+  .legend::-webkit-scrollbar { display:none; }
+  .legend > .legend-chip { flex-shrink:0; white-space:nowrap; }
+  .legend::after { content:''; flex:0 0 18px; }
+  /* 1.3.7 : téléphone en portrait — le bord droit s'estompe pour montrer qu'on peut glisser */
+  body:not(.is-wide) .legend { -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 30px), transparent); mask-image:linear-gradient(90deg, #000 calc(100% - 30px), transparent); }
   .legend-chip { display:flex; align-items:center; gap:6px; padding:5px 10px 5px 6px; border-radius:999px; background:var(--surface); box-shadow:var(--shadow); font-size:13px; cursor:pointer; border:none; color:var(--ink); font-family:'Karla',sans-serif; font-weight:600; }
   .legend-chip.off { opacity:.35; }
   .dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
@@ -133,6 +138,9 @@
   .fab-undo { width:58px; height:58px; border-radius:50%; background:var(--surface); color:var(--ink); border:none; font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,.15); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .fab-undo:disabled { opacity:.3; cursor:not-allowed; }
   .undo-ico { width:24px; height:24px; display:block; }
+  .view-ico { width:25px; height:25px; display:block; }
+  body.is-wide .view-ico { width:22px; height:22px; }
+  body.compact-h .view-ico { width:19px; height:19px; }
   body.compact-h .undo-ico { width:18px; height:18px; }
   .view-toggle-wrap { position:relative; flex-shrink:0; }
   .fab-view { width:58px; height:58px; border-radius:50%; background:var(--surface); color:var(--ink); border:none; font-size:20px; font-weight:700; font-family:'Quicksand',sans-serif; box-shadow:0 4px 12px rgba(0,0,0,.15); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -411,7 +419,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.6</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.7</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -515,7 +523,14 @@
   const WEEKDAYS = ['L','M','M','J','V','S','D'];
   const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const MAX_LINES = 4;
-  const VIEW_ICONS = { day:'J', week:'S', month:'M' };
+  // 1.3.7 : pictogrammes « grilles » (famille A) à la place des lettres M / S / J
+  const VIEW_SVG_OPEN = '<svg class="view-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"/>';
+  const VIEW_ICONS = {
+    month: VIEW_SVG_OPEN + '<line x1="3" y1="9.7" x2="21" y2="9.7"/><line x1="3" y1="15.3" x2="21" y2="15.3"/><line x1="9" y1="4" x2="9" y2="21"/><line x1="15" y1="4" x2="15" y2="21"/></svg>',
+    week:  VIEW_SVG_OPEN + '<line x1="3" y1="9" x2="21" y2="9"/><line x1="7.5" y1="9" x2="7.5" y2="21"/><line x1="12" y1="9" x2="12" y2="21"/><line x1="16.5" y1="9" x2="16.5" y2="21"/></svg>',
+    day:   VIEW_SVG_OPEN + '<line x1="3" y1="9" x2="21" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="14" y2="17"/></svg>'
+  };
+  const VIEW_NAMES = { month:'Mois', week:'Semaine', day:'Jour' };
   const VIEW_CYCLE = ['month','week','day'];
 
   let auth = { session: null, loading: true };
@@ -899,6 +914,7 @@
     main.appendChild(renderFabRow());
     shell.appendChild(main);
     root.appendChild(shell);
+    restoreLegendScroll();
     if (view.sheet==='day') root.appendChild(renderDaySheet());
     if (view.sheet==='form') root.appendChild(renderEventForm());
     if (view.sheet==='log') root.appendChild(renderLogSheet());
@@ -1180,7 +1196,7 @@
       slideTitleIn(newHeader.querySelector('.month-title'), oldLabel, goingNext);
     }
     const oldLegend = document.querySelector('.legend, .select-bar');
-    if (oldLegend) oldLegend.replaceWith(renderLegend());
+    if (oldLegend) { oldLegend.replaceWith(renderLegend()); restoreLegendScroll(); }
 
     const newEl = renderCalendar();
 
@@ -1244,6 +1260,12 @@
     return h;
   }
 
+  // 1.3.7 : la légende garde sa position de défilement quand l'écran est redessiné
+  let legendScroll = 0;
+  function restoreLegendScroll(){
+    const lg = document.querySelector('.legend');
+    if (lg && legendScroll) lg.scrollLeft = legendScroll;
+  }
   function renderLegend(){
     if (view.selectMode) {
       const bar = document.createElement('div');
@@ -1265,6 +1287,7 @@
     }
     const wrap = document.createElement('div');
     wrap.className='legend';
+    wrap.addEventListener('scroll', ()=>{ legendScroll = wrap.scrollLeft; }, { passive:true });
     state.profiles.forEach(p=>{
       const off = state.hidden.includes(p.id);
       const chip = document.createElement('button');
@@ -2030,7 +2053,7 @@
 
     const viewWrap = document.createElement('div'); viewWrap.className='view-toggle-wrap';
     const viewBtn = document.createElement('button');
-    viewBtn.className='fab-view'; viewBtn.textContent = VIEW_ICONS[view.mode]; viewBtn.setAttribute('aria-label','Changer de vue');
+    viewBtn.className='fab-view'; viewBtn.innerHTML = VIEW_ICONS[view.mode]; viewBtn.setAttribute('aria-label','Vue ' + VIEW_NAMES[view.mode] + ' — changer de vue'); viewBtn.title = 'Vue ' + VIEW_NAMES[view.mode];
     // Chaque tap passe à la vue suivante : Mois → Semaine → Jour → Mois
     viewBtn.onclick = ()=>{
       const m = VIEW_CYCLE[(VIEW_CYCLE.indexOf(view.mode) + 1) % VIEW_CYCLE.length];
@@ -2696,7 +2719,7 @@
       <hr class="section-sep">
       <div id="google-box"></div>
 
-      <hr class="section-sep">
+      <div style="height:22px"></div>
       <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
       <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
@@ -2778,8 +2801,11 @@
       return;
     }
 
-    const total = state.events.length;
-    const saved = state.events.filter(e=>e.googleId).length;
+    // 1.3.7 : les événements d'agendas liés ne comptent pas (envoi géré par « agenda-lies »,
+    // et certains sont volontairement réglés sur « Ne pas envoyer »)
+    const own = state.events.filter(e=>!isLinked(e));
+    const total = own.length;
+    const saved = own.filter(e=>e.googleId).length;
     note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Connectée${state.googleEmail?' — '+escapeHtml(state.googleEmail):''}.<br><b>${saved}</b> événement${saved>1?'s':''} sur <b>${total}</b> déjà recopié${saved>1?'s':''} dans Google.`;
     box.appendChild(note);
 
