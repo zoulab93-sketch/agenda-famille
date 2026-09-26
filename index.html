@@ -361,6 +361,8 @@
   .form-note.ok { color:var(--palette-3); }
   .form-note.err { color:var(--palette-4); }
   .field-locked { opacity:.55; }
+  /* 1.3 : bouton Lieu du formulaire */
+  #f-lieu .chip { max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
   .ghost-btn .line-ico { margin-right:4px; }
 
   .apply-wrap { position:relative; flex-shrink:0; }
@@ -400,7 +402,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.2</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -418,6 +420,7 @@
   let landscapePhone = false;
 
   const PALETTE = ['#3B6EA5','#E8735C','#3FA796','#C4547A','#D9A441','#6A5DAD'];
+  const NEUTRAL_COLOR = '#8E96A3';
   const SHIFT_PRESETS = ['Matin','Soir','Soir rouge','Dom','Consultation','RH','RTT','CA','Formation','Tutorat','Vacances nounou','Centre aéré'];
   const PRESET_ICON = { 'Matin':'🔵','Soir':'🟢','Soir rouge':'🔴','Dom':'🟣','Consultation':'⚫','Formation':'🔵','RH':'⚪','RTT':'⚪','CA':'🟠','Tutorat':'🔵','Vacances nounou':'🔵','Centre aéré':'🔵' };
   const DOT_COLORS = { '🔴':'#D93A3A', '🟢':'#6DBE45', '🟠':'#F28C28', '⚪':'#FFFFFF', '🔵':'#5AB0FF', '⚫':'#1B2A6B', '🟣':'#A05CD6' };
@@ -565,7 +568,8 @@
       important: !!e.important,
       googleId: e.google_event_id || null,
       participants: (e.event_participants || []).map(p=>p.profile_id),
-      sourceId: e.source_id || null, detache: !!e.detache, masque: !!e.masque
+      sourceId: e.source_id || null, detache: !!e.detache, masque: !!e.masque,
+      lieu: e.lieu || ''
     }));
     // Événements d'agendas liés masqués par l'utilisateur : ni affichés, ni comptés
     state.maskedBySource = {};
@@ -613,6 +617,7 @@
       start_time: ev.start || null, end_time: ev.end || null, icon: ev.icon || null,
       reminder_min: (ev.reminder === null || ev.reminder === undefined) ? null : ev.reminder,
       important: !!ev.important,
+      lieu: (ev.lieu || '').trim() || null,
       created_by: state.myProfile.id
     });
     if (error) throw error;
@@ -1347,6 +1352,7 @@
     const picked = view.selectedDays.includes(ds);
     const cell = document.createElement('div');
     cell.className = 'day-cell' + (otherMonth?' other-month':'') + (ds===todayS?' today':'') + (picked?' picked':'');
+    cell.dataset.ds = ds;
     const evs = eventsFor(ds);
     let linesHtml = '';
     if (caseMode) {
@@ -1361,12 +1367,12 @@
         else cell.style.color = textOn(colors[0]);
       }
       const names = [...new Set(cases.map(e=>e.title))];
-      linesHtml = names.slice(0,2).map(n=>`<div class="case-name">${escapeHtml(n)}</div>`).join('');
+      linesHtml = names.slice(0,2).map(n=>{ const ce = cases.find(x=>x.title===n); return `<div class="case-name"${ce?` data-eid="${ce.id}"`:''}>${escapeHtml(n)}</div>`; }).join('');
     }
     const lineEvs = caseMode ? evs.filter(e=>!caseColorOf(e)) : evs; // en mode cas : les événements hors cas, en lignes classiques
     lineEvs.slice(0,maxLines).forEach(e=>{
       const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-      linesHtml += `<div class="ev-line${e.important?' imp':''}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
+      linesHtml += `<div class="ev-line${e.important?' imp':''}" data-eid="${e.id}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     const dnum = Number(ds.slice(8,10));
     cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}</div>${linesHtml}${lineEvs.length>maxLines?`<div class="more" data-n="${lineEvs.length-maxLines}">${moreLabel(lineEvs.length-maxLines)}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
@@ -1611,6 +1617,7 @@
     const ds = view.dayAnchor || todayStr();
     const wrap = document.createElement('div');
     wrap.className = 'cal-wrap day-wrap';
+    wrap.dataset.ds = ds;
 
     const visible = eventsFor(ds);
     const allDay = visible.filter(e=>!e.start);
@@ -1623,7 +1630,7 @@
       const bar = document.createElement('div'); bar.className = 'day-allday';
       bar.innerHTML = `<span class="day-allday-lab">Journée</span>`;
       allDay.forEach(e=>{
-        const chip = document.createElement('div'); chip.className = 'allday-chip';
+        const chip = document.createElement('div'); chip.className = 'allday-chip'; chip.dataset.eid = e.id;
         chip.style.background = stripeBg(colorsOf(e));
         if (e.important) chip.classList.add('imp');
         chip.innerHTML = `<div class="event-plate"><div class="event-title" style="font-size:13px;">${impHtml(e)}${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div></div>`;
@@ -1693,6 +1700,7 @@
     const u1 = tlU(it.s), u2 = tlU(it.e);
     const card = document.createElement('div');
     card.className = 'tl-ev' + ((compact || (it.e - it.s) < 45) ? ' s' : '') + (e.important ? ' imp' : '');
+    card.dataset.eid = e.id;
     card.style.background = stripeBg(cols);
     card.style.top = `calc(var(--hh) * ${u1})`;
     card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 1px)`;
@@ -1720,6 +1728,7 @@
     const u1 = tlU(it.s), u2 = tlU(it.e), dur = it.e - it.s;
     const card = document.createElement('div');
     card.className = 'wk-ev' + (dur < 45 ? ' xs' : (dur < 75 ? ' s' : ''));
+    card.dataset.eid = e.id;
     card.style.background = pastelStripeBg(cols);
     card.style.top = `calc(var(--hh) * ${u1} + 1px)`;
     card.style.height = `calc(var(--hh) * ${(u2-u1).toFixed(4)} - 2px)`;
@@ -1782,6 +1791,7 @@
         .sort(compareEvents);
       const day = document.createElement('div');
       day.className = 'ag-day' + (ds===today ? ' today' : '');
+      day.dataset.ds = ds;
 
       const lab = document.createElement('div');
       lab.className = 'ag-lab' + (view.selectedDays.includes(ds) ? ' picked' : '');
@@ -1808,7 +1818,7 @@
       }
       evs.forEach(e=>{
         const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-        const card = document.createElement('div'); card.className = 'ag-card';
+        const card = document.createElement('div'); card.className = 'ag-card'; card.dataset.eid = e.id;
         card.style.background = pastelStripeBg(cols);
         card.innerHTML = `<div class="ag-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="ag-time">${e.start ? e.start + (e.end ? ' – ' + e.end : '') : 'Toute la journée'}</div>`;
@@ -1879,7 +1889,7 @@
         const cell = document.createElement('div'); cell.className = 'wk-allcell';
         list.filter(e=>!e.start).forEach(e=>{
           const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-          const chip = document.createElement('div'); chip.className = 'wk-chip';
+          const chip = document.createElement('div'); chip.className = 'wk-chip'; chip.dataset.eid = e.id; chip.dataset.ds = days[i];
           chip.style.background = lineBg(cols);
           chip.innerHTML = lnk(e) + iconHtml(e) + escapeHtml(e.title);
           chip.onclick = ()=>openEventForm(e, days[i]);
@@ -1901,6 +1911,7 @@
     days.forEach((ds,i)=>{
       const col = document.createElement('div');
       col.className = 'wk-col' + (ds===today ? ' today' : '');
+      col.dataset.ds = ds;
       col.style.left = (i/7*100).toFixed(4) + '%';
       col.style.width = (100/7).toFixed(4) + '%';
       layoutDayEvents(timedItems(perDay[i])).forEach(it=>col.appendChild(makeWkCard(it, ds)));
@@ -2040,7 +2051,7 @@
       list.appendChild(p);
     }
     evs.forEach(e=>{
-      const row = document.createElement('div'); row.className='event-row';
+      const row = document.createElement('div'); row.className='event-row'; row.dataset.eid = e.id;
       const cols = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
       const names = e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
       row.style.background = stripeBg(cols);
@@ -2048,6 +2059,7 @@
       row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
           <div class="event-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?e.start+(e.end?'–'+e.end:''):'Toute la journée'} · ${names}</div>
+          ${e.lieu ? `<div class="event-meta">📍 ${escapeHtml(e.lieu)}</div>` : ''}
         </div></div>
         ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
         <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
@@ -2076,7 +2088,7 @@
 
   function openEventForm(event, dateStr, bulkDates, startTime){
     view.editingEvent = event ? {...event, participants:[...event.participants]} : {
-      id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null, important: false,
+      id: uid(), title:'', date: dateStr, start: startTime || '', end:'', icon:'', reminder: null, important: false, lieu:'',
       participants: state.activeId?[state.activeId]:[]
     };
     view._bulkDates = bulkDates || null;
@@ -2102,7 +2114,7 @@
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
       <div class="preset-row" id="presets"></div>
       <div class="form-row"><label>Titre</label><input type="text" id="f-title" placeholder="ex. Anniversaire de Mamie" value="${escapeAttr(ev.title)}"></div>
-      <div class="form-row"><label>Icône</label><div style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-imp"></div></div></div>
+      <div class="form-row"><label>Icône</label><div style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-lieu" style="min-width:0;"></div><div id="f-imp"></div></div></div>
       ${bulk?'':`<div class="form-row"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
       <div class="form-row time-row">
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
@@ -2152,9 +2164,24 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       impWrap.appendChild(b);
     }
+    const lieuWrap = sheet.querySelector('#f-lieu');
+    function drawLieu(){
+      lieuWrap.innerHTML = '';
+      const val = (ev.lieu || '').trim();
+      const b = chipBtn('📍 ' + (val || 'Lieu'), false, ()=>{
+        openTextPrompt('Lieu', val, (txt)=>{ ev.lieu = txt; drawLieu(); });
+      });
+      b.title = val || 'Ajouter un lieu';
+      if (val) { b.style.fontWeight = '700'; }
+      // Événement d'un agenda lié : le lieu suit la source
+      if (linked) { b.disabled = true; b.classList.add('field-locked'); }
+      lieuWrap.appendChild(b);
+    }
     function drawIcons(){
       iconWrap.innerHTML='';
       impWrap.style.display = iconsOpen ? 'none' : '';
+      lieuWrap.style.display = iconsOpen ? 'none' : '';
+      iconWrap.style.flex = iconsOpen ? '1' : '0 0 auto';
       if (!iconsOpen) {
         const closed = chipBtn((ev.icon || '∅') + '  ▾', true, ()=>{ iconsOpen = true; drawIcons(); }, true);
         if (ev.icon && DOT_COLORS[ev.icon]) { const tIn = sheet.querySelector('#f-title'); closed.innerHTML = iconHtml({ icon: ev.icon, title: tIn ? tIn.value : ev.title }) + ' ▾'; }
@@ -2167,6 +2194,7 @@
       });
     }
     drawImportant();
+    drawLieu();
     drawIcons();
     { const tIn = sheet.querySelector('#f-title'); if (tIn) tIn.addEventListener('input', ()=>{ if (!iconsOpen) drawIcons(); }); }
     const presetsWrap = sheet.querySelector('#presets');
@@ -2257,7 +2285,7 @@
         if (bulk) {
           for (const ds of bulk) {
             const newId = uid();
-            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, important: !!ev.important, participants: [...ev.participants] });
+            await upsertEventDb({ id: newId, title, date: ds, start: ev.start, end: ev.end, icon: ev.icon||'', reminder: ev.reminder ?? null, important: !!ev.important, lieu: ev.lieu || '', participants: [...ev.participants] });
             pushedIds.push(newId);
           }
           await logActivity(`a ajouté « ${title} » sur ${bulk.length} jours`);
@@ -2325,9 +2353,19 @@
 
 
   /* ---------- Agendas liés (1.2) ---------- */
+  // Mes agendas liés + ceux des profils invités (Commun, enfants), gérés par les deux parents
   function myLinks(){
     const me = state.myProfile ? state.myProfile.id : null;
-    return (state.links || []).filter(l=>l.profile_id===me);
+    return (state.links || []).filter(l=>{
+      if (l.profile_id === me) return true;
+      const p = profileById(l.profile_id);
+      return !!(p && !p.user_id);
+    });
+  }
+  // Profils à qui on peut rattacher un agenda lié : soi-même, puis les profils invités
+  function linkTargets(){
+    const me = state.myProfile;
+    return [me, ...state.profiles.filter(p=>!p.user_id)].filter(Boolean);
   }
   // Appel de la fonction serveur « agenda-lies » ; renvoie ses données ou lève une erreur lisible
   async function callLinks(body){
@@ -2385,11 +2423,13 @@
       const masked = state.maskedBySource[l.id] || 0;
       const isErr = /^Erreur/.test(l.dernier_statut || '');
       const busy = view._linkBusy === l.id;
+      const owner = profileById(l.profile_id);
       const card = document.createElement('div'); card.className = 'link-card';
       card.innerHTML = `
-        <div class="link-badge" style="background:${me ? me.color : 'var(--ink)'}">${l.icone ? escapeHtml(l.icone) : lineIcon(LINK_PATHS, 20)}</div>
+        <div class="link-badge" style="background:${owner ? owner.color : (me ? me.color : 'var(--ink)')}">${l.icone ? escapeHtml(l.icone) : lineIcon(LINK_PATHS, 20)}</div>
         <div class="link-body">
           <div class="link-name">${escapeHtml(l.nom)}</div>
+          ${owner && me && owner.id !== me.id ? `<div class="link-meta">Pour : <b>${escapeHtml(owner.name)}</b></div>` : ''}
           <div class="link-meta">${busy ? 'Actualisation en cours…' : `${count} événement${count>1?'s':''} · ${fmtAgo(l.derniere_actualisation)}`}</div>
           ${isErr && !busy ? `<div class="link-meta err">${escapeHtml(l.dernier_statut)}</div>` : ''}
           ${masked ? `<div class="link-meta">${masked} masqué${masked>1?'s':''}</div>` : ''}
@@ -2431,7 +2471,7 @@
       render();
     };
     sheet.querySelector('#links-add').onclick = ()=>{
-      view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, checked:null, error:'', saving:false };
+      view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, pour: state.myProfile ? state.myProfile.id : null, checked:null, error:'', saving:false };
       view.sheet = 'linkform'; render();
     };
     scrim.appendChild(sheet);
@@ -2439,7 +2479,8 @@
   }
 
   function renderLinkForm(){
-    const d = view._linkDraft || (view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, checked:null, error:'', saving:false });
+    const d = view._linkDraft || (view._linkDraft = { url:'', nom:'', icone:'', google: state.googleLinked, pour: state.myProfile ? state.myProfile.id : null, checked:null, error:'', saving:false });
+    if (!d.pour && state.myProfile) d.pour = state.myProfile.id;
     const scrim = document.createElement('div'); scrim.className='scrim center';
     const back = ()=>{ view.sheet='links'; render(); };
     scrim.onclick = (e)=>{ if(e.target===scrim && !d.saving) back(); };
@@ -2454,6 +2495,7 @@
         ${d.error ? `<div class="form-note err">${escapeHtml(d.error)}</div>` : ''}
       </div>
       <div class="form-row"><label>Nom dans EarthShade</label><input type="text" id="lk-name" maxlength="40" placeholder="ex. Chorale" value="${escapeAttr(d.nom)}"></div>
+      <div class="form-row"><label>Pour qui ?</label><div class="chips" id="lk-pour"></div></div>
       <div class="form-row"><label>Icône</label><div class="chips" id="lk-icons"></div></div>
       ${state.googleLinked ? `<div class="form-row"><label>Google Agenda</label><div class="chips" id="lk-google"></div></div>` : ''}
       <button class="save-btn" id="lk-save" ${ok && !d.saving ? '' : 'disabled'}>${d.saving ? 'Import en cours…' : 'Ajouter'}</button>
@@ -2466,6 +2508,17 @@
       if (wasOk !== nowOk) { render(); const i = document.getElementById('lk-url'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
     };
     sheet.querySelector('#lk-name').oninput = (e)=>{ d.nom = e.target.value; };
+    const pourWrap = sheet.querySelector('#lk-pour');
+    linkTargets().forEach(p=>{
+      const on = d.pour === p.id;
+      const c = document.createElement('button'); c.type='button';
+      c.className = 'chip' + (on?' on':'');
+      c.style.background = on ? p.color : 'var(--surface)';
+      c.style.borderColor = on ? p.color : 'var(--line)';
+      c.innerHTML = `<span class="dot" style="background:${on?'#fff':p.color}"></span>${escapeHtml(p.name)}`;
+      c.onclick = ()=>{ d.pour = p.id; render(); };
+      pourWrap.appendChild(c);
+    });
     const iconsWrap = sheet.querySelector('#lk-icons');
     LINK_ICONS.forEach(ic=>{
       const on = (d.icone||'') === ic;
@@ -2511,7 +2564,7 @@
       d.saving = true; d.error = ''; render();
       try {
         const { data: row, error } = await sb.from('agendas_lies').insert({
-          household_id: state.household.id, profile_id: state.myProfile.id,
+          household_id: state.household.id, profile_id: d.pour || state.myProfile.id,
           nom, url: d.url.trim(), icone: d.icone || null, envoyer_google: !!(state.googleLinked && d.google)
         }).select().single();
         if (error) throw error;
@@ -2605,7 +2658,7 @@
       <hr class="section-sep">
       <div class="section-title">Profils enfants</div>
       <div class="field">
-        <label for="guest-name">Ajouter un profil enfant (sans compte ni email)</label>
+        <label for="guest-name">Ajouter un profil enfant ou « Commun » (sans compte ni email)</label>
         <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
         <div class="swatches" id="guest-swatches"></div>
       </div>
@@ -2644,7 +2697,8 @@
     });
     let guestColor = PALETTE[state.profiles.length % PALETTE.length];
     const gsw = sheet.querySelector('#guest-swatches');
-    PALETTE.forEach(c=>{
+    // + un gris neutre, pour un profil « Commun » (jours fériés, vacances…)
+    [...PALETTE, NEUTRAL_COLOR].forEach(c=>{
       const s = document.createElement('div');
       s.className='swatch' + (c===guestColor?' selected':'');
       s.style.background=c;
@@ -2796,6 +2850,27 @@
     });
   }
 
+  function openTextPrompt(title, currentValue, onConfirm){
+    const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>${escapeHtml(title)}</h2><button class="sheet-close" id="tp-close">✕</button></div>
+      <div class="form-row"><input type="text" id="tp-input" maxlength="200" placeholder="ex. Salle des fêtes" value="${escapeAttr(currentValue||'')}"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost-btn" id="tp-clear" style="margin-top:0;">Effacer</button>
+        <button class="save-btn" id="tp-set" style="margin-top:0;">Définir</button>
+      </div>`;
+    const input = sheet.querySelector('#tp-input');
+    const done = (v)=>{ onConfirm(v); scrim.remove(); };
+    sheet.querySelector('#tp-close').onclick = ()=>scrim.remove();
+    sheet.querySelector('#tp-clear').onclick = ()=>done('');
+    sheet.querySelector('#tp-set').onclick = ()=>done(input.value.trim());
+    input.addEventListener('keydown', (e)=>{ if (e.key==='Enter') { e.preventDefault(); done(input.value.trim()); } });
+    scrim.onclick = (e)=>{ if(e.target===scrim) scrim.remove(); };
+    scrim.appendChild(sheet);
+    document.body.appendChild(scrim);
+    setTimeout(()=>{ input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 30);
+  }
   function openTimeWheel(currentValue, onConfirm, opts){
     opts = opts || {};
     const wpTitle = opts.title || "Choisir l'heure";
@@ -2921,6 +2996,82 @@
     });
   }
   boot();
+
+  /* ---------- Clavier sur ordinateur (1.3) ---------- */
+  // Flèches ← → : période précédente / suivante.
+  // Ctrl+C (⌘C) : copie l'événement survolé. Ctrl+V (⌘V) : le colle sur le jour survolé
+  // (ou sur les jours sélectionnés). ↺ annule, comme le reste.
+  let hoverEventId = null, hoverDay = null, clipEvent = null;
+  document.addEventListener('mouseover', (e)=>{
+    const t = e.target;
+    if (!t || !t.closest) return;
+    const evEl = t.closest('[data-eid]');
+    hoverEventId = evEl ? evEl.dataset.eid : null;
+    const dEl = t.closest('[data-ds]');
+    hoverDay = dEl ? dEl.dataset.ds : null;
+  });
+  document.addEventListener('mouseleave', ()=>{ hoverEventId = null; hoverDay = null; });
+
+  async function pasteEvent(src, days){
+    const list = [...new Set(days)];
+    snapshot();
+    try {
+      const ids = [];
+      for (const ds of list) {
+        const id = uid();
+        await upsertEventDb({ id, title: src.title, date: ds, start: src.start, end: src.end, icon: src.icon||'', reminder: src.reminder ?? null, important: !!src.important, lieu: src.lieu || '', participants: [...src.participants] });
+        ids.push(id);
+      }
+      await logActivity(list.length > 1 ? `a collé « ${src.title} » sur ${list.length} jours` : `a collé « ${src.title} »`);
+      await reloadHouseholdData();
+      ids.forEach(id=>syncToGoogle('push', { event_id: id }));
+      if (view.selectMode) { view.selectMode = false; view.selectedDays = []; }
+      const lab = list.length > 1 ? `${list.length} jours` : new Date(list[0]+'T00:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+      toast(`« ${src.title} » collé : ${lab} — ↺ pour annuler`);
+    } catch(err){
+      await reloadHouseholdData().catch(()=>{});
+      alert('Collage impossible : ' + ((err && err.message) || 'erreur inconnue'));
+    }
+    render();
+  }
+
+  document.addEventListener('keydown', (e)=>{
+    if (!auth.session || !state.myProfile) return;
+    const t = e.target;
+    const typing = t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.tagName==='SELECT' || t.isContentEditable);
+    if (typing) return;
+    const sheetOpen = !!document.querySelector('.scrim');
+    const mod = e.ctrlKey || e.metaKey;
+    const k = (e.key || '').toLowerCase();
+
+    if (!mod && !e.altKey && !e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      if (sheetOpen) return;
+      e.preventDefault();
+      if (e.key === 'ArrowLeft') navPrev(); else navNext();
+      return;
+    }
+    // Copier-coller : calendrier, ou fenêtre du jour ouverte
+    if (!mod || e.altKey || e.shiftKey) return;
+    if (sheetOpen && view.sheet !== 'day') return;
+    if (k === 'c') {
+      if (window.getSelection && String(window.getSelection())) return; // texte sélectionné : copie normale
+      const ev = hoverEventId && state.events.find(x=>x.id===hoverEventId);
+      if (!ev) return;
+      e.preventDefault();
+      clipEvent = { title: ev.title, start: ev.start, end: ev.end, icon: ev.icon, reminder: ev.reminder, important: ev.important, lieu: ev.lieu, participants: [...ev.participants] };
+      toast(`« ${ev.title} » copié — survole un jour puis Ctrl+V`);
+    } else if (k === 'v') {
+      if (!clipEvent) return;
+      let days = [];
+      if (view.selectMode && view.selectedDays.length) days = [...view.selectedDays];
+      else if (hoverDay) days = [hoverDay];
+      else if (view.sheet === 'day' && view.openDay) days = [view.openDay];
+      else if (view.mode === 'day') days = [view.dayAnchor || todayStr()];
+      e.preventDefault();
+      if (!days.length) { toast('Survole un jour, puis Ctrl+V.'); return; }
+      pasteEvent(clipEvent, days);
+    }
+  });
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
