@@ -116,6 +116,10 @@
   .day-cell.case-cell { border-color:rgba(0,0,0,.08); }
   .day-cell.case-cell.today { border-color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--surface); }
   .day-cell.case-cell .more { color:inherit; opacity:.85; }
+  /* 1.3.6 : compteur « +N » en petit à côté du numéro du jour (au lieu d'une ligne entière) */
+  .day-num { display:flex; align-items:center; gap:3px; white-space:nowrap; }
+  .more-badge { font-size:9.5px; font-weight:700; line-height:1.35; padding:0 4px; border-radius:999px; color:var(--ink-soft); background:var(--surface-soft); flex-shrink:0; }
+  .day-cell.case-cell .more-badge { color:inherit; background:rgba(0,0,0,.14); }
   .day-cell.case-cell .ev-line { text-shadow:none; }
   .case-name { font-size:10.5px; font-weight:800; line-height:1.15; padding:0 2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   body.is-wide .case-name { font-size:14px; }
@@ -219,6 +223,7 @@
   body.is-wide .day-cell.case-cell.today { box-shadow:inset 0 0 0 2px var(--surface); }
   body.is-wide .ev-line { font-size:12.5px; height:25px; line-height:21px; border-radius:7px; padding:0 7px; border-width:2px; }
   body.is-wide .more { font-size:12px; }
+  body.is-wide .more-badge { font-size:11.5px; padding:0 6px; }
   body.is-wide .fab-row { position:static; padding:8px 28px 16px; flex-shrink:0; }
   body.is-wide .fab, body.is-wide .fab-undo, body.is-wide .fab-view { width:48px; height:48px; font-size:21px; }
   body.is-wide .sheet, body.is-wide .scrim.center .sheet { max-width:460px; }
@@ -287,6 +292,7 @@
   body.compact-h .grid { gap:4px; padding:0 16px 8px; }
   body.compact-h .day-cell { padding:3px 5px; gap:2px; }
   body.compact-h .day-num { font-size:11px; }
+  body.compact-h .more-badge { font-size:10px; padding:0 4px; }
   body.compact-h .ev-line { height:14px; line-height:11px; font-size:9.5px; padding:0 4px; border-width:1.5px; }
   body.compact-h .weekdays { padding:0 16px; }
   body.compact-h .weekdays span { font-size:10px; }
@@ -405,7 +411,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.5</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.6</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1340,20 +1346,31 @@
   function moreLabel(n){ return `+${n} autre${n>1?'s':''}`; }
   // Quand une case est trop petite pour toutes ses lignes, on retire les dernières
   // et on les compte dans « +N autres » (au lieu de les couper à moitié).
+  // 1.3.6 : le compteur est une petite pastille « +N » à côté du numéro du jour,
+  // et on garde toujours au moins un événement visible (sauf en Vue Planning,
+  // où le nom du Poste occupe déjà la case).
+  function setMoreBadge(cell, n){
+    let b = cell.querySelector('.more-badge');
+    if (!n) { if (b) b.remove(); return; }
+    if (!b) {
+      b = document.createElement('span'); b.className = 'more-badge';
+      const num = cell.querySelector('.day-num');
+      if (!num) return;
+      num.appendChild(b);
+    }
+    b.dataset.n = n; b.textContent = '+' + n; b.title = moreLabel(n);
+  }
   function fitDayCells(){
     document.querySelectorAll('.cal-viewport .day-cell').forEach(cell=>{
       if (cell.scrollHeight <= cell.clientHeight + 1) return;
       const lines = [...cell.querySelectorAll('.ev-line')];
-      if (!lines.length) return;
-      let more = cell.querySelector('.more[data-n]');
-      let n = more ? Number(more.dataset.n) || 0 : 0;
-      if (!more) {
-        more = document.createElement('div'); more.className = 'more';
-        lines[lines.length-1].after(more);
-      }
-      while (lines.length && cell.scrollHeight > cell.clientHeight + 1) {
+      const keep = cell.querySelector('.case-name') ? 0 : 1;
+      if (lines.length <= keep) return;
+      const b = cell.querySelector('.more-badge');
+      let n = b ? Number(b.dataset.n) || 0 : 0;
+      while (lines.length > keep && cell.scrollHeight > cell.clientHeight + 1) {
         lines.pop().remove(); n++;
-        more.dataset.n = n; more.textContent = moreLabel(n);
+        setMoreBadge(cell, n);
       }
     });
   }
@@ -1385,7 +1402,8 @@
       linesHtml += `<div class="ev-line${e.important?' imp':''}" data-eid="${e.id}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     const dnum = Number(ds.slice(8,10));
-    cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}</div>${linesHtml}${lineEvs.length>maxLines?`<div class="more" data-n="${lineEvs.length-maxLines}">${moreLabel(lineEvs.length-maxLines)}</div>`:''}${picked?'<div class="pick-mark">✓</div>':''}`;
+    const extra = Math.max(0, lineEvs.length - maxLines);
+    cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}${extra?`<span class="more-badge" data-n="${extra}" title="${moreLabel(extra)}">+${extra}</span>`:''}</div>${linesHtml}${picked?'<div class="pick-mark">✓</div>':''}`;
     cell.onclick = ()=>{
       if (Date.now() < ignoreClickUntil) return;
       if (view.selectMode) {
@@ -3012,7 +3030,7 @@
   // Flèches ← → : période précédente / suivante.
   // Ctrl+C (⌘C) : copie l'événement survolé. Ctrl+V (⌘V) : le colle sur le jour survolé
   // (ou sur les jours sélectionnés). ↺ annule, comme le reste.
-  let hoverEventId = null, hoverDay = null, clipEvent = null;
+  let hoverEventId = null, hoverDay = null, clipEvent = null, delBusy = false;
   document.addEventListener('mouseover', (e)=>{
     const t = e.target;
     if (!t || !t.closest) return;
@@ -3059,6 +3077,33 @@
       if (sheetOpen) return;
       e.preventDefault();
       if (e.key === 'ArrowLeft') navPrev(); else navNext();
+      return;
+    }
+    // 1.3.6 : Suppr (ou Retour arrière) supprime l'événement survolé ou ouvert, sans confirmation.
+    // ↺ / Ctrl+Z pour annuler. Événement d'agenda lié : masqué. Sélection multiple : comme la corbeille.
+    if (!mod && !e.altKey && (e.key === 'Delete' || e.key === 'Backspace')) {
+      if (document.querySelector('body > .scrim')) return; // petite fenêtre (heure, lieu) ouverte
+      if (sheetOpen && view.sheet !== 'day' && view.sheet !== 'form') return;
+      e.preventDefault();
+      if (e.repeat || delBusy) return;
+      if (!sheetOpen && view.selectMode) {
+        if (!view.selectedDays.length) { toast('Sélectionne des jours, ou survole un événement, puis Suppr.'); return; }
+        delBusy = true;
+        removeEventsOnDays([...view.selectedDays]).finally(()=>{ delBusy = false; });
+        return;
+      }
+      const formEv = (view.sheet === 'form' && view.editingEvent && !view._bulkDates) ? view.editingEvent : null;
+      let ev = hoverEventId && state.events.find(x=>x.id===hoverEventId);
+      if (!ev && formEv) ev = state.events.find(x=>x.id===formEv.id);
+      if (!ev) { toast('Survole un événement avec la souris (ou ouvre-le), puis Suppr.'); return; }
+      delBusy = true;
+      hoverEventId = null;
+      const wasLinked = isLinked(ev);
+      removeEvent(ev).then(()=>{
+        if (!wasLinked && !state.events.some(x=>x.id===ev.id)) toast(`« ${ev.title} » supprimé — ↺ pour annuler`);
+        if (view.sheet === 'form') view.sheet = (view._formFrom === 'day') ? 'day' : null;
+        render();
+      }).finally(()=>{ delBusy = false; });
       return;
     }
     // Ctrl+Z (⌘Z) : même chose que le bouton ↺
