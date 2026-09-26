@@ -8,7 +8,7 @@
 // (cache: 'no-cache'), pour que chaque mise en ligne soit prise en compte
 // sans avoir à effacer les données du site.
 // >>> Changer CACHE_NAME à chaque nouvelle version d'EarthShade <<<
-const CACHE_NAME = 'earthshade-v1.3.7';
+const CACHE_NAME = 'earthshade-v1.3.8';
 const APP_SHELL = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {
