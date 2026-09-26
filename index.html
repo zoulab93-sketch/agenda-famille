@@ -359,6 +359,7 @@
   .ag-time { font-size:14px; font-weight:600; color:var(--ink-soft); padding-right:104px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ag-avs { position:absolute; right:12px; bottom:10px; display:flex; gap:4px; }
   .ag-av { width:24px; height:24px; border-radius:50%; color:#fff; font-family:'Quicksand',sans-serif; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .ag-sep { margin:18px 0 4px 2px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); }
   .ag-empty { border:1.5px dashed var(--line); border-radius:18px; padding:14px; color:var(--ink-soft); font-size:13.5px; cursor:pointer; }
 
   .cal-ico { width:18px; height:18px; border:1.8px solid currentColor; border-radius:4px; position:relative; display:flex; align-items:flex-end; justify-content:center; box-sizing:border-box; }
@@ -423,7 +424,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.8</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.9</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1839,19 +1840,28 @@
     const wrap = document.createElement('div');
     wrap.className = 'cal-wrap ag-wrap';
     wrap.addEventListener('scroll', ()=>{ agendaScrollTop = wrap.scrollTop; });
-    for (let i=0; i<7; i++) {
+    // 1.3.9 : la liste montre la semaine affichée, puis la semaine suivante
+    // (on peut descendre jusqu'au dimanche d'après)
+    for (let i=0; i<14; i++) {
       const d = new Date(mon); d.setDate(mon.getDate()+i);
       const ds = dstr(d.getFullYear(), d.getMonth(), d.getDate());
+      if (i === 7) {
+        const sun = new Date(mon); sun.setDate(mon.getDate()+13);
+        const sep = document.createElement('div'); sep.className = 'ag-sep';
+        sep.textContent = `Semaine suivante · ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3).toLowerCase()} – ${sun.getDate()} ${MONTHS[sun.getMonth()].slice(0,3).toLowerCase()}`;
+        wrap.appendChild(sep);
+      }
       const evs = state.events
         .filter(e=>e.date===ds && e.participants.some(id=>!state.hidden.includes(id)))
         .sort(compareEvents);
       const day = document.createElement('div');
       day.className = 'ag-day' + (ds===today ? ' today' : '');
       day.dataset.ds = ds;
+      day.dataset.w = i < 7 ? '0' : '1';
 
       const lab = document.createElement('div');
       lab.className = 'ag-lab' + (view.selectedDays.includes(ds) ? ' picked' : '');
-      lab.innerHTML = `<span class="ag-dn">${AG_DAYNAMES[i]}</span><span class="ag-dd">${d.getDate()}</span>`;
+      lab.innerHTML = `<span class="ag-dn">${AG_DAYNAMES[i%7]}</span><span class="ag-dd">${d.getDate()}</span>`;
       lab.onclick = ()=>{
         if (Date.now() < ignoreClickUntil) return;
         if (view.selectMode) {
@@ -1905,7 +1915,7 @@
     const w = document.querySelector('.cal-viewport .ag-wrap');
     if (!w) return;
     if (agendaScrollTop !== null) { w.scrollTop = agendaScrollTop; return; }
-    const t = w.querySelector('.ag-day.today');
+    const t = w.querySelector('.ag-day.today[data-w="0"]'); // aujourd'hui, seulement s'il est dans la semaine affichée
     w.scrollTop = t ? Math.max(0, t.offsetTop - 6) : 0;
   }
 
