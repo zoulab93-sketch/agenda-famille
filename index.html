@@ -143,6 +143,8 @@
   body:not(.is-wide) .fab-row.hideable .fab-hide { opacity:0; transform:translateY(26px) scale(.85); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
   body:not(.is-wide) .fab-row.hideable.open .fab-hide { opacity:1; transform:none; pointer-events:auto; }
   body:not(.is-wide) .fab-row.hideable.open .fab-hide:disabled { opacity:.3; pointer-events:none; }
+  /* 1.3.16 : boutons affichés = le doigt qui les glisse vers le bas ne doit pas être récupéré par le navigateur */
+  body:not(.is-wide) .fab-row.hideable.open { touch-action:none; }
   body:not(.is-wide) .fab-row.hideable .fab-handle { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:2px; position:absolute; left:50%; bottom:-14px; transform:translateX(-50%); width:120px; height:36px; padding:0; background:none; border:none; cursor:pointer; color:color-mix(in srgb, var(--ink) 55%, transparent); transition:opacity .18s ease; -webkit-tap-highlight-color:transparent; }
   .fab-handle .fab-pill { width:54px; height:5px; border-radius:3px; background:currentColor; margin-bottom:4px; }
   body:not(.is-wide) .fab-row.hideable.open .fab-handle { opacity:0; pointer-events:none; }
@@ -438,7 +440,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.3.15</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.4</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -816,7 +818,7 @@
     if (e.touches.length !== 1) return;
     if (!document.querySelector('.fab-row.hideable') || document.querySelector('.scrim')) return;
     const t = e.touches[0];
-    if (t.clientY >= window.innerHeight - 100) fabSwipe = { x:t.clientX, y:t.clientY };
+    if (t.clientY >= window.innerHeight - 100) fabSwipe = { x:t.clientX, y:t.clientY, onRow: !!(e.target && e.target.closest && e.target.closest('.fab-row')) };
   }, { passive:true });
   document.addEventListener('touchmove', (e)=>{
     if (!fabSwipe) return;
@@ -824,7 +826,7 @@
     const up = fabSwipe.y - t.clientY, side = Math.abs(t.clientX - fabSwipe.x);
     if (up > 26 && up > side * 1.3) { fabSwipe = null; showFabs(); }
     // 1.3.15 : glissement vers le bas dans la même bande = on les recache
-    else if (fabsShown && -up > 26 && -up > side * 1.3) { fabSwipe = null; hideFabs(); }
+    else if (fabsShown && !fabSwipe.onRow && -up > 26 && -up > side * 1.3) { fabSwipe = null; hideFabs(); }
   }, { passive:true });
   document.addEventListener('touchend', ()=>{ fabSwipe = null; }, { passive:true });
   document.addEventListener('touchcancel', ()=>{ fabSwipe = null; }, { passive:true });
@@ -2161,7 +2163,35 @@
       handle.onclick = ()=>showFabs();
       row.appendChild(handle);
       // Tant qu'on s'en sert, ils restent affichés
-      row.addEventListener('pointerdown', ()=>{ if (fabsShown) showFabs(); });
+      // 1.3.16 : on peut aussi attraper les boutons et les glisser vers le bas : ils suivent le doigt,
+      // et se recachent au relâchement (s'ils sont assez descendus ; sinon ils remontent)
+      let drag = null;
+      const dragEls = ()=>[...row.querySelectorAll('.fab-hide')];
+      const clearDrag = ()=>dragEls().forEach(el=>{ el.style.transition = ''; el.style.transform = ''; el.style.opacity = ''; });
+      row.addEventListener('pointerdown', (e)=>{
+        if (fabsShown) showFabs(); // tant qu'on s'en sert, ils restent affichés
+        if (!fabsShown) return;
+        drag = { id:e.pointerId, x:e.clientX, y:e.clientY, on:false, dy:0 };
+      });
+      row.addEventListener('pointermove', (e)=>{
+        if (!drag || e.pointerId !== drag.id) return;
+        const dy = e.clientY - drag.y, dx = Math.abs(e.clientX - drag.x);
+        if (!drag.on) {
+          if (dy > 8 && dy > dx * 1.3) { drag.on = true; try { row.setPointerCapture(e.pointerId); } catch(_e){} }
+          else return;
+        }
+        drag.dy = Math.max(0, dy);
+        dragEls().forEach(el=>{ el.style.transition = 'none'; el.style.transform = `translateY(${drag.dy}px)`; el.style.opacity = String(Math.max(0, 1 - drag.dy / 70)); });
+      });
+      const endDrag = (e)=>{
+        if (!drag || e.pointerId !== drag.id) return;
+        const d = drag; drag = null;
+        if (!d.on) return;
+        clearDrag();
+        if (d.dy > 30) hideFabs(); else showFabs();
+      };
+      row.addEventListener('pointerup', endDrag);
+      row.addEventListener('pointercancel', endDrag);
     }
     return row;
   }
@@ -2577,8 +2607,10 @@
           ${isErr && !busy ? `<div class="link-meta err">${escapeHtml(l.dernier_statut)}</div>` : ''}
           ${masked ? `<div class="link-meta">${masked} masqué${masked>1?'s':''}</div>` : ''}
           <div class="link-meta">${l.envoyer_google ? 'Envoyé aussi vers Agenda Famille' : 'Pas envoyé vers Google'}</div>
+          ${l.important ? '<div class="link-meta"><span class="imp-mark">★</span> Tous ses événements sont en Important</div>' : ''}
           <div class="link-actions">
             <button type="button" data-act="refresh" ${busy?'disabled':''}>Actualiser</button>
+            <button type="button" data-act="important" ${busy?'disabled':''}>${l.important ? '★ Retirer Important' : '☆ Tout en Important'}</button>
             ${masked ? `<button type="button" data-act="unhide" ${busy?'disabled':''}>Réafficher les masqués</button>` : ''}
             <button type="button" class="danger" data-act="delete" ${busy?'disabled':''}>Supprimer</button>
           </div>
@@ -2593,6 +2625,19 @@
         view._linkBusy = null; render();
       };
       card.querySelector('[data-act="refresh"]').onclick = ()=>run({ action:'actualiser', lien_id:l.id });
+      // 1.4 : « Important » pour tout l'agenda (les déjà importés ET les futurs)
+      card.querySelector('[data-act="important"]').onclick = ()=>{
+        const next = !l.important;
+        const ask = next
+          ? `Mettre tous les événements de « ${l.nom} » en Important ?\n\nLes prochains qui arriveront auront aussi l'étoile. Ceux que tu as détachés ne changent pas.`
+          : `Retirer Important sur tous les événements de « ${l.nom} » ?\n\nCela retire aussi les étoiles que tu aurais mises à la main sur certains d'entre eux. Ceux que tu as détachés ne changent pas.`;
+        if (!confirm(ask)) return;
+        run({ action:'important', lien_id:l.id, important:next }, (d)=>{
+          const r = (d.results || [])[0];
+          const base = next ? `Tous les événements de « ${l.nom} » sont en Important.` : `Important retiré sur « ${l.nom} ».`;
+          return (r && r.error) ? `${base} L'actualisation a échoué : ${r.error}` : base;
+        });
+      };
       const un = card.querySelector('[data-act="unhide"]');
       if (un) un.onclick = ()=>run({ action:'reafficher', lien_id:l.id }, ()=>`${masked} événement${masked>1?'s':''} réaffiché${masked>1?'s':''}.`);
       card.querySelector('[data-act="delete"]').onclick = ()=>{
@@ -2640,6 +2685,7 @@
       <div class="form-row"><label>Nom dans EarthShade</label><input type="text" id="lk-name" maxlength="40" placeholder="ex. Chorale" value="${escapeAttr(d.nom)}"></div>
       <div class="form-row"><label>Pour qui ?</label><div class="chips" id="lk-pour"></div></div>
       <div class="form-row"><label>Icône</label><div class="chips" id="lk-icons"></div></div>
+      <div class="form-row"><label>Importance</label><div class="chips" id="lk-imp"></div>${d.important ? '<div class="reminder-note">Tous les événements de cet agenda auront l\'étoile, y compris ceux qui arriveront plus tard.</div>' : ''}</div>
       ${state.googleLinked ? `<div class="form-row"><label>Google Agenda</label><div class="chips" id="lk-google"></div></div>` : ''}
       <button class="save-btn" id="lk-save" ${ok && !d.saving ? '' : 'disabled'}>${d.saving ? 'Import en cours…' : 'Ajouter'}</button>
       ${ok ? '' : '<div class="reminder-note" style="text-align:center;">Vérifie d\'abord le lien.</div>'}`;
@@ -2677,6 +2723,19 @@
       b.onclick = ()=>{ d.icone = ic; render(); };
       iconsWrap.appendChild(b);
     });
+    { // 1.4 : bouton « Tout en Important »
+      const impW = sheet.querySelector('#lk-imp');
+      const on = !!d.important;
+      const b = document.createElement('button'); b.type = 'button';
+      b.className = 'chip' + (on ? ' on' : '');
+      b.style.background = on ? 'var(--ink)' : 'var(--surface)';
+      b.style.borderColor = on ? 'var(--ink)' : 'var(--line)';
+      b.style.color = on ? 'var(--surface)' : 'var(--ink)';
+      b.innerHTML = on ? '<span style="color:#F2C14E">★</span> Tout en Important' : '☆ Tout en Important';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.onclick = ()=>{ d.important = !d.important; render(); };
+      impW.appendChild(b);
+    }
     const gWrap = sheet.querySelector('#lk-google');
     if (gWrap) {
       [[true, 'Envoyer aussi vers Agenda Famille'], [false, 'Ne pas envoyer']].forEach(([val, lab])=>{
@@ -2710,7 +2769,7 @@
       try {
         const { data: row, error } = await sb.from('agendas_lies').insert({
           household_id: state.household.id, profile_id: d.pour || state.myProfile.id,
-          nom, url: d.url.trim(), icone: d.icone || null, envoyer_google: !!(state.googleLinked && d.google)
+          nom, url: d.url.trim(), icone: d.icone || null, envoyer_google: !!(state.googleLinked && d.google), important: !!d.important
         }).select().single();
         if (error) throw error;
         await logActivity(`a lié l'agenda « ${nom} »`);
