@@ -428,7 +428,7 @@
   /* Écran d'ouverture affiché dès le premier instant, puis fondu vers l'app */
   #boot-splash { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#1F2B45; overflow:hidden; transition:opacity .35s ease; }
   #boot-splash.hide { opacity:0; pointer-events:none; }
-  .splash-version { position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:600; letter-spacing:.06em; color:rgba(241,227,196,.8); }
+  .splash-version { position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#3E5C86; }
   #splash {
     position:fixed; inset:0; z-index:1;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
@@ -441,120 +441,19 @@
   .splash-scene .tw:nth-of-type(3n+1) { animation-delay:1.7s; }
   @keyframes splashTwinkle { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   @media (prefers-reduced-motion: reduce) { .splash-scene .tw { animation:none; } }
-  .splash-word { position:relative; margin-top:-18vh; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:38px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
+  .splash-word { position:absolute; left:0; right:0; top:17vh; text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:42px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
   .splash-dots { display:flex; gap:9px; }
+  /* 1.4.12 : points de chargement posés en bas, sur la partie éclairée de la planète */
+  .splash-dots.bottom { position:absolute; left:0; right:0; justify-content:center; bottom:calc(46px + env(safe-area-inset-bottom, 0px)); z-index:1; }
+  .splash-dots.bottom span { background:#3E5C86; }
   .splash-dots span { width:8px; height:8px; border-radius:50%; background:#fff; opacity:.4; animation:splashPulse 1.3s ease-in-out infinite; }
   .splash-dots span:nth-child(2) { animation-delay:.15s; }
   .splash-dots span:nth-child(3) { animation-delay:.3s; }
   @keyframes splashPulse { 0%,100% { opacity:.3; transform:scale(.8); } 50% { opacity:1; transform:scale(1); } }
-
-  /* ---------- 2.0 : Listes (courses + to-do) ---------- */
-  /* Téléphone : panneau qui monte du bas par-dessus l'agenda. PC : colonne à droite du calendrier. */
-  .lp-scrim { position:fixed; inset:0; background:rgba(20,22,26,.30); z-index:18; opacity:0; pointer-events:none; transition:opacity .22s ease; touch-action:none; }
-  .lp { position:fixed; left:0; right:0; bottom:0; margin:0 auto; max-width:640px; height:80vh; height:80dvh; z-index:19; background:var(--surface); color:var(--ink);
-        border-radius:20px 20px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,.18); display:flex; flex-direction:column;
-        transform:translateY(105%); visibility:hidden; transition:transform .28s cubic-bezier(.2,.8,.2,1), visibility 0s linear .28s; padding-bottom:env(safe-area-inset-bottom, 0px); }
-  body.lists-open .lp { transform:translateY(0); visibility:visible; transition:transform .28s cubic-bezier(.2,.8,.2,1), visibility 0s; }
-  body.lists-open:not(.is-wide) .lp-scrim { opacity:1; pointer-events:auto; }
-  .lp.dragging { transition:none; }
-  .lp-top { padding:10px 16px 0; flex-shrink:0; touch-action:none; }
-  .lp-grab { width:36px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 12px; }
-  .lp-head { display:none; }
-  .lp-tabs { display:flex; gap:6px; }
-  .lp-tab { flex:1 1 auto; display:flex; align-items:center; justify-content:center; gap:5px; padding:9px 5px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
-            font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; min-width:0; }
-  .lp-tab > span:not(.lp-n):not(.lp-who) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lp-tab.on { background:var(--ink); color:var(--surface); border-color:var(--ink); }
-  .lp-tab .lp-n { font-family:'Karla',sans-serif; font-size:12px; font-weight:700; opacity:.7; }
-  .lp-who { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
-  .lp-add { display:flex; gap:8px; margin:12px 0 4px; }
-  .lp-add input { flex:1; min-width:0; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; }
-  .lp-add input:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
-  .lp-add button { padding:0 14px; border-radius:10px; border:none; background:var(--ink); color:var(--surface); font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; }
-  .lp-list { flex:1; min-height:0; overflow-y:auto; padding:4px 16px 24px; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
-  .lp-wrap { position:relative; overflow:hidden; border-bottom:1px solid var(--line); background:var(--surface); }
-  .lp-wrap.lifted { z-index:5; overflow:visible; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.22); border-bottom-color:transparent; }
-  .lp-wrap.shifting { transition:transform .15s ease; }
-  .lp-wrap.editing { overflow:visible; z-index:6; }
-  .lp-bg { position:absolute; inset:0; display:flex; align-items:center; padding:0 18px; font-weight:700; font-size:13px; color:#fff; }
-  .lp-bg.del { background:#E5484D; justify-content:flex-end; }
-  .lp-bg.edit { background:var(--palette-1); justify-content:flex-start; }
-  .lp-row { position:relative; display:flex; align-items:center; gap:12px; padding:12px 2px; background:var(--surface); cursor:pointer; touch-action:pan-y;
-            transition:transform .2s ease; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
-  .lp-row.swiping { transition:none; }
-  .lp-box { width:24px; height:24px; border-radius:7px; border:2px solid color-mix(in srgb, var(--ink) 45%, transparent); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; transition:background .15s, border-color .15s; }
-  .lp-row.checked .lp-box { background:var(--palette-3); border-color:var(--palette-3); }
-  .lp-txt { flex:1; min-width:0; font-size:16px; font-weight:500; overflow-wrap:anywhere; }
-  .lp-row.checked .lp-txt { text-decoration:line-through; color:var(--ink-soft); }
-  .lp-fmt { font-size:13px; font-weight:600; color:var(--ink-soft); flex-shrink:0; }
-  .lp-qty { font-size:13px; font-weight:700; padding:2px 7px; border-radius:999px; background:var(--surface-soft); border:1px solid var(--line); flex-shrink:0; }
-  .lp-by { width:22px; height:22px; border-radius:50%; color:#fff; font-family:'Quicksand',sans-serif; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .lp-row.checked .lp-by, .lp-row.checked .lp-qty, .lp-row.checked .lp-fmt { opacity:.45; }
-  .lp-grip { width:34px; height:40px; margin:-8px -6px -8px -4px; display:flex; align-items:center; justify-content:center; color:color-mix(in srgb, var(--ink) 40%, transparent); touch-action:none; cursor:grab; flex-shrink:0; }
-  .lp-row.fresh { animation:lpFresh 1.4s ease; }
-  @keyframes lpFresh { 0%,30% { background:color-mix(in srgb, var(--palette-2) 18%, var(--surface)); } 100% { background:var(--surface); } }
-  .lp-taken { display:flex; align-items:center; justify-content:space-between; margin:18px 0 2px; font-size:13px; font-weight:700; color:var(--ink-soft); }
-  .lp-taken button { background:none; border:none; color:var(--palette-2); font-weight:700; font-size:13px; cursor:pointer; padding:4px 0; font-family:inherit; }
-  .lp-empty { text-align:center; color:var(--ink-soft); font-size:14px; padding:28px 12px; line-height:1.5; }
-  .lp-confirm { margin:10px 0; padding:12px; border-radius:12px; background:var(--surface-soft); font-size:14px; display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
-  .lp-confirm span { flex:1 1 160px; }
-  .lp-confirm button { border:none; border-radius:9px; padding:8px 12px; font-weight:700; font-family:inherit; cursor:pointer; }
-  .lp-confirm .yes { background:#E5484D; color:#fff; } .lp-confirm .no { background:var(--line); color:var(--ink); }
-  /* Modification d'un article */
-  .lp-editor { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 2px 12px; }
-  .lp-editor > input { flex:1 1 100%; min-width:0; padding:9px 10px; border-radius:10px; border:1.5px solid var(--palette-1); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; }
-  .lp-line { flex:1 1 100%; display:flex; align-items:center; gap:8px; }
-  .lp-line:last-child { justify-content:space-between; }
-  .lp-amt { flex:0 0 52px; width:52px; padding:9px 4px; text-align:center; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; }
-  .lp-unit { position:relative; flex-shrink:0; }
-  .lp-unit-btn { height:40px; min-width:62px; padding:0 10px; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-weight:700; font-size:15px; cursor:pointer; }
-  .lp-unit-menu { position:absolute; top:calc(100% + 4px); left:0; min-width:100%; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 22px rgba(0,0,0,.18); overflow:hidden; z-index:8; }
-  .lp-unit-menu button { height:38px; padding:0 14px; border:none; border-top:1px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-weight:700; font-size:15px; text-align:left; cursor:pointer; }
-  .lp-unit-menu button:first-child { border-top:none; }
-  .lp-unit-menu[hidden], .lp-amt[hidden], .lp-toast button[hidden] { display:none; }
-  .lp-editor > input:focus, .lp-amt:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
-  .lp-unit-menu button.on { background:var(--ink); color:var(--surface); }
-  .lp-unit-menu button.none { font-weight:500; color:var(--ink-soft); font-size:13.5px; }
-  .lp-step { margin-left:auto; display:flex; align-items:center; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; flex-shrink:0; }
-  .lp-step button { width:36px; height:38px; border:none; background:var(--surface-soft); color:var(--ink); font-size:18px; font-weight:700; cursor:pointer; }
-  .lp-step span { min-width:34px; text-align:center; font-weight:700; font-size:14px; }
-  .lp-trash { height:40px; padding:0 12px; border:none; border-radius:10px; background:none; color:#E5484D; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
-  .lp-ok { height:40px; padding:0 14px; border:none; border-radius:10px; background:var(--ink); color:var(--surface); font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; cursor:pointer; }
-  .lp-toast { position:absolute; left:50%; bottom:calc(16px + env(safe-area-inset-bottom, 0px)); transform:translate(-50%,14px); z-index:9; max-width:92%; background:var(--ink); color:var(--surface);
-              font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.3); opacity:0; pointer-events:none;
-              transition:opacity .18s, transform .18s; display:flex; gap:14px; align-items:center; }
-  .lp-toast.show { opacity:1; transform:translate(-50%,0); pointer-events:auto; }
-  .lp-toast span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lp-toast button { background:none; border:none; color:var(--palette-2); font-weight:700; font-size:13.5px; font-family:inherit; cursor:pointer; padding:0; white-space:nowrap; }
-  /* Bouton « liste » (téléphone, caché avec + et ↺) et icône du menu (PC) */
-  body:not(.is-wide) .fab-row.hideable .lp-fab { order:0; position:relative; }
-  .lp-fab svg, .lp-side-ico svg { display:block; }
-  .lp-badge { position:absolute; top:-3px; right:-3px; min-width:20px; height:20px; padding:0 5px; border-radius:10px; background:var(--ink); color:var(--surface); font-size:11px; font-weight:700; font-family:'Karla',sans-serif; display:flex; align-items:center; justify-content:center; pointer-events:none; }
-  .lp-badge[hidden] { display:none; }
-  .lp-side-ico { position:relative; }
-  .lp-side-ico .lp-badge { top:-6px; right:-8px; min-width:18px; height:18px; font-size:10.5px; }
-  body.lists-open #side-lists .icon-btn { background:var(--ink); color:var(--surface); box-shadow:none; }
-  body.lists-open #side-lists .side-label { color:var(--ink); }
-  /* PC (et téléphone en paysage) : colonne à droite, le calendrier se resserre */
-  body.is-wide .lp { top:0; left:auto; right:0; bottom:0; height:auto; width:360px; max-width:none; margin:0; border-radius:0; box-shadow:var(--shadow); transform:none; transition:none; display:none; visibility:visible; }
-  body.is-wide.lists-open .lp { display:flex; }
-  body.is-wide.lists-open #app { width:calc(100% - 360px); }
-  body.is-wide .lp-grab { display:none; }
-  body.is-wide .lp-top { padding-top:16px; touch-action:auto; }
-  body.is-wide .lp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  body.is-wide .lp-head h2 { margin:0; font-size:18px; }
-  body.is-wide .lp-head button { background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:4px; }
-  body.compact-h .lp { width:300px; }
-  body.compact-h.lists-open #app { width:calc(100% - 300px); }
-  body.compact-h.lists-open .fab-row { right:308px; }
-  body.compact-h .lp-top { padding-top:8px; }
-  body.compact-h .lp-head { margin-bottom:6px; }
-  body.compact-h .lp-add { margin:8px 0 2px; }
-  @media (prefers-reduced-motion: reduce) { .lp, .lp-row, .lp-wrap, .lp-scrim, .lp-toast { transition:none !important; } .lp-row.fresh { animation:none; } }
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.0</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="spSkyA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F2B45"/><stop offset="1" stop-color="#34547F"/></linearGradient><clipPath id="spShadeA"><path d="M200 556 A533 533 0 0 0 200 1622 A78 533 0 0 1 200 556 Z"/></clipPath></defs><rect x="-400" y="-400" width="1200" height="1600" fill="url(#spSkyA)"/><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1089" r="533" fill="#F1E3C4"/><circle cx="200" cy="1089" r="498" fill="#E9D8B4"/><circle cx="200" cy="1089" r="462" fill="#E0CDA6"/><g clip-path="url(#spShadeA)"><circle cx="200" cy="1089" r="533" fill="#56769F"/><circle cx="200" cy="1089" r="498" fill="#4C6C95"/><circle cx="200" cy="1089" r="462" fill="#44638B"/></g></svg><div class="splash-word">EarthShade</div><div class="splash-dots bottom"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 1.4.12</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -678,8 +577,7 @@
     profiles: [], household: null, myProfile: null, activeId: null,
     events: [], log: [], hidden: loadHidden(), _undoStack: [],
     googleLinked: false, googleEmail: '',
-    links: [], maskedBySource: {},
-    articles: [], articlesReady: null   // 2.0 : listes
+    links: [], maskedBySource: {}
   };
   let view = {
     year: new Date().getFullYear(), month: new Date().getMonth(),
@@ -714,7 +612,6 @@
     state.household = hh;
     await reloadHouseholdData();
     subscribeRealtime();
-    reloadArticles();   // 2.0 : listes (sans attendre)
   }
   async function reloadHouseholdData(){
     if (!state.household) return;
@@ -758,8 +655,7 @@
     if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
     if (!state.household) return;
     const hid = state.household.id;
-    let t = null, ta = null;
-    const onArticles = ()=>{ clearTimeout(ta); ta = setTimeout(reloadArticles, 150); };
+    let t = null;
     const onChange = ()=>{
       clearTimeout(t);
       t = setTimeout(async ()=>{ if (backfill.running) return; await reloadHouseholdData(); render(); }, 200);
@@ -770,9 +666,6 @@
       .on('postgres_changes', { event:'*', schema:'public', table:'profiles', filter:'household_id=eq.'+hid }, onChange)
       .on('postgres_changes', { event:'*', schema:'public', table:'activity_log', filter:'household_id=eq.'+hid }, onChange)
       .on('postgres_changes', { event:'*', schema:'public', table:'agendas_lies', filter:'household_id=eq.'+hid }, onChange)
-      // 2.0 : listes — on ne relit que les articles (l'agenda n'est pas redessiné)
-      .on('postgres_changes', { event:'*', schema:'public', table:'articles', filter:'household_id=eq.'+hid }, onArticles)
-      .on('postgres_changes', { event:'DELETE', schema:'public', table:'articles' }, onArticles)
       .subscribe();
   }
   async function logActivity(action){
@@ -958,7 +851,7 @@
   document.addEventListener('touchstart', (e)=>{
     fabSwipe = null;
     if (e.touches.length !== 1) return;
-    if (!document.querySelector('.fab-row.hideable') || document.querySelector('.scrim') || document.body.classList.contains('lists-open')) return;
+    if (!document.querySelector('.fab-row.hideable') || document.querySelector('.scrim')) return;
     const t = e.touches[0];
     const zoneTop = fabsShown ? Math.min(fabHideZoneTop(), window.innerHeight - FAB_ZONE_CLOSED) : window.innerHeight - FAB_ZONE_CLOSED;
     if (t.clientY >= zoneTop) fabSwipe = { x:t.clientX, y:t.clientY, onRow: !!(e.target && e.target.closest && e.target.closest('.fab-row')) };
@@ -1170,7 +1063,7 @@
 
   function renderLoading(){
     const wrap = document.createElement('div'); wrap.id='splash';
-    wrap.innerHTML = `<svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div>`;
+    wrap.innerHTML = `<svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="spSkyB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1F2B45"/><stop offset="1" stop-color="#34547F"/></linearGradient><clipPath id="spShadeB"><path d="M200 556 A533 533 0 0 0 200 1622 A78 533 0 0 1 200 556 Z"/></clipPath></defs><rect x="-400" y="-400" width="1200" height="1600" fill="url(#spSkyB)"/><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1089" r="533" fill="#F1E3C4"/><circle cx="200" cy="1089" r="498" fill="#E9D8B4"/><circle cx="200" cy="1089" r="462" fill="#E0CDA6"/><g clip-path="url(#spShadeB)"><circle cx="200" cy="1089" r="533" fill="#56769F"/><circle cx="200" cy="1089" r="498" fill="#4C6C95"/><circle cx="200" cy="1089" r="462" fill="#44638B"/></g></svg><div class="splash-word">EarthShade</div><div class="splash-dots bottom"><span></span><span></span><span></span></div>`;
     return wrap;
   }
 
@@ -1296,14 +1189,12 @@
       <div class="side-item" id="side-today"><div class="icon-btn">${todayIcon()}</div><span class="side-label">Auj.</span></div>
       <div class="side-item" id="side-search"><div class="icon-btn">${searchIcon()}</div><span class="side-label">Recherche</span></div>
       <div class="side-item" id="side-cases"><div class="icon-btn case-toggle${view.caseMode?' on':''}">${caseToggleIcon(view.caseMode)}</div><span class="side-label">Cas</span></div>
-      <div class="side-item" id="side-lists"><div class="icon-btn lp-side-ico">${listIcon(19)}<span class="lp-badge"${lpOpenIn('courses').length?'':' hidden'}>${lpOpenIn('courses').length}</span></div><span class="side-label">Listes</span></div>
       <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
     `;
     bar.querySelector('#side-today').onclick=goToday;
     bar.querySelector('#side-search').onclick=()=>{ view.sheet='search'; render(); };
     bar.querySelector('#side-cases').onclick=toggleCaseMode;
     bar.querySelector('#side-profile').onclick=()=>{ view.sheet='switch'; render(); };
-    bar.querySelector('#side-lists').onclick=toggleLists;
     return bar;
   }
 
@@ -2313,13 +2204,6 @@
     row.appendChild(undoBtn);
     if (hideable) {
       fab.classList.add('fab-hide'); undoBtn.classList.add('fab-hide');
-      // 2.0 : bouton « liste », caché avec + et ↺ ; pastille = articles de courses à prendre
-      const nCourses = lpOpenIn('courses').length;
-      const listBtn = document.createElement('button'); listBtn.type = 'button';
-      listBtn.className = 'fab-undo fab-hide lp-fab'; listBtn.setAttribute('aria-label', 'Ouvrir les listes');
-      listBtn.innerHTML = listIcon(24) + `<span class="lp-badge"${nCourses?'':' hidden'}>${nCourses}</span>`;
-      listBtn.onclick = openLists;
-      row.appendChild(listBtn);
       const handle = document.createElement('button'); handle.type = 'button'; handle.className = 'fab-handle';
       handle.setAttribute('aria-label', 'Afficher les boutons Ajouter et Annuler');
       handle.innerHTML = '<svg width="16" height="9" viewBox="0 0 16 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 7.5l6-5.5 6 5.5"/></svg><span class="fab-pill"></span>';
@@ -3342,455 +3226,6 @@
   document.body.classList.toggle('is-wide', window.innerWidth >= 780 || landscapePhone);
   document.body.classList.toggle('compact-h', landscapePhone);
 
-
-  /* ================================================================== */
-  /* 2.0 : Listes — courses (commune) + une to-do par personne          */
-  /* ================================================================== */
-  // Le panneau vit en dehors de #app : les mises à jour de l'agenda (qui redessinent #app)
-  // ne ferment donc ni le clavier, ni un article en cours de modification.
-  // Téléphone : panneau qui monte du bas (fermer en le tirant vers le bas, ou en touchant l'agenda).
-  // PC / paysage : colonne à droite du calendrier (icône « Listes » du menu de gauche).
-  // Gestes sur un article : toucher la ligne = cocher ; glisser à gauche = supprimer (Annuler 5 s) ;
-  // glisser à droite = modifier (texte, quantité, unité) — clic droit sur PC ; poignée ⋮⋮ = déplacer.
-  const LP_UNITS = ['g','kg','cl','L'];
-  const LP_CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-  const LP_GRIP = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="3.5" r="1.5"/><circle cx="10.5" cy="3.5" r="1.5"/><circle cx="5.5" cy="8" r="1.5"/><circle cx="10.5" cy="8" r="1.5"/><circle cx="5.5" cy="12.5" r="1.5"/><circle cx="10.5" cy="12.5" r="1.5"/></svg>';
-  function listIcon(size){
-    const s = size || 22;
-    return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6.5l1.5 1.5 3-3"/><path d="M3.5 13.5l1.5 1.5 3-3"/><line x1="11" y1="6.5" x2="21" y2="6.5"/><line x1="11" y1="13.5" x2="21" y2="13.5"/><line x1="11" y1="19.5" x2="21" y2="19.5"/><circle cx="5.5" cy="19.5" r="1.3"/></svg>`;
-  }
-
-  let lpTab = (()=>{ try { return localStorage.getItem('es-lists-tab') || 'courses'; } catch(e){ return 'courses'; } })();
-  let lpEditing = null, lpEditUnit = '', lpMove = null, lpSwipe = null, lpDrag = null;
-  let lpDirty = false, lpConfirmClear = false, lpSuppressClick = false, lpFreshId = null, lpToastTimer = null;
-  const lpEl = {};
-
-  function listsOpen(){ return document.body.classList.contains('lists-open'); }
-  function mapArticle(a){
-    return { id:a.id, liste:a.liste, texte:a.texte, qte:Number(a.quantite)||1,
-             mesure: (a.mesure === null || a.mesure === undefined) ? '' : String(Number(a.mesure)),
-             unite:a.unite || '', coche:!!a.coche, cocheLe:a.coche_le ? new Date(a.coche_le).getTime() : 0,
-             ajoutePar:a.ajoute_par || null, pos:Number(a.position)||0 };
-  }
-  async function reloadArticles(){
-    if (!state.household) return;
-    try {
-      const { data, error } = await sb.from('articles').select('*').eq('household_id', state.household.id);
-      if (error) throw error;
-      state.articles = (data || []).map(mapArticle);
-      state.articlesReady = true;
-    } catch(e){ state.articles = state.articles || []; state.articlesReady = false; }
-    renderLists(); updateListBadges();
-  }
-  // Onglets : Courses, puis une to-do par personne ayant un compte (moi d'abord). Pas pour les profils invités.
-  function listTabs(){
-    const me = state.myProfile ? state.myProfile.id : null;
-    const people = state.profiles.filter(p=>p.user_id).sort((a,b)=> (a.id===me ? -1 : b.id===me ? 1 : String(a.name).localeCompare(String(b.name), 'fr')));
-    return [{ key:'courses', label:'Courses', icon:'🛒' }].concat(people.map(p=>({ key:p.id, label:p.name, color:p.color })));
-  }
-  const lpOpenIn = key => (state.articles || []).filter(a=>a.liste===key && !a.coche);
-  const lpById = id => (state.articles || []).find(a=>a.id===id);
-  function lpFmt(a){ return a.unite ? (a.mesure ? `${a.mesure.replace('.', ',')} ${a.unite}` : a.unite) : ''; }
-  function updateListBadges(){
-    const n = lpOpenIn('courses').length;
-    document.querySelectorAll('.lp-badge').forEach(b=>{ b.textContent = n; b.hidden = !n; });
-  }
-
-  /* ---------- Construction du panneau (une seule fois) ---------- */
-  function ensureListsPanel(){
-    if (lpEl.panel) return;
-    const scrim = document.createElement('div'); scrim.className = 'lp-scrim';
-    const panel = document.createElement('section'); panel.className = 'lp'; panel.setAttribute('aria-label', 'Listes');
-    panel.innerHTML = `
-      <div class="lp-top">
-        <div class="lp-grab"></div>
-        <div class="lp-head"><h2>Listes</h2><button type="button" class="lp-close" aria-label="Fermer les listes">✕</button></div>
-        <div class="lp-tabs"></div>
-        <form class="lp-add" autocomplete="off"><input type="text" placeholder="Ajouter un article…" enterkeyhint="done" maxlength="200" aria-label="Ajouter un article"><button type="submit">Ajouter</button></form>
-      </div>
-      <div class="lp-list"></div>
-      <div class="lp-toast" role="status"><span></span><button type="button">Annuler</button></div>`;
-    document.body.appendChild(scrim); document.body.appendChild(panel);
-    Object.assign(lpEl, { scrim, panel, tabs:panel.querySelector('.lp-tabs'), list:panel.querySelector('.lp-list'),
-                          form:panel.querySelector('.lp-add'), input:panel.querySelector('.lp-add input'), toast:panel.querySelector('.lp-toast') });
-    scrim.addEventListener('click', closeLists);
-    panel.querySelector('.lp-close').addEventListener('click', closeLists);
-    lpEl.tabs.addEventListener('click', e=>{
-      const b = e.target.closest('[data-tab]'); if (!b) return;
-      lpSaveEdit(); lpTab = b.dataset.tab; lpConfirmClear = false;
-      try { localStorage.setItem('es-lists-tab', lpTab); } catch(err){}
-      renderLists(); lpEl.list.scrollTop = 0;
-    });
-    lpEl.form.addEventListener('submit', lpAdd);
-    lpBindListEvents();
-    lpBindPanelDrag();
-  }
-  function openLists(){
-    if (!state.household) return;
-    ensureListsPanel();
-    hideFabs();
-    document.body.classList.add('lists-open');
-    renderLists();
-    if (isWide()) render();          // le calendrier se resserre pour laisser la place à la colonne
-    if (!state.articlesReady) reloadArticles();
-  }
-  function closeLists(){
-    if (!lpEl.panel) return;
-    lpSaveEdit(); lpEditing = null;
-    document.body.classList.remove('lists-open');
-    lpEl.panel.style.transform = '';
-    if (document.activeElement && lpEl.panel.contains(document.activeElement)) document.activeElement.blur();
-    if (isWide()) render();
-  }
-  function toggleLists(){ listsOpen() ? closeLists() : openLists(); }
-
-  /* ---------- Affichage ---------- */
-  function lpRowHtml(a){
-    if (lpEditing === a.id) {
-      return `<div class="lp-wrap editing" data-wrap="${a.id}"><form class="lp-editor" data-edit="${a.id}">
-        <input class="lp-edit-text" type="text" value="${escapeAttr(a.texte)}" enterkeyhint="done" maxlength="200" aria-label="Texte de l'article">
-        <div class="lp-line">
-          <input class="lp-amt" type="text" inputmode="decimal" placeholder="100" value="${escapeAttr(a.mesure)}"${lpEditUnit?'':' hidden'} aria-label="Quantité">
-          <div class="lp-unit"><button type="button" class="lp-unit-btn" aria-haspopup="true" aria-expanded="false"><span>${lpEditUnit || 'Unité'}</span><svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></button>
-            <div class="lp-unit-menu" hidden>${LP_UNITS.map(u=>`<button type="button" data-unit="${u}" class="${u===lpEditUnit?'on':''}">${u}</button>`).join('')}<button type="button" data-unit="" class="none">Aucune</button></div></div>
-          <div class="lp-step"><button type="button" data-q="-1" aria-label="Moins">−</button><span class="lp-edit-qty">x${a.qte}</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
-        </div>
-        <div class="lp-line"><button class="lp-trash" type="button" data-del="${a.id}">Supprimer</button><button class="lp-ok" type="submit">OK</button></div>
-      </form></div>`;
-    }
-    const by = lpTab === 'courses' && a.ajoutePar ? profileById(a.ajoutePar) : null;
-    const fmt = lpFmt(a);
-    return `<div class="lp-wrap" data-wrap="${a.id}"><div class="lp-bg"></div><div class="lp-row${a.coche?' checked':''}${a.id===lpFreshId?' fresh':''}" data-id="${a.id}">`
-      + `<span class="lp-box">${a.coche?LP_CHECK:''}</span><span class="lp-txt">${escapeHtml(a.texte)}</span>`
-      + (fmt ? `<span class="lp-fmt">${escapeHtml(fmt)}</span>` : '')
-      + (a.qte > 1 ? `<span class="lp-qty">x${a.qte}</span>` : '')
-      + (by ? `<span class="lp-by" style="background:${by.color}" title="Ajouté par ${escapeAttr(by.name)}">${escapeHtml((by.name||'?')[0].toUpperCase())}</span>` : '')
-      + (a.coche ? '' : `<span class="lp-grip" data-grip="${a.id}" aria-label="Déplacer">${LP_GRIP}</span>`)
-      + '</div></div>';
-  }
-  function renderLists(){
-    if (!lpEl.panel) return;
-    if (lpEditing || lpMove || (lpSwipe && lpSwipe.live)) { lpDirty = true; return; }   // pas sous le doigt : ce sera fait juste après
-    lpDirty = false;
-    const tabs = listTabs();
-    if (!tabs.some(t=>t.key===lpTab)) lpTab = 'courses';
-    lpEl.tabs.innerHTML = tabs.map(t=>{
-      const n = lpOpenIn(t.key).length;
-      const lead = t.icon ? `<span aria-hidden="true">${t.icon}</span>` : `<span class="lp-who" style="background:${t.color}"></span>`;
-      return `<button type="button" class="lp-tab${t.key===lpTab?' on':''}" data-tab="${t.key}">${lead}<span>${escapeHtml(t.label)}</span><span class="lp-n">${n || ''}</span></button>`;
-    }).join('');
-    const courses = lpTab === 'courses';
-    const mine = (state.articles || []).filter(a=>a.liste===lpTab);
-    const open = mine.filter(a=>!a.coche).sort((a,b)=>a.pos - b.pos);
-    const done = mine.filter(a=>a.coche).sort((a,b)=>b.cocheLe - a.cocheLe);
-    let h = '';
-    if (state.articlesReady === false && !mine.length) h = `<div class="lp-empty">Les listes ne sont pas encore prêtes (base de données).<br>Réessayez dans un instant.</div>`;
-    else if (!open.length && !done.length) h = `<div class="lp-empty">${courses ? 'Liste de courses vide.<br>Ajoutez le premier article ci-dessus.' : "Rien à faire pour l'instant."}</div>`;
-    else if (!open.length) h = `<div class="lp-empty">${courses ? 'Tout est pris' : 'Tout est fait'}</div>`;
-    h += '<div class="lp-open">' + open.map(lpRowHtml).join('') + '</div>';
-    if (done.length) {
-      h += `<div class="lp-taken"><span>${courses ? 'Déjà pris' : 'Fait'} (${done.length})</span><button type="button" data-act="clear">Tout retirer</button></div>`;
-      if (lpConfirmClear) h += `<div class="lp-confirm"><span>Retirer ${done.length > 1 ? `les ${done.length} articles` : "l'article"} ${courses ? (done.length>1?'déjà pris':'déjà pris') : (done.length>1?'faits':'fait')} ?</span><button class="no" type="button" data-act="clear-no">Garder</button><button class="yes" type="button" data-act="clear-yes">Retirer</button></div>`;
-      h += done.map(lpRowHtml).join('');
-    }
-    lpEl.list.innerHTML = h;
-    const fresh = lpEl.list.querySelector('.lp-row.fresh');
-    if (fresh) { fresh.scrollIntoView({ block:'nearest' }); lpFreshId = null; }
-    lpEl.input.placeholder = courses ? 'Ajouter un article…' : 'Ajouter une chose à faire…';
-    if (lpEditing) { const t = lpEl.list.querySelector('.lp-edit-text'); if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
-  }
-  function lpFlush(){ if (lpDirty && !lpEditing && !lpMove && !lpSwipe) renderLists(); }
-
-  /* ---------- Message en bas du panneau (avec « Annuler » quand c'est possible) ---------- */
-  function lpToast(msg, action, label){
-    ensureListsPanel();
-    const t = lpEl.toast, b = t.querySelector('button');
-    t.querySelector('span').textContent = msg;
-    b.hidden = !action; b.textContent = label || 'Annuler';
-    b.onclick = ()=>{ t.classList.remove('show'); if (action) action(); };
-    t.classList.add('show');
-    clearTimeout(lpToastTimer);
-    lpToastTimer = setTimeout(()=>t.classList.remove('show'), action ? 5000 : 2600);
-  }
-  function lpFail(err){
-    lpToast('Pas enregistré : ' + ((err && err.message) || 'connexion ?'));
-    reloadArticles();
-  }
-
-  /* ---------- Écritures (l'écran change tout de suite, la base suit) ---------- */
-  function lpRowFor(a){
-    return { id:a.id, household_id:state.household.id, liste:a.liste, texte:a.texte, quantite:a.qte,
-             mesure: a.unite && a.mesure ? Number(a.mesure) : null, unite: a.unite || null,
-             coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe || Date.now()).toISOString() : null,
-             coche_par: a.coche ? (state.myProfile && state.myProfile.id) : null, ajoute_par:a.ajoutePar, position:a.pos };
-  }
-  async function lpInsert(list){
-    const { error } = await sb.from('articles').insert(list.map(lpRowFor));
-    if (error) lpFail(error);
-  }
-  async function lpUpdate(a, fields){
-    const patch = Object.assign({ updated_at:new Date().toISOString() }, fields);
-    const { error } = await sb.from('articles').update(patch).eq('id', a.id);
-    if (error) lpFail(error);
-  }
-  async function lpRemove(list){
-    if (!list.length) return;
-    const { error } = await sb.from('articles').delete().in('id', list.map(a=>a.id));
-    if (error) lpFail(error);
-  }
-  function lpNextPos(key){ return Math.max(0, ...(state.articles || []).filter(a=>a.liste===key).map(a=>a.pos)) + 1; }
-  function lpDeleteWithUndo(list, msg){
-    const ids = new Set(list.map(a=>a.id));
-    state.articles = state.articles.filter(a=>!ids.has(a.id));
-    renderLists(); updateListBadges();
-    lpRemove(list);
-    lpToast(msg, ()=>{ state.articles = state.articles.concat(list); renderLists(); updateListBadges(); lpInsert(list); });
-  }
-
-  // Ajouter : déjà dans « Déjà pris » -> il remonte ; déjà à prendre -> on propose x2
-  function lpAdd(e){
-    e.preventDefault(); lpSaveEdit();
-    if (!state.household || !state.myProfile) return;
-    const text = lpEl.input.value.trim().replace(/\s+/g, ' ').slice(0, 200);
-    if (!text) { lpEl.input.focus(); return; }
-    const low = text.toLocaleLowerCase('fr');
-    const same = (state.articles || []).find(a=>a.liste===lpTab && a.texte.toLocaleLowerCase('fr') === low);
-    if (same && same.coche) {
-      same.coche = false; same.pos = lpNextPos(lpTab); lpFreshId = same.id;
-      lpUpdate(same, { coche:false, coche_le:null, coche_par:null, position:same.pos });
-      lpToast(`« ${same.texte} » remis dans la liste`);
-    } else if (same) {
-      lpToast(`« ${same.texte} » est déjà dans la liste`, ()=>{
-        same.qte = Math.min(99, same.qte + 1); lpFreshId = same.id; renderLists();
-        lpUpdate(same, { quantite:same.qte });
-      }, `Passer à x${Math.min(99, same.qte + 1)}`);
-    } else {
-      const a = { id:uid(), liste:lpTab, texte:text.charAt(0).toLocaleUpperCase('fr') + text.slice(1), qte:1, mesure:'', unite:'',
-                  coche:false, cocheLe:0, ajoutePar:state.myProfile.id, pos:lpNextPos(lpTab) };
-      state.articles.push(a); lpFreshId = a.id;
-      lpInsert([a]);
-    }
-    lpEl.input.value = ''; lpEl.input.focus();
-    renderLists(); updateListBadges();
-  }
-
-  /* ---------- Modifier ---------- */
-  function lpStartEdit(id){
-    lpSaveEdit();
-    const a = lpById(id); if (!a) return;
-    lpEditUnit = a.unite || '';
-    renderLists();                                   // liste à jour (lpEditing est vide ici)…
-    lpEditing = id;                                  // …puis la ligne devient la zone de modification
-    const wrap = lpEl.list.querySelector(`[data-wrap="${id}"]`);
-    if (wrap) wrap.outerHTML = lpRowHtml(a);
-    const t = lpEl.list.querySelector('.lp-edit-text');
-    if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); t.scrollIntoView({ block:'nearest' }); }
-  }
-  function lpSaveEdit(){
-    if (!lpEditing) return;
-    const a = lpById(lpEditing);
-    const form = lpEl.list && lpEl.list.querySelector('.lp-editor');
-    lpEditing = null;
-    if (a && form) {
-      const txt = form.querySelector('.lp-edit-text').value.trim().replace(/\s+/g, ' ').slice(0, 200);
-      const qte = parseInt(form.querySelector('.lp-edit-qty').textContent.replace(/\D/g, ''), 10) || 1;
-      const unite = lpEditUnit;
-      let mesure = unite ? form.querySelector('.lp-amt').value.trim().replace(',', '.').replace(/[^0-9.]/g, '') : '';
-      if (mesure && !(Number(mesure) > 0)) mesure = '';
-      if (mesure) mesure = String(Number(mesure));
-      const changed = (txt && txt !== a.texte) || qte !== a.qte || unite !== a.unite || mesure !== a.mesure;
-      if (changed) {
-        if (txt) a.texte = txt;
-        a.qte = qte; a.unite = unite; a.mesure = mesure;
-        lpUpdate(a, { texte:a.texte, quantite:a.qte, unite:a.unite || null, mesure: a.unite && a.mesure ? Number(a.mesure) : null });
-      }
-    }
-    lpDirty = true;
-  }
-  function lpEndEdit(){ lpSaveEdit(); renderLists(); }
-
-  /* ---------- Toucher, cliquer, glisser ---------- */
-  function lpBlockClick(){ lpSuppressClick = true; setTimeout(()=>{ lpSuppressClick = false; }, 400); }
-  function lpBindListEvents(){
-    const list = lpEl.list;
-    list.addEventListener('submit', e=>{ if (e.target.closest('.lp-editor')) { e.preventDefault(); lpEndEdit(); } });
-    list.addEventListener('click', e=>{
-      const t = e.target;
-      // Zone de modification : quantité, unité, supprimer
-      const q = t.closest('[data-q]');
-      if (q) { const el = list.querySelector('.lp-edit-qty'); const v = Math.max(1, Math.min(99, (parseInt(el.textContent.replace(/\D/g,''),10)||1) + Number(q.dataset.q))); el.textContent = 'x' + v; return; }
-      const menu = list.querySelector('.lp-unit-menu');
-      if (t.closest('.lp-unit-btn')) { menu.hidden = !menu.hidden; list.querySelector('.lp-unit-btn').setAttribute('aria-expanded', String(!menu.hidden)); return; }
-      const u = t.closest('[data-unit]');
-      if (u) {
-        lpEditUnit = u.dataset.unit; menu.hidden = true;
-        list.querySelector('.lp-unit-btn span').textContent = lpEditUnit || 'Unité';
-        menu.querySelectorAll('[data-unit]').forEach(x=>x.classList.toggle('on', !!lpEditUnit && x.dataset.unit === lpEditUnit));
-        const am = list.querySelector('.lp-amt'); am.hidden = !lpEditUnit; if (lpEditUnit && !am.value) am.focus();
-        return;
-      }
-      if (menu && !menu.hidden && !t.closest('.lp-unit-menu')) menu.hidden = true;
-      const del = t.closest('[data-del]');
-      if (del) { const a = lpById(del.dataset.del); lpEditing = null; if (a) lpDeleteWithUndo([a], `« ${a.texte} » supprimé`); return; }
-      if (t.closest('.lp-editor')) return;
-      // « Tout retirer »
-      const act = t.closest('[data-act]');
-      if (act) {
-        const k = act.dataset.act;
-        if (k === 'clear') { lpSaveEdit(); lpConfirmClear = true; renderLists(); }
-        else if (k === 'clear-no') { lpConfirmClear = false; renderLists(); }
-        else if (k === 'clear-yes') {
-          lpConfirmClear = false;
-          const gone = state.articles.filter(a=>a.liste===lpTab && a.coche);
-          lpDeleteWithUndo(gone, `${gone.length} article${gone.length>1?'s':''} retiré${gone.length>1?'s':''}`);
-        }
-        return;
-      }
-      if (lpEditing) { lpEndEdit(); return; }
-      // Cocher / décocher : toute la ligne compte
-      const r = t.closest('.lp-row'); if (!r || lpSuppressClick || t.closest('.lp-grip')) return;
-      const a = lpById(r.dataset.id); if (!a) return;
-      a.coche = !a.coche; a.cocheLe = Date.now();
-      r.classList.toggle('checked', a.coche);
-      r.querySelector('.lp-box').innerHTML = a.coche ? LP_CHECK : '';
-      const g = r.querySelector('.lp-grip'); if (g) g.remove();
-      updateListBadges();
-      lpUpdate(a, { coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe).toISOString() : null, coche_par: a.coche ? state.myProfile.id : null });
-      setTimeout(()=>{ if (!lpEditing && !lpMove) renderLists(); }, 450);   // on voit la coche, puis l'article descend
-    });
-    // Clic droit (PC) = modifier
-    list.addEventListener('contextmenu', e=>{
-      const r = e.target.closest('.lp-row'); if (!r) return;
-      e.preventDefault();
-      if (!('ontouchstart' in window) || isWide()) lpStartEdit(r.dataset.id);
-    });
-
-    // Glisser un article : à gauche = supprimer, à droite = modifier
-    list.addEventListener('touchstart', e=>{
-      const r = e.target.closest('.lp-row'); if (!r || e.target.closest('.lp-grip') || lpEditing || e.touches.length !== 1) return;
-      lpSwipe = { r, x:e.touches[0].clientX, y:e.touches[0].clientY, dx:0, live:false };
-    }, { passive:true });
-    list.addEventListener('touchmove', e=>{
-      if (!lpSwipe) return;
-      const t = e.touches[0], dx = t.clientX - lpSwipe.x, dy = Math.abs(t.clientY - lpSwipe.y);
-      const bg = lpSwipe.r.parentNode.querySelector('.lp-bg');
-      if (!lpSwipe.live) {
-        if (Math.abs(dx) > 10 && Math.abs(dx) > dy * 1.4) { lpSwipe.live = true; lpSwipe.r.classList.add('swiping'); lpDrag = null; }
-        else { if (dy > 10) lpSwipe = null; return; }
-      }
-      if (bg) { const del = dx < 0; bg.className = 'lp-bg ' + (del ? 'del' : 'edit'); bg.textContent = del ? 'Supprimer' : 'Modifier'; }
-      lpSwipe.dx = dx; lpSwipe.r.style.transform = `translateX(${dx}px)`;
-      if (e.cancelable) e.preventDefault();
-    }, { passive:false });
-    const endSwipe = ()=>{
-      if (!lpSwipe) return;
-      const { r, dx, live } = lpSwipe; lpSwipe = null;
-      if (!live) return;
-      lpBlockClick(); r.classList.remove('swiping');
-      const w = r.offsetWidth, a = lpById(r.dataset.id);
-      if (a && dx < -w * 0.35) {
-        r.style.transform = 'translateX(-110%)';
-        setTimeout(()=>lpDeleteWithUndo([a], `« ${a.texte} » supprimé`), 180);
-      } else if (a && dx > w * 0.25) {
-        r.style.transform = ''; setTimeout(()=>lpStartEdit(a.id), 150);
-      } else r.style.transform = '';
-    };
-    list.addEventListener('touchend', endSwipe);
-    list.addEventListener('touchcancel', endSwipe);
-
-    // Réordonner avec la poignée ⋮⋮ (doigt ou souris)
-    list.addEventListener('pointerdown', e=>{
-      const g = e.target.closest('.lp-grip'); if (!g || lpEditing) return;
-      e.preventDefault(); lpDrag = null;
-      const wrap = g.closest('.lp-wrap');
-      const wraps = [...list.querySelectorAll('.lp-open > .lp-wrap')];
-      lpMove = { wrap, wraps, from:wraps.indexOf(wrap), to:wraps.indexOf(wrap), y0:e.clientY, y:e.clientY, st0:list.scrollTop,
-                 h:wrap.offsetHeight, tops:wraps.map(w=>w.offsetTop), pid:e.pointerId };
-      wrap.classList.add('lifted'); wraps.forEach(w=>{ if (w !== wrap) w.classList.add('shifting'); });
-      try { g.setPointerCapture(e.pointerId); } catch(err){}
-      try { if (navigator.vibrate) navigator.vibrate(10); } catch(err){}
-      lpMove.raf = requestAnimationFrame(lpAutoScroll);
-    });
-    list.addEventListener('pointermove', e=>{ if (lpMove && e.pointerId === lpMove.pid) { lpMove.y = e.clientY; lpPlace(); } });
-    const endMove = e=>{
-      if (!lpMove || (e && e.pointerId !== lpMove.pid)) return;
-      cancelAnimationFrame(lpMove.raf);
-      const { from, to } = lpMove; lpMove = null;
-      if (from !== to && from >= 0) {
-        const open = state.articles.filter(a=>a.liste===lpTab && !a.coche).sort((a,b)=>a.pos - b.pos);
-        const [m] = open.splice(from, 1); open.splice(to, 0, m);
-        open.forEach((a, k)=>{ const p = k + 1; if (a.pos !== p) { a.pos = p; lpUpdate(a, { position:p }); } });
-      }
-      lpBlockClick(); renderLists();
-    };
-    list.addEventListener('pointerup', endMove);
-    list.addEventListener('pointercancel', endMove);
-  }
-  function lpPlace(){
-    const m = lpMove, list = lpEl.list;
-    const dy = m.y - m.y0 + (list.scrollTop - m.st0);
-    m.wrap.style.transform = `translateY(${dy}px) scale(1.02)`;
-    const mid = m.tops[m.from] + dy + m.h / 2;
-    let to = 0; m.wraps.forEach((w, k)=>{ if (k !== m.from && m.tops[k] + w.offsetHeight / 2 < mid) to++; });
-    m.to = to;
-    m.wraps.forEach((w, k)=>{
-      if (k === m.from) return;
-      let s = 0;
-      if (m.from < m.to && k > m.from && k <= m.to) s = -m.h;
-      if (m.from > m.to && k >= m.to && k < m.from) s = m.h;
-      w.style.transform = s ? `translateY(${s}px)` : '';
-    });
-  }
-  function lpAutoScroll(){
-    if (!lpMove) return;
-    const r = lpEl.list.getBoundingClientRect();
-    if (lpMove.y < r.top + 50) lpEl.list.scrollTop -= 7; else if (lpMove.y > r.bottom - 50) lpEl.list.scrollTop += 7;
-    lpPlace(); lpMove.raf = requestAnimationFrame(lpAutoScroll);
-  }
-
-  // Téléphone : fermer le panneau en le tirant vers le bas (depuis le haut, ou depuis la liste quand elle est en haut)
-  function lpBindPanelDrag(){
-    const panel = lpEl.panel, list = lpEl.list;
-    panel.addEventListener('touchstart', e=>{
-      lpDrag = null;
-      if (isWide() || lpEditing || lpMove || e.touches.length !== 1) return;
-      if (e.target.closest('input, button, .lp-grip, .lp-editor')) return;
-      const inTop = !!e.target.closest('.lp-top');
-      if (!inTop && list.scrollTop > 0) return;
-      lpDrag = { y:e.touches[0].clientY, x:e.touches[0].clientX, dy:0, live:false };
-    }, { passive:true });
-    panel.addEventListener('touchmove', e=>{
-      if (!lpDrag) return;
-      const t = e.touches[0], dy = t.clientY - lpDrag.y, dx = Math.abs(t.clientX - lpDrag.x);
-      if (!lpDrag.live) {
-        if (dy > 8 && dy > dx) { lpDrag.live = true; panel.classList.add('dragging'); }
-        else if (dy < -4 || dx > 10) { lpDrag = null; return; }
-        else return;
-      }
-      lpDrag.dy = Math.max(0, dy);
-      panel.style.transform = `translateY(${lpDrag.dy}px)`;
-      if (e.cancelable) e.preventDefault();   // pas de « tirer pour rafraîchir » de Chrome pendant ce geste
-    }, { passive:false });
-    const end = ()=>{
-      if (!lpDrag) return;
-      const d = lpDrag; lpDrag = null;
-      panel.classList.remove('dragging');
-      if (d.live && d.dy > 90) closeLists(); else panel.style.transform = '';
-    };
-    panel.addEventListener('touchend', end);
-    panel.addEventListener('touchcancel', end);
-  }
-  // Échap (PC) : ferme la modification en cours, sinon les listes
-  document.addEventListener('keydown', e=>{
-    if (e.key !== 'Escape' || !listsOpen()) return;
-    if (lpEditing) { lpEditing = null; lpDirty = true; lpFlush(); return; }
-    if (!document.querySelector('.scrim')) closeLists();
-  });
-  // Au retour sur l'appli (téléphone rallumé, onglet revenu) : on relit les listes
-  document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState === 'visible' && state.household) reloadArticles(); });
-  setInterval(lpFlush, 1000);
-
-
   async function boot(){
     render();
     const { data: { session } } = await sb.auth.getSession();
@@ -3809,8 +3244,7 @@
         afterLogin().then(render).catch(()=>render());
       } else {
         if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
-        if (listsOpen()) closeLists();
-        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = []; state.articles = []; state.articlesReady = null;
+        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = [];
         render();
       }
     });
