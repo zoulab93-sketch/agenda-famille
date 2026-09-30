@@ -448,15 +448,6 @@
   .splash-dots span:nth-child(3) { animation-delay:.3s; }
   @keyframes splashPulse { 0%,100% { opacity:.3; transform:scale(.8); } 50% { opacity:1; transform:scale(1); } }
 
-  /* 2.1.1 : vue mois (téléphone) — événement sur 2 lignes : coupure entre les mots seulement */
-  .ev-line.two { height:auto; max-height:31px; line-height:12.5px; padding-top:1px; padding-bottom:1px; white-space:normal; text-overflow:clip; }
-  .ev-line.two.wrap .ev-line-text { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; white-space:normal; overflow:hidden; overflow-wrap:normal; word-break:normal; }
-  .ev-line.two.timed .ev-line-text { display:block; }
-  .ev-line.two.timed .l1, .ev-line.two.timed .l2 { display:block; white-space:nowrap; overflow:hidden; }
-  .ev-line.two.timed .l2t { display:inline-block; white-space:nowrap; }
-  .ev-line.two.marquee2 .l2t { animation: evMarquee var(--marquee-dur,6s) ease-in-out infinite; }
-  @media (prefers-reduced-motion: reduce) { .ev-line.two.marquee2 .l2t { animation:none; } }
-
   /* 2.1 : le bouton + prend le même verre clair et le même trait que ↺, la vue et la liste */
   .fab.fab-plus { background:color-mix(in srgb, var(--surface) 28%, transparent); border:1.3px solid color-mix(in srgb, var(--ink) 18%, transparent); box-shadow:0 3px 10px rgba(0,0,0,.16); color:var(--ink); }
   .plus-ico { width:26px; height:26px; display:block; }
@@ -569,7 +560,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.1.2</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1169,17 +1160,6 @@
       document.querySelectorAll('.ev-line').forEach(line=>{
         const text = line.querySelector('.ev-line-text');
         if (!text) return;
-        if (line.classList.contains('two')) {   // 2.1.1 : sur 2 lignes, seul le titre (ligne 2) défile s'il est trop long
-          line.classList.remove('marquee');
-          const l2 = line.querySelector('.l2'), l2t = line.querySelector('.l2t');
-          const over = l2 && l2t ? l2t.scrollWidth - l2.clientWidth : 0;
-          if (over > 2) {
-            line.style.setProperty('--marquee-dist', -(over + 4) + 'px');
-            line.style.setProperty('--marquee-dur', Math.max(3.5, (over + 4) / 16) + 's');
-            line.classList.add('marquee2');
-          } else line.classList.remove('marquee2');
-          return;
-        }
         const overflow = text.scrollWidth - line.clientWidth;
         if (overflow > 2) {
           const dist = -(overflow + 4);
@@ -1623,23 +1603,8 @@
     }
     b.dataset.n = n; b.textContent = '+' + n; b.title = moreLabel(n);
   }
-  // 2.1.1 : un événement sur 2 lignes revient sur 1 ligne (texte d'origine, avec défilement si trop long)
-  function collapseTwoLine(el){
-    el.classList.remove('two', 'timed', 'wrap', 'marquee2');
-    if (el.dataset.one !== undefined) { el.innerHTML = el.dataset.one; delete el.dataset.one; }
-  }
   function fitDayCells(){
     document.querySelectorAll('.cal-viewport .day-cell').forEach(cell=>{
-      const twos = [...cell.querySelectorAll('.ev-line.two')];
-      // Titre sans heure : s'il tient sur une ligne, ou si un mot ne rentre pas en largeur, format normal (qui défile)
-      twos.forEach(el=>{
-        if (!el.classList.contains('wrap')) return;
-        const t = el.querySelector('.ev-line-text');
-        if (el.offsetHeight < 23 || (t && t.scrollWidth > t.clientWidth + 1)) collapseTwoLine(el);
-      });
-      // Puis, tant que la case déborde : les derniers repassent sur 1 ligne, un par un
-      const still = [...cell.querySelectorAll('.ev-line.two')];
-      while (still.length && cell.scrollHeight > cell.clientHeight + 1) collapseTwoLine(still.pop());
       if (cell.scrollHeight <= cell.clientHeight + 1) return;
       const lines = [...cell.querySelectorAll('.ev-line')];
       const keep = cell.querySelector('.case-name') ? 0 : 1;
@@ -1675,21 +1640,9 @@
       linesHtml = names.slice(0,2).map(n=>{ const ce = cases.find(x=>x.title===n); return `<div class="case-name"${ce?` data-eid="${ce.id}"`:''}>${escapeHtml(n)}</div>`; }).join('');
     }
     const lineEvs = caseMode ? evs.filter(e=>!caseColorOf(e)) : evs; // en mode cas : les événements hors cas, en lignes classiques
-    // 2.1.1 : vue mois sur téléphone, les événements passent sur 2 lignes quand la case a de la place
-    // (heure seule en haut, titre en dessous). fitDayCells les remet sur 1 ligne, du bas vers le haut, si ça déborde.
-    //  - avec une heure : ligne 1 = l'heure seule, ligne 2 = icônes + titre (qui défile s'il est trop long) ;
-    //  - sans heure et sans icône : le titre passe à la ligne entre deux mots ;
-    //  - sans heure mais avec une icône (Postes, agendas liés…) : une seule ligne, comme avant.
-    const twoMode = !isWide() && view.mode === 'month';
     lineEvs.slice(0,maxLines).forEach(e=>{
       const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-      const pre = `${impHtml(e)}${lnk(e)}${iconHtml(e)}`;
-      const oneTxt = `${pre}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}`;
-      let kind = '', twoTxt = oneTxt;
-      if (twoMode && e.start) { kind = ' two timed'; twoTxt = `<span class="l1">${escapeHtml(e.start)}</span><span class="l2"><span class="l2t">${pre}${escapeHtml(e.title)}</span></span>`; }
-      else if (twoMode && !pre && /\s/.test(e.title.trim())) kind = ' two wrap';
-      const oneAttr = kind ? ` data-one="${escapeAttr('<span class="ev-line-text">' + oneTxt + '</span>')}"` : '';
-      linesHtml += `<div class="ev-line${e.important?' imp':''}${kind}" data-eid="${e.id}"${oneAttr} style="background:${lineBg(cols)}"><span class="ev-line-text">${kind?twoTxt:oneTxt}</span></div>`;
+      linesHtml += `<div class="ev-line${e.important?' imp':''}" data-eid="${e.id}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     const dnum = Number(ds.slice(8,10));
     const extra = Math.max(0, lineEvs.length - maxLines);
@@ -1878,7 +1831,7 @@
       let y=view.year, m=c.m;
       if (m<0){ m=11; y--; } else if (m>11){ m=0; y++; }
       const ds = dstr(y,m,c.d);
-      grid.appendChild(buildDayCell(ds, c.other, isWide() ? 8 : 12, view.caseMode)); // 2.1.1 : sur téléphone, c'est la hauteur de la case qui décide (voir fitDayCells)
+      grid.appendChild(buildDayCell(ds, c.other, isWide() ? 8 : MAX_LINES, view.caseMode));
     });
     wrap.appendChild(grid);
     return wrap;
