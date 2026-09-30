@@ -426,13 +426,13 @@
   body.compact-h .sel-deselect::before { content:'Désélec.'; font-size:13px; }
 
   /* Écran d'ouverture affiché dès le premier instant, puis fondu vers l'app */
-  #boot-splash { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#1F2B45; overflow:hidden; transition:opacity .35s ease; }
+  #boot-splash { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:#1F2B45; background:linear-gradient(180deg, #1F2B45 0%, #34547F 100%); overflow:hidden; transition:opacity .35s ease; }
   #boot-splash.hide { opacity:0; pointer-events:none; }
-  .splash-version { position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:600; letter-spacing:.06em; color:rgba(241,227,196,.8); }
+  .splash-version { position:absolute; left:0; right:0; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#3E5C86; }
   #splash {
     position:fixed; inset:0; z-index:1;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
-    background:#1F2B45; overflow:hidden;
+    background:#1F2B45; background:linear-gradient(180deg, #1F2B45 0%, #34547F 100%); overflow:hidden;
   }
   /* Décor du chargement : ciel étoilé et planète mi-ombrée (même univers que l'icône) */
   .splash-scene { position:absolute; inset:0; width:100%; height:100%; }
@@ -441,12 +441,18 @@
   .splash-scene .tw:nth-of-type(3n+1) { animation-delay:1.7s; }
   @keyframes splashTwinkle { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   @media (prefers-reduced-motion: reduce) { .splash-scene .tw { animation:none; } }
-  .splash-word { position:relative; margin-top:-18vh; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:38px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
-  .splash-dots { display:flex; gap:9px; }
-  .splash-dots span { width:8px; height:8px; border-radius:50%; background:#fff; opacity:.4; animation:splashPulse 1.3s ease-in-out infinite; }
+  .splash-word { position:absolute; top:17vh; left:0; right:0; text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:42px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
+  .splash-dots { position:absolute; left:0; right:0; bottom:calc(46px + env(safe-area-inset-bottom, 0px)); display:flex; justify-content:center; gap:9px; }
+  .splash-dots span { width:8px; height:8px; border-radius:50%; background:#3E5C86; opacity:.4; animation:splashPulse 1.3s ease-in-out infinite; }
   .splash-dots span:nth-child(2) { animation-delay:.15s; }
   .splash-dots span:nth-child(3) { animation-delay:.3s; }
   @keyframes splashPulse { 0%,100% { opacity:.3; transform:scale(.8); } 50% { opacity:1; transform:scale(1); } }
+
+  /* 2.1 : le bouton + prend le même verre clair et le même trait que ↺, la vue et la liste */
+  .fab.fab-plus { background:color-mix(in srgb, var(--surface) 28%, transparent); border:1.3px solid color-mix(in srgb, var(--ink) 18%, transparent); box-shadow:0 3px 10px rgba(0,0,0,.16); color:var(--ink); }
+  .plus-ico { width:26px; height:26px; display:block; }
+  body.is-wide .plus-ico { width:23px; height:23px; }
+  body.compact-h .plus-ico { width:19px; height:19px; }
 
   /* ---------- 2.0 : Listes (courses + to-do) ---------- */
   /* Téléphone : panneau qui monte du bas par-dessus l'agenda. PC : colonne à droite du calendrier. */
@@ -554,7 +560,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.0</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1170,7 +1176,7 @@
 
   function renderLoading(){
     const wrap = document.createElement('div'); wrap.id='splash';
-    wrap.innerHTML = `<svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M318 134 L321 147 L334 150 L321 153 L318 166 L315 153 L302 150 L315 147 Z"/></g><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><path d="M200 590 A420 420 0 0 0 200 1430 A195 420 0 0 0 200 590 Z" fill="#3E5C86"/></svg><div class="splash-word">EarthShade</div>`;
+    wrap.innerHTML = `<svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeLoad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeLoad)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div>`;
     return wrap;
   }
 
@@ -2300,7 +2306,7 @@
     row.appendChild(viewWrap);
 
     const fab = document.createElement('button');
-    fab.className='fab'; fab.textContent='+'; fab.setAttribute('aria-label','Ajouter un événement');
+    fab.className='fab fab-plus'; fab.innerHTML='<svg class="plus-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="4.5" x2="12" y2="19.5"/><line x1="4.5" y1="12" x2="19.5" y2="12"/></svg>'; fab.setAttribute('aria-label','Ajouter un événement');
     fab.onclick = ()=>openEventForm(null, view.mode==='day'?(view.dayAnchor||todayStr()):todayStr());
     row.appendChild(fab);
 
@@ -3370,7 +3376,8 @@
     return { id:a.id, liste:a.liste, texte:a.texte, qte:Number(a.quantite)||1,
              mesure: (a.mesure === null || a.mesure === undefined) ? '' : String(Number(a.mesure)),
              unite:a.unite || '', coche:!!a.coche, cocheLe:a.coche_le ? new Date(a.coche_le).getTime() : 0,
-             ajoutePar:a.ajoute_par || null, pos:Number(a.position)||0 };
+             ajoutePar:a.ajoute_par || null, pos:Number(a.position)||0,
+             nb:Number(a.nb_coches)||0, nbJour:Number(a.nb_coches_jour)||0, jour:a.jour_coches || '' };
   }
   async function reloadArticles(){
     if (!state.household) return;
@@ -3390,6 +3397,17 @@
   }
   const lpOpenIn = key => (state.articles || []).filter(a=>a.liste===key && !a.coche);
   const lpById = id => (state.articles || []).find(a=>a.id===id);
+  // 2.1 : « Déjà pris » des courses trié du plus acheté au moins acheté. On compte les coches ;
+  // celles du jour ne comptent pour le tri qu'à partir de minuit : rien ne bouge pendant les courses.
+  function lpToday(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function lpRank(a){ return a.nb - (a.jour === lpToday() ? a.nbJour : 0); }
+  // Coche : +1 (et +1 pour aujourd'hui). Décoche le jour même (erreur, ou article repris) : on retire cette coche.
+  function lpCountCheck(a, checked){
+    const today = lpToday();
+    if (checked) { if (a.jour !== today) { a.jour = today; a.nbJour = 0; } a.nb += 1; a.nbJour += 1; }
+    else if (a.jour === today && a.nbJour > 0) { a.nb = Math.max(0, a.nb - 1); a.nbJour -= 1; }
+    return { nb_coches:a.nb, nb_coches_jour:a.nbJour, jour_coches:a.jour || null };
+  }
   function lpFmt(a){ return a.unite ? (a.mesure ? `${a.mesure.replace('.', ',')} ${a.unite}` : a.unite) : ''; }
   function updateListBadges(){
     const n = lpOpenIn('courses').length;
@@ -3438,7 +3456,7 @@
     if (!lpEl.panel) return;
     lpSaveEdit(); lpEditing = null;
     document.body.classList.remove('lists-open');
-    lpEl.panel.style.transform = '';
+    lpEl.panel.style.transform = ''; lpEl.panel.style.bottom = ''; lpEl.panel.style.height = '';
     if (document.activeElement && lpEl.panel.contains(document.activeElement)) document.activeElement.blur();
     if (isWide()) render();
   }
@@ -3449,12 +3467,12 @@
     if (lpEditing === a.id) {
       return `<div class="lp-wrap editing" data-wrap="${a.id}"><form class="lp-editor" data-edit="${a.id}">
         <input class="lp-edit-text" type="text" value="${escapeAttr(a.texte)}" enterkeyhint="done" maxlength="200" aria-label="Texte de l'article">
-        <div class="lp-line">
+        ${a.liste !== 'courses' ? '' : `<div class="lp-line">
           <input class="lp-amt" type="text" inputmode="decimal" placeholder="100" value="${escapeAttr(a.mesure)}"${lpEditUnit?'':' hidden'} aria-label="Quantité">
           <div class="lp-unit"><button type="button" class="lp-unit-btn" aria-haspopup="true" aria-expanded="false"><span>${lpEditUnit || 'Unité'}</span><svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></button>
             <div class="lp-unit-menu" hidden>${LP_UNITS.map(u=>`<button type="button" data-unit="${u}" class="${u===lpEditUnit?'on':''}">${u}</button>`).join('')}<button type="button" data-unit="" class="none">Aucune</button></div></div>
           <div class="lp-step"><button type="button" data-q="-1" aria-label="Moins">−</button><span class="lp-edit-qty">x${a.qte}</span><button type="button" data-q="1" aria-label="Plus">+</button></div>
-        </div>
+        </div>`}
         <div class="lp-line"><button class="lp-trash" type="button" data-del="${a.id}">Supprimer</button><button class="lp-ok" type="submit">OK</button></div>
       </form></div>`;
     }
@@ -3482,14 +3500,17 @@
     const courses = lpTab === 'courses';
     const mine = (state.articles || []).filter(a=>a.liste===lpTab);
     const open = mine.filter(a=>!a.coche).sort((a,b)=>a.pos - b.pos);
-    const done = mine.filter(a=>a.coche).sort((a,b)=>b.cocheLe - a.cocheLe);
+    const done = mine.filter(a=>a.coche).sort(courses
+      ? (a,b)=>(lpRank(b) - lpRank(a)) || a.texte.localeCompare(b.texte, 'fr', { sensitivity:'base' })
+      : (a,b)=>b.cocheLe - a.cocheLe);
     let h = '';
     if (state.articlesReady === false && !mine.length) h = `<div class="lp-empty">Les listes ne sont pas encore prêtes (base de données).<br>Réessayez dans un instant.</div>`;
     else if (!open.length && !done.length) h = `<div class="lp-empty">${courses ? 'Liste de courses vide.<br>Ajoutez le premier article ci-dessus.' : "Rien à faire pour l'instant."}</div>`;
     else if (!open.length) h = `<div class="lp-empty">${courses ? 'Tout est pris' : 'Tout est fait'}</div>`;
     h += '<div class="lp-open">' + open.map(lpRowHtml).join('') + '</div>';
     if (done.length) {
-      h += `<div class="lp-taken"><span>${courses ? 'Déjà pris' : 'Fait'} (${done.length})</span><button type="button" data-act="clear">Tout retirer</button></div>`;
+      // 2.1 : pas de « Tout retirer » dans les courses (il effacerait la mémoire des articles habituels)
+      h += `<div class="lp-taken"><span>${courses ? 'Déjà pris' : 'Fait'} (${done.length})</span>${courses ? '' : '<button type="button" data-act="clear">Tout retirer</button>'}</div>`;
       if (lpConfirmClear) h += `<div class="lp-confirm"><span>Retirer ${done.length > 1 ? `les ${done.length} articles` : "l'article"} ${courses ? (done.length>1?'déjà pris':'déjà pris') : (done.length>1?'faits':'fait')} ?</span><button class="no" type="button" data-act="clear-no">Garder</button><button class="yes" type="button" data-act="clear-yes">Retirer</button></div>`;
       h += done.map(lpRowHtml).join('');
     }
@@ -3497,7 +3518,6 @@
     const fresh = lpEl.list.querySelector('.lp-row.fresh');
     if (fresh) { fresh.scrollIntoView({ block:'nearest' }); lpFreshId = null; }
     lpEl.input.placeholder = courses ? 'Ajouter un article…' : 'Ajouter une chose à faire…';
-    if (lpEditing) { const t = lpEl.list.querySelector('.lp-edit-text'); if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
   }
   function lpFlush(){ if (lpDirty && !lpEditing && !lpMove && !lpSwipe) renderLists(); }
 
@@ -3522,7 +3542,8 @@
     return { id:a.id, household_id:state.household.id, liste:a.liste, texte:a.texte, quantite:a.qte,
              mesure: a.unite && a.mesure ? Number(a.mesure) : null, unite: a.unite || null,
              coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe || Date.now()).toISOString() : null,
-             coche_par: a.coche ? (state.myProfile && state.myProfile.id) : null, ajoute_par:a.ajoutePar, position:a.pos };
+             coche_par: a.coche ? (state.myProfile && state.myProfile.id) : null, ajoute_par:a.ajoutePar, position:a.pos,
+             nb_coches:a.nb || 0, nb_coches_jour:a.nbJour || 0, jour_coches:a.jour || null };
   }
   async function lpInsert(list){
     const { error } = await sb.from('articles').insert(list.map(lpRowFor));
@@ -3557,7 +3578,7 @@
     const same = (state.articles || []).find(a=>a.liste===lpTab && a.texte.toLocaleLowerCase('fr') === low);
     if (same && same.coche) {
       same.coche = false; same.pos = lpNextPos(lpTab); lpFreshId = same.id;
-      lpUpdate(same, { coche:false, coche_le:null, coche_par:null, position:same.pos });
+      lpUpdate(same, Object.assign({ coche:false, coche_le:null, coche_par:null, position:same.pos }, lpCountCheck(same, false)));
       lpToast(`« ${same.texte} » remis dans la liste`);
     } else if (same) {
       lpToast(`« ${same.texte} » est déjà dans la liste`, ()=>{
@@ -3566,7 +3587,7 @@
       }, `Passer à x${Math.min(99, same.qte + 1)}`);
     } else {
       const a = { id:uid(), liste:lpTab, texte:text.charAt(0).toLocaleUpperCase('fr') + text.slice(1), qte:1, mesure:'', unite:'',
-                  coche:false, cocheLe:0, ajoutePar:state.myProfile.id, pos:lpNextPos(lpTab) };
+                  coche:false, cocheLe:0, ajoutePar:state.myProfile.id, pos:lpNextPos(lpTab), nb:0, nbJour:0, jour:'' };
       state.articles.push(a); lpFreshId = a.id;
       lpInsert([a]);
     }
@@ -3584,7 +3605,10 @@
     const wrap = lpEl.list.querySelector(`[data-wrap="${id}"]`);
     if (wrap) wrap.outerHTML = lpRowHtml(a);
     const t = lpEl.list.querySelector('.lp-edit-text');
-    if (t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); t.scrollIntoView({ block:'nearest' }); }
+    // 2.1 : sur téléphone, le clavier ne sort que si on touche le champ ; sur PC (souris), le curseur y est déjà
+    const wrapNow = lpEl.list.querySelector('.lp-wrap.editing');
+    if (wrapNow) wrapNow.scrollIntoView({ block:'nearest' });
+    if (t && window.matchMedia && window.matchMedia('(pointer: fine)').matches) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); }
   }
   function lpSaveEdit(){
     if (!lpEditing) return;
@@ -3593,9 +3617,10 @@
     lpEditing = null;
     if (a && form) {
       const txt = form.querySelector('.lp-edit-text').value.trim().replace(/\s+/g, ' ').slice(0, 200);
-      const qte = parseInt(form.querySelector('.lp-edit-qty').textContent.replace(/\D/g, ''), 10) || 1;
-      const unite = lpEditUnit;
-      let mesure = unite ? form.querySelector('.lp-amt').value.trim().replace(',', '.').replace(/[^0-9.]/g, '') : '';
+      const qEl = form.querySelector('.lp-edit-qty'), amEl = form.querySelector('.lp-amt');   // absents dans une to-do
+      const qte = qEl ? (parseInt(qEl.textContent.replace(/\D/g, ''), 10) || 1) : a.qte;
+      const unite = amEl ? lpEditUnit : a.unite;
+      let mesure = !amEl ? a.mesure : (unite ? amEl.value.trim().replace(',', '.').replace(/[^0-9.]/g, '') : '');
       if (mesure && !(Number(mesure) > 0)) mesure = '';
       if (mesure) mesure = String(Number(mesure));
       const changed = (txt && txt !== a.texte) || qte !== a.qte || unite !== a.unite || mesure !== a.mesure;
@@ -3655,7 +3680,7 @@
       r.querySelector('.lp-box').innerHTML = a.coche ? LP_CHECK : '';
       const g = r.querySelector('.lp-grip'); if (g) g.remove();
       updateListBadges();
-      lpUpdate(a, { coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe).toISOString() : null, coche_par: a.coche ? state.myProfile.id : null });
+      lpUpdate(a, Object.assign({ coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe).toISOString() : null, coche_par: a.coche ? state.myProfile.id : null }, lpCountCheck(a, a.coche)));
       setTimeout(()=>{ if (!lpEditing && !lpMove) renderLists(); }, 450);   // on voit la coche, puis l'article descend
     });
     // Clic droit (PC) = modifier
@@ -3780,6 +3805,27 @@
     panel.addEventListener('touchend', end);
     panel.addEventListener('touchcancel', end);
   }
+  // 2.1 : sur Android, le clavier passe PAR-DESSUS la page (elle ne rétrécit pas) : le bas du panneau
+  // se retrouvait caché. Quand le clavier est sorti, le panneau se pose juste au-dessus de lui.
+  function lpFitKeyboard(){
+    if (!lpEl.panel) return;
+    const vv = window.visualViewport;
+    const reset = ()=>{ lpEl.panel.style.bottom = ''; lpEl.panel.style.height = ''; };
+    if (!vv || isWide() || !listsOpen()) { reset(); return; }
+    const hidden = Math.round(window.innerHeight - vv.height - vv.offsetTop);
+    if (hidden > 80) {
+      lpEl.panel.style.bottom = hidden + 'px';
+      lpEl.panel.style.height = Math.round(Math.min(vv.height * 0.92, window.innerHeight * 0.8)) + 'px';
+      const f = document.activeElement;
+      if (f && lpEl.panel.contains(f) && lpEl.list.contains(f)) setTimeout(()=>f.scrollIntoView({ block:'nearest' }), 60);
+    } else reset();
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', lpFitKeyboard);
+    window.visualViewport.addEventListener('scroll', lpFitKeyboard);
+  }
+  document.addEventListener('focusin', e=>{ if (lpEl.panel && lpEl.panel.contains(e.target)) setTimeout(lpFitKeyboard, 350); });
+
   // Échap (PC) : ferme la modification en cours, sinon les listes
   document.addEventListener('keydown', e=>{
     if (e.key !== 'Escape' || !listsOpen()) return;
