@@ -588,7 +588,7 @@
     const k = Object.keys(CASE_COLORS).find(n=>n.toLowerCase() === String(t||'').trim().toLowerCase());
     return k ? CASE_COLORS[k] : null;
   }
-  const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':✈️', 'Formation':'🎓', 'Tutorat':'📚', 'Vacances nounou':'🧳', 'Centre aéré':'🏕️' };
+  const LEGACY_PRESET_ICON = { 'Matin':'🌅', 'Dom':'🏠', 'Soir':'🌆', 'Soir rouge':'🌃', 'Consultation':'🩺', 'RH':'🛌', 'RTT':'🌴', 'CA':'✈️', 'Formation':'🎓', 'Tutorat':'📚', 'Vacances nounou':'🧳', 'Centre aéré':'🏕️' };
   function impHtml(e){ return e && e.important ? '<span class="imp-mark">★</span>' : ''; }
   // Agendas liés : un événement importé (et non détaché) porte un petit maillon
   const LINK_PATHS = '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>';
