@@ -557,10 +557,84 @@
   body.compact-h .lp-head { margin-bottom:6px; }
   body.compact-h .lp-add { margin:8px 0 2px; }
   @media (prefers-reduced-motion: reduce) { .lp, .lp-row, .lp-wrap, .lp-scrim, .lp-toast { transition:none !important; } .lp-row.fresh { animation:none; } }
+
+  /* ---------- 3.0 : Menus (midi + soir) ---------- */
+  :root { --meal:#E07A3F; --meal-soir:#6A6FC2; }
+  /* En-tête : 5 boutons sur téléphone -> flèches resserrées, titre un peu plus petit */
+  body:not(.is-wide) .month-nav button { padding:5px 3px; }
+  body:not(.is-wide) .month-title { font-size:14px; }
+  .icon-btn.fork-toggle.on { background:var(--ink); color:var(--surface); box-shadow:none; }
+  /* Case du mois quand la fourchette est allumée */
+  .mn-meals { display:flex; flex-direction:column; gap:3px; margin-top:2px; min-width:0; }
+  .mn-meal { display:block; min-height:24px; padding:2px 3px; border-radius:6px; background:color-mix(in srgb, var(--meal) 14%, var(--surface));
+             font-size:9.5px; font-weight:700; line-height:11.5px; color:var(--ink); cursor:pointer; min-width:0; }
+  .mn-meal i { font-style:normal; font-size:8.5px; margin-right:2px; }
+  .mn-meal.empty { color:var(--ink-soft); font-weight:500; }
+  .mn-meal[data-k="soir"] { background:color-mix(in srgb, var(--meal-soir) 16%, var(--surface)); }   /* midi : orangé, soir : bleuté */
+  .mn-meal:not(.empty) i { display:none; }
+  .mn-t { min-width:0; }
+  .mn-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; -webkit-hyphens:auto; hyphens:auto; }
+  .mn-meal.empty .mn-t { display:inline; }
+  .mn-dots { display:flex; gap:2px; margin-top:2px; flex-wrap:wrap; }
+  .mn-dots b { width:6px; height:6px; border-radius:50%; display:block; flex-shrink:0; }
+  .mn-dots em { font-style:normal; font-size:8.5px; font-weight:600; color:var(--ink-soft); }
+  .day-cell.mn-flash { border-color:var(--meal); }
+  body.is-wide .mn-meal { font-size:12.5px; line-height:15px; min-height:34px; padding:4px 6px; border-radius:8px; }
+  body.is-wide .mn-meal i { font-size:11px; margin-right:3px; }
+  body.is-wide .mn-dots b { width:8px; height:8px; }
+  body.compact-h .mn-meal { min-height:0; font-size:9.5px; line-height:11px; }
+  /* Fenêtre du repas */
+  .mn-scrim { position:fixed; inset:0; background:rgba(20,22,26,.35); z-index:24; opacity:0; pointer-events:none; transition:opacity .2s; touch-action:none; }
+  body.mn-open .mn-scrim { opacity:1; pointer-events:auto; }
+  .mn-sheet { position:fixed; left:0; right:0; bottom:0; margin:0 auto; max-width:640px; max-height:86vh; max-height:86dvh; overflow-y:auto; overscroll-behavior:contain; z-index:25;
+              background:var(--surface); color:var(--ink); border-radius:20px 20px 0 0; padding:10px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+              transform:translateY(105%); visibility:hidden; transition:transform .25s cubic-bezier(.2,.8,.2,1), visibility 0s linear .25s; }
+  body.mn-open .mn-sheet { transform:none; visibility:visible; transition:transform .25s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+  .mn-sheet.dragging { transition:none; }
+  body.is-wide .mn-sheet { max-width:460px; border-radius:20px; bottom:auto; top:50%; transform:translateY(-50%) scale(.96); opacity:0; transition:opacity .15s, transform .15s, visibility 0s linear .15s; }
+  body.is-wide.mn-open .mn-sheet { transform:translateY(-50%); opacity:1; transition:opacity .15s, transform .15s, visibility 0s; }
+  body.is-wide .mn-grab { display:none; }
+  .mn-grab { width:36px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 12px; }
+  .mn-head { display:flex; align-items:baseline; gap:10px; margin-bottom:10px; }
+  .mn-head h2 { margin:0; font-size:18px; }
+  .mn-date { flex:1; font-size:13px; color:var(--ink-soft); }
+  .mn-x { background:none; border:none; color:var(--ink-soft); font-size:18px; cursor:pointer; padding:2px 4px; }
+  .mn-tabs { display:flex; gap:6px; margin-bottom:12px; }
+  .mn-tab { flex:1; padding:9px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:700 14px 'Quicksand',sans-serif; cursor:pointer; }
+  .mn-tab.on { background:var(--ink); color:var(--surface); border-color:var(--ink); }
+  .mn-search { width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font:16px 'Karla',sans-serif; }
+  .mn-search:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
+  .mn-lab { font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px; }
+  .mn-recipes { display:flex; flex-wrap:wrap; gap:6px; }
+  .mn-rc { padding:7px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
+  .mn-rc.on { border-color:var(--meal); background:color-mix(in srgb, var(--meal) 16%, var(--surface)); }
+  .mn-rc.new { border-style:dashed; color:var(--ink-soft); }
+  .mn-empty { font-size:13px; color:var(--ink-soft); }
+  .mn-who { display:flex; gap:8px; flex-wrap:wrap; }
+  .mn-pp { display:flex; align-items:center; gap:6px; padding:7px 12px 7px 7px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
+  .mn-pp .d { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+  .mn-pp.off { opacity:.4; } .mn-pp.off .d { background:var(--line) !important; }
+  .mn-pp.wait { opacity:.55; }
+  .mn-copy { display:flex; flex-direction:column; gap:6px; }
+  .mn-cp { text-align:left; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 14px 'Karla',sans-serif; cursor:pointer; }
+  .mn-cp:disabled, .mn-clear:disabled { opacity:.4; cursor:default; }
+  .mn-row { display:flex; gap:8px; margin-top:16px; }
+  .mn-row button { flex:1; height:44px; border-radius:12px; border:none; font:700 14px 'Quicksand',sans-serif; cursor:pointer; }
+  .mn-ok { background:var(--ink); color:var(--surface); } .mn-clear { background:var(--surface-soft); color:var(--ink); }
+  .mn-copybar { position:fixed; left:12px; right:12px; bottom:calc(14px + env(safe-area-inset-bottom, 0px)); max-width:520px; margin:0 auto; z-index:23; display:flex; align-items:center; gap:10px;
+                padding:10px 12px; border-radius:14px; background:var(--ink); color:var(--surface); font-size:13px; font-weight:600; box-shadow:0 6px 20px rgba(0,0,0,.3); }
+  .mn-copybar[hidden] { display:none; }
+  .mn-copybar span { flex:1; min-width:0; }
+  .mn-copybar button { border:none; border-radius:9px; padding:8px 12px; background:var(--meal); color:#fff; font:700 13px 'Quicksand',sans-serif; cursor:pointer; }
+  body.mn-copying .fab-row { display:none; }
+  .mn-toast { position:fixed; left:50%; bottom:96px; transform:translate(-50%,14px); z-index:40; max-width:min(92vw,520px); background:var(--ink); color:var(--surface);
+              font-size:13.5px; font-weight:600; padding:11px 16px; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.3); opacity:0; pointer-events:none; transition:opacity .18s, transform .18s; text-align:center; }
+  .mn-toast.show { opacity:1; transform:translate(-50%,0); }
+  @media (prefers-reduced-motion: reduce) { .mn-sheet, .mn-scrim, .mn-toast { transition:none !important; } }
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 2.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.0</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -628,6 +702,7 @@
   function toggleCaseMode(){
     view.caseMode = !view.caseMode;
     try { localStorage.setItem('es-case-mode', view.caseMode ? '1' : '0'); } catch(e){}
+    if (view.caseMode && view.menuMode) { view.menuMode = false; mnStopCopy(true); try { localStorage.setItem('es-menu-mode', '0'); } catch(e){} }  // 3.0 : Cas et fourchette s'excluent
     if (view.caseMode && view.mode !== 'month') view.mode = 'month';
     render();
   }
@@ -685,12 +760,14 @@
     events: [], log: [], hidden: loadHidden(), _undoStack: [],
     googleLinked: false, googleEmail: '',
     links: [], maskedBySource: {},
-    articles: [], articlesReady: null   // 2.0 : listes
+    articles: [], articlesReady: null,  // 2.0 : listes
+    repas: {}, recettes: [], menusReady: null   // 3.0 : menus
   };
   let view = {
     year: new Date().getFullYear(), month: new Date().getMonth(),
     openDay: null, sheet: null, editingEvent: null,
     selectMode:false, selectedDays: [],
+    menuMode: (()=>{ try { return localStorage.getItem('es-menu-mode')==='1'; } catch(e){ return false; } })(),  // 3.0 : fourchette
     mode:'month', caseMode: (()=>{ try { return localStorage.getItem('es-case-mode')==='1'; } catch(e){ return false; } })(), weekAnchor: null, dayAnchor: null,
     authMode:'signin', hhMode:'create', _authEmail:'', _formFrom:null
   };
@@ -721,6 +798,7 @@
     await reloadHouseholdData();
     subscribeRealtime();
     reloadArticles();   // 2.0 : listes (sans attendre)
+    reloadMenus();      // 3.0 : menus (sans attendre)
   }
   async function reloadHouseholdData(){
     if (!state.household) return;
@@ -764,8 +842,9 @@
     if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
     if (!state.household) return;
     const hid = state.household.id;
-    let t = null, ta = null;
+    let t = null, ta = null, tm = null;
     const onArticles = ()=>{ clearTimeout(ta); ta = setTimeout(reloadArticles, 150); };
+    const onMenus = ()=>{ clearTimeout(tm); tm = setTimeout(reloadMenus, 200); };
     const onChange = ()=>{
       clearTimeout(t);
       t = setTimeout(async ()=>{ if (backfill.running) return; await reloadHouseholdData(); render(); }, 200);
@@ -779,6 +858,10 @@
       // 2.0 : listes — on ne relit que les articles (l'agenda n'est pas redessiné)
       .on('postgres_changes', { event:'*', schema:'public', table:'articles', filter:'household_id=eq.'+hid }, onArticles)
       .on('postgres_changes', { event:'DELETE', schema:'public', table:'articles' }, onArticles)
+      // 3.0 : menus
+      .on('postgres_changes', { event:'*', schema:'public', table:'repas', filter:'household_id=eq.'+hid }, onMenus)
+      .on('postgres_changes', { event:'DELETE', schema:'public', table:'repas' }, onMenus)
+      .on('postgres_changes', { event:'*', schema:'public', table:'recettes', filter:'household_id=eq.'+hid }, onMenus)
       .subscribe();
   }
   async function logActivity(action){
@@ -964,7 +1047,7 @@
   document.addEventListener('touchstart', (e)=>{
     fabSwipe = null;
     if (e.touches.length !== 1) return;
-    if (!document.querySelector('.fab-row.hideable') || document.querySelector('.scrim') || document.body.classList.contains('lists-open')) return;
+    if (!document.querySelector('.fab-row.hideable') || document.querySelector('.scrim') || document.body.classList.contains('lists-open') || document.body.classList.contains('mn-open')) return;
     const t = e.touches[0];
     const zoneTop = fabsShown ? Math.min(fabHideZoneTop(), window.innerHeight - FAB_ZONE_CLOSED) : window.innerHeight - FAB_ZONE_CLOSED;
     if (t.clientY >= zoneTop) fabSwipe = { x:t.clientX, y:t.clientY, onRow: !!(e.target && e.target.closest && e.target.closest('.fab-row')) };
@@ -1302,6 +1385,7 @@
       <div class="side-item" id="side-today"><div class="icon-btn">${todayIcon()}</div><span class="side-label">Auj.</span></div>
       <div class="side-item" id="side-search"><div class="icon-btn">${searchIcon()}</div><span class="side-label">Recherche</span></div>
       <div class="side-item" id="side-cases"><div class="icon-btn case-toggle${view.caseMode?' on':''}">${caseToggleIcon(view.caseMode)}</div><span class="side-label">Cas</span></div>
+      <div class="side-item" id="side-menus"><div class="icon-btn fork-toggle${view.menuMode?' on':''}">${forkIcon(18)}</div><span class="side-label">Menus</span></div>
       <div class="side-item" id="side-lists"><div class="icon-btn lp-side-ico">${listIcon(19)}<span class="lp-badge"${lpOpenIn('courses').length?'':' hidden'}>${lpOpenIn('courses').length}</span></div><span class="side-label">Listes</span></div>
       <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${p.name[0].toUpperCase()}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
     `;
@@ -1310,6 +1394,7 @@
     bar.querySelector('#side-cases').onclick=toggleCaseMode;
     bar.querySelector('#side-profile').onclick=()=>{ view.sheet='switch'; render(); };
     bar.querySelector('#side-lists').onclick=toggleLists;
+    bar.querySelector('#side-menus').onclick=toggleMenuMode;
     return bar;
   }
 
@@ -1468,12 +1553,14 @@
         <button class="icon-btn" id="go-today" aria-label="Aujourd'hui">${todayIcon()}</button>
         <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
         <button class="icon-btn case-toggle${view.caseMode?' on':''}" id="toggle-cases" aria-label="Afficher les cas en couleur" aria-pressed="${view.caseMode?'true':'false'}">${caseToggleIcon(view.caseMode)}</button>
+        <button class="icon-btn fork-toggle${view.menuMode?' on':''}" id="toggle-menus" aria-label="Afficher les menus" aria-pressed="${view.menuMode?'true':'false'}">${forkIcon()}</button>
         <button class="avatar" id="open-switch" style="background:${p.color}">${p.name[0].toUpperCase()}</button>
       </div>
     `;
     h.querySelector('#go-today').onclick=goToday;
     h.querySelector('#open-search').onclick=()=>{ view.sheet='search'; render(); };
     h.querySelector('#toggle-cases').onclick=toggleCaseMode;
+    h.querySelector('#toggle-menus').onclick=toggleMenuMode;
     h.querySelector('#prev-m').onclick=navPrev;
     h.querySelector('#next-m').onclick=navNext;
     h.querySelector('#open-switch').onclick=()=>{ view.sheet='switch'; render(); };
@@ -1639,15 +1726,20 @@
       const names = [...new Set(cases.map(e=>e.title))];
       linesHtml = names.slice(0,2).map(n=>{ const ce = cases.find(x=>x.title===n); return `<div class="case-name"${ce?` data-eid="${ce.id}"`:''}>${escapeHtml(n)}</div>`; }).join('');
     }
-    const lineEvs = caseMode ? evs.filter(e=>!caseColorOf(e)) : evs; // en mode cas : les événements hors cas, en lignes classiques
+    const menu = !!view.menuMode && view.mode === 'month';   // 3.0 : fourchette allumée -> midi / soir à la place des événements
+    const lineEvs = menu ? [] : caseMode ? evs.filter(e=>!caseColorOf(e)) : evs; // en mode cas : les événements hors cas, en lignes classiques
     lineEvs.slice(0,maxLines).forEach(e=>{
       const cols = e.participants.filter(id=>!state.hidden.includes(id)).map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
       linesHtml += `<div class="ev-line${e.important?' imp':''}" data-eid="${e.id}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
+    if (menu) {
+      linesHtml = mnCellHtml(ds);
+      if (mnFlash.has(ds) || (mnCopy && mnCopy.days.has(ds))) cell.classList.add('mn-flash');
+    }
     const dnum = Number(ds.slice(8,10));
     const extra = Math.max(0, lineEvs.length - maxLines);
     cell.innerHTML = `<div class="day-num">${dnum}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}${extra?`<span class="more-badge" data-n="${extra}" title="${moreLabel(extra)}">+${extra}</span>`:''}</div>${linesHtml}${picked?'<div class="pick-mark">✓</div>':''}`;
-    cell.onclick = ()=>{
+    cell.onclick = (ev)=>{
       if (Date.now() < ignoreClickUntil) return;
       if (view.selectMode) {
         if (picked) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
@@ -1655,6 +1747,8 @@
         render();
         return;
       }
+      // 3.0 : fenêtre du repas. La case « capture » le pointeur (appui long) : on retrouve la ligne touchée par sa position
+      if (menu) { const hit = ev && typeof ev.clientX === 'number' ? (document.elementFromPoint(ev.clientX, ev.clientY) || ev.target) : null; mnCellClick(ds, hit); return; }
       if (!evs.length) { openEventForm(null, ds); return; }
       view.openDay = ds; view.sheet='day'; render();
     };
@@ -2295,6 +2389,7 @@
     viewBtn.className='fab-view'; viewBtn.innerHTML = VIEW_ICONS[view.mode]; viewBtn.setAttribute('aria-label','Vue ' + VIEW_NAMES[view.mode] + ' — changer de vue'); viewBtn.title = 'Vue ' + VIEW_NAMES[view.mode];
     // Chaque tap passe à la vue suivante : Mois → Semaine → Jour → Mois
     viewBtn.onclick = ()=>{
+      if (view.menuMode) { view.menuMode = false; mnStopCopy(true); try { localStorage.setItem('es-menu-mode', '0'); } catch(e){} }  // 3.0 : les menus ne vivent qu'en vue mois
       const m = VIEW_CYCLE[(VIEW_CYCLE.indexOf(view.mode) + 1) % VIEW_CYCLE.length];
       view.mode = m; view._autoSwitched = false; agendaScrollTop = null;
       if (m==='week' && !view.weekAnchor) view.weekAnchor = todayStr();
@@ -3837,6 +3932,263 @@
   setInterval(lpFlush, 1000);
 
 
+
+  /* ================================================================== */
+  /* 3.0 : Menus de la semaine — midi + soir sur l'agenda               */
+  /* ================================================================== */
+  // Bouton fourchette (en-tête ; « Menus » dans le menu de gauche sur PC) : comme « Cas », il
+  // transforme la vue mois. Les cases montrent ☀ midi et ☾ soir À LA PLACE des événements.
+  // Toucher une ligne ouvre la fenêtre du repas sur ce moment. Fourchette et Cas s'excluent.
+  // La fenêtre vit en dehors de #app : une mise à jour de l'agenda ne ferme ni le clavier ni la fenêtre.
+  const FORK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3"/><line x1="9" y1="3" x2="9" y2="21"/><path d="M17 21V3c-2.2 1.2-3.2 3.6-3.2 6.5 0 2.2 1.3 3.5 3.2 3.5"/></svg>';
+  function forkIcon(size){ return size ? FORK_SVG.replace(/width="17" height="17"/, `width="${size}" height="${size}"`) : FORK_SVG; }
+  const mnEl = {};
+  let mnCur = null;        // { ds, moment }
+  let mnCopy = null;       // mode « recopier » : { moment, plat, mangeurs, days:Set }
+  let mnFlash = new Set(); // jours entourés un instant après « Reprendre la semaine d'avant »
+
+  function menuModeOn(){ return !!view.menuMode && view.mode === 'month'; }
+  function toggleMenuMode(){
+    view.menuMode = !view.menuMode;
+    if (view.menuMode) {
+      view.caseMode = false; try { localStorage.setItem('es-case-mode', '0'); } catch(e){}
+      if (view.mode !== 'month') view.mode = 'month';
+      if (!state.menusReady) reloadMenus();
+    } else mnStopCopy(true);
+    try { localStorage.setItem('es-menu-mode', view.menuMode ? '1' : '0'); } catch(e){}
+    render();
+  }
+  // Ceux qui mangent : tous les profils, sauf « Commun » (ce n'est pas une personne)
+  function mnEaters(){ return state.profiles.filter(p=>String(p.name||'').trim().toLowerCase() !== 'commun'); }
+  function mnKey(ds, moment){ return ds + '|' + moment; }
+  function mnMeal(ds, moment){ return (state.repas || {})[mnKey(ds, moment)] || null; }
+
+  async function reloadMenus(){
+    if (!state.household) return;
+    const hid = state.household.id;
+    try {
+      const [{ data: rp, error: e1 }, { data: rc, error: e2 }] = await Promise.all([
+        sb.from('repas').select('*').eq('household_id', hid),
+        sb.from('recettes').select('*').eq('household_id', hid)
+      ]);
+      if (e1) throw e1; if (e2) throw e2;
+      state.repas = {};
+      (rp || []).forEach(r=>{ state.repas[mnKey(r.jour, r.moment)] = { id:r.id, jour:r.jour, moment:r.moment, plat:r.plat, mangeurs:r.mangeurs || [] }; });
+      state.recettes = (rc || []).map(r=>({ id:r.id, nom:r.nom, nb:Number(r.nb_fois)||0 }));
+      state.menusReady = true;
+    } catch(e){ state.repas = state.repas || {}; state.recettes = state.recettes || []; state.menusReady = false; }
+    if (menuModeOn()) render();
+    mnFill();
+  }
+
+  /* ---------- Dans la case du mois ---------- */
+  function mnCellHtml(ds){
+    const eaters = mnEaters();
+    const line = (moment, ic)=>{
+      const m = mnMeal(ds, moment);
+      if (!m) return `<div class="mn-meal empty" data-k="${moment}"><i>${ic}</i><span class="mn-t">—</span></div>`;
+      const who = m.mangeurs.filter(id=>eaters.some(p=>p.id===id));
+      const all = eaters.every(p=>who.includes(p.id));
+      const dots = all ? '' : `<span class="mn-dots">${who.length ? eaters.filter(p=>who.includes(p.id)).map(p=>`<b style="background:${p.color}"></b>`).join('') : '<em>personne</em>'}</span>`;
+      return `<div class="mn-meal" data-k="${moment}" lang="fr"><span class="mn-name"><i>${ic}</i>${escapeHtml(m.plat)}</span>${dots}</div>`;
+    };
+    return `<div class="mn-meals">${line('midi','☀')}${line('soir','☾')}</div>`;
+  }
+  // Toucher une case quand la fourchette est allumée
+  function mnCellClick(ds, target){
+    if (mnCopy) { mnToggleCopyDay(ds); return; }
+    const hit = target && target.closest ? target.closest('.mn-meal[data-k]') : null;
+    const moment = hit ? hit.dataset.k : ((mnMeal(ds,'midi') && !mnMeal(ds,'soir')) ? 'soir' : 'midi');
+    mnOpen(ds, moment);
+  }
+
+  /* ---------- Fenêtre du repas ---------- */
+  function ensureMenuSheet(){
+    if (mnEl.sheet) return;
+    const scrim = document.createElement('div'); scrim.className = 'mn-scrim';
+    const sheet = document.createElement('section'); sheet.className = 'mn-sheet'; sheet.setAttribute('aria-label', 'Repas');
+    sheet.innerHTML = `
+      <div class="mn-grab"></div>
+      <div class="mn-head"><h2>Menu</h2><span class="mn-date"></span><button type="button" class="mn-x" aria-label="Fermer">✕</button></div>
+      <div class="mn-tabs"><button type="button" class="mn-tab" data-m="midi">☀ Midi</button><button type="button" class="mn-tab" data-m="soir">☾ Soir</button></div>
+      <input class="mn-search" type="text" placeholder="Chercher ou écrire un plat…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Chercher un plat">
+      <div class="mn-lab mn-lab-rc">Les plus faits</div>
+      <div class="mn-recipes"></div>
+      <div class="mn-lab">Qui mange ?</div>
+      <div class="mn-who"></div>
+      <div class="mn-lab">Recopier</div>
+      <div class="mn-copy"><button type="button" class="mn-cp" data-act="days">Ce repas sur d'autres jours…</button><button type="button" class="mn-cp" data-act="week">Reprendre la semaine d'avant</button></div>
+      <div class="mn-row"><button type="button" class="mn-clear">Pas de repas</button><button type="button" class="mn-ok">OK</button></div>`;
+    const bar = document.createElement('div'); bar.className = 'mn-copybar'; bar.hidden = true;
+    bar.innerHTML = `<span></span><button type="button">Terminé</button>`;
+    const toastEl = document.createElement('div'); toastEl.className = 'mn-toast'; toastEl.setAttribute('role', 'status');
+    document.body.append(scrim, sheet, bar, toastEl);
+    Object.assign(mnEl, { scrim, sheet, bar, toast:toastEl, search:sheet.querySelector('.mn-search'), recipes:sheet.querySelector('.mn-recipes'), who:sheet.querySelector('.mn-who') });
+    scrim.addEventListener('click', mnClose);
+    sheet.querySelector('.mn-x').addEventListener('click', mnClose);
+    sheet.querySelector('.mn-ok').addEventListener('click', mnClose);
+    sheet.querySelector('.mn-clear').addEventListener('click', mnClear);
+    sheet.querySelectorAll('.mn-tab').forEach(t=>t.addEventListener('click', ()=>{ mnCur.moment = t.dataset.m; mnFill(); }));
+    mnEl.search.addEventListener('input', mnFill);
+    mnEl.search.addEventListener('keydown', e=>{ if (e.key === 'Enter') { e.preventDefault(); const v = mnEl.search.value.trim(); if (v) mnPick(v); } });
+    mnEl.recipes.addEventListener('click', e=>{ const b = e.target.closest('[data-r]'); if (b) mnPick(b.dataset.r); });
+    mnEl.who.addEventListener('click', e=>{ const b = e.target.closest('[data-p]'); if (b) mnToggleEater(b.dataset.p); });
+    sheet.querySelector('[data-act="days"]').addEventListener('click', mnStartCopy);
+    sheet.querySelector('[data-act="week"]').addEventListener('click', mnCopyWeek);
+    bar.querySelector('button').addEventListener('click', ()=>mnStopCopy(false));
+    // Téléphone : fermer en tirant la fenêtre vers le bas depuis son haut
+    let drag = null;
+    sheet.addEventListener('touchstart', e=>{
+      drag = null;
+      if (e.touches.length !== 1 || sheet.scrollTop > 0 || e.target.closest('input, button')) return;
+      drag = { y:e.touches[0].clientY, dy:0, live:false };
+    }, { passive:true });
+    sheet.addEventListener('touchmove', e=>{
+      if (!drag) return;
+      const dy = e.touches[0].clientY - drag.y;
+      if (!drag.live) { if (dy > 8) { drag.live = true; sheet.classList.add('dragging'); } else if (dy < -4) { drag = null; return; } else return; }
+      drag.dy = Math.max(0, dy); sheet.style.transform = `translateY(${drag.dy}px)`;
+      if (e.cancelable) e.preventDefault();
+    }, { passive:false });
+    const end = ()=>{ if (!drag) return; const d = drag; drag = null; sheet.classList.remove('dragging'); sheet.style.transform = ''; if (d.live && d.dy > 90) mnClose(); };
+    sheet.addEventListener('touchend', end); sheet.addEventListener('touchcancel', end);
+  }
+  function mnOpen(ds, moment){
+    if (!state.household) return;
+    ensureMenuSheet();
+    mnCur = { ds, moment };
+    mnEl.search.value = '';
+    const d = new Date(ds + 'T00:00:00');
+    mnEl.sheet.querySelector('.mn-date').textContent = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+    mnFill();
+    document.body.classList.add('mn-open');
+    mnEl.sheet.scrollTop = 0;
+    if (!state.menusReady) reloadMenus();
+  }
+  function mnClose(){
+    if (!mnEl.sheet) return;
+    document.body.classList.remove('mn-open');
+    if (document.activeElement && mnEl.sheet.contains(document.activeElement)) document.activeElement.blur();
+    mnCur = null;
+    render();
+  }
+  function mnFill(){
+    if (!mnEl.sheet || !mnCur) return;
+    const m = mnMeal(mnCur.ds, mnCur.moment);
+    mnEl.sheet.querySelectorAll('.mn-tab').forEach(t=>t.classList.toggle('on', t.dataset.m === mnCur.moment));
+    const q = mnEl.search.value.trim(), ql = q.toLocaleLowerCase('fr');
+    let list = (state.recettes || []).slice().sort((a,b)=>(b.nb - a.nb) || a.nom.localeCompare(b.nom, 'fr'));
+    if (ql) list = list.filter(r=>r.nom.toLocaleLowerCase('fr').includes(ql));
+    const shown = list.slice(0, ql ? 40 : 16);
+    const exact = ql && (state.recettes || []).some(r=>r.nom.toLocaleLowerCase('fr') === ql);
+    mnEl.sheet.querySelector('.mn-lab-rc').textContent = ql ? 'Recettes' : 'Les plus faits';
+    mnEl.recipes.innerHTML = shown.map(r=>`<button type="button" class="mn-rc${m && m.plat.toLocaleLowerCase('fr') === r.nom.toLocaleLowerCase('fr') ? ' on' : ''}" data-r="${escapeAttr(r.nom)}">${escapeHtml(r.nom)}</button>`).join('')
+      + (ql && !exact ? `<button type="button" class="mn-rc new" data-r="${escapeAttr(q)}">+ « ${escapeHtml(q)} »</button>` : '')
+      + (!shown.length && !ql ? `<span class="mn-empty">Écris le nom d'un plat ci-dessus : il rejoindra tes recettes.</span>` : '');
+    const eaters = mnEaters();
+    const who = m ? m.mangeurs : eaters.map(p=>p.id);
+    mnEl.who.innerHTML = eaters.map(p=>`<button type="button" class="mn-pp${who.includes(p.id) ? '' : ' off'}${m ? '' : ' wait'}" data-p="${p.id}"><span class="d" style="background:${p.color}">✓</span>${escapeHtml(p.name)}</button>`).join('');
+    mnEl.sheet.querySelector('[data-act="days"]').disabled = !m;
+    mnEl.sheet.querySelector('.mn-clear').disabled = !m;
+  }
+
+  /* ---------- Écritures ---------- */
+  function mnToast(msg){
+    ensureMenuSheet();
+    mnEl.toast.textContent = msg; mnEl.toast.classList.add('show');
+    clearTimeout(mnToast.t); mnToast.t = setTimeout(()=>mnEl.toast.classList.remove('show'), 2600);
+  }
+  function mnFail(err){ mnToast('Pas enregistré : ' + ((err && err.message) || 'connexion ?')); reloadMenus(); }
+  async function mnSave(ds, moment, plat, mangeurs){
+    const k = mnKey(ds, moment);
+    state.repas[k] = { id:(state.repas[k] && state.repas[k].id) || null, jour:ds, moment, plat, mangeurs };
+    const { error } = await sb.from('repas').upsert({ household_id:state.household.id, jour:ds, moment, plat, mangeurs, updated_at:new Date().toISOString() }, { onConflict:'household_id,jour,moment' });
+    if (error) mnFail(error);
+  }
+  async function mnDelete(ds, moment){
+    delete state.repas[mnKey(ds, moment)];
+    const { error } = await sb.from('repas').delete().eq('household_id', state.household.id).eq('jour', ds).eq('moment', moment);
+    if (error) mnFail(error);
+  }
+  // Une recette choisie : +1 à son compteur (créée si elle est nouvelle)
+  async function mnCountRecipe(nom){
+    const low = nom.toLocaleLowerCase('fr');
+    let r = (state.recettes || []).find(x=>x.nom.toLocaleLowerCase('fr') === low);
+    if (r) {
+      r.nb += 1;
+      const { error } = await sb.from('recettes').update({ nb_fois:r.nb }).eq('id', r.id);
+      if (error) mnFail(error);
+    } else {
+      r = { id:uid(), nom, nb:1 }; state.recettes.push(r);
+      const { error } = await sb.from('recettes').insert({ id:r.id, household_id:state.household.id, nom, nb_fois:1 });
+      if (error) mnFail(error);
+    }
+  }
+  function mnPick(nom){
+    nom = nom.trim().replace(/\s+/g, ' ').slice(0, 120); if (!nom || !mnCur) return;
+    const known = (state.recettes || []).find(x=>x.nom.toLocaleLowerCase('fr') === nom.toLocaleLowerCase('fr'));
+    if (known) nom = known.nom; else nom = nom.charAt(0).toLocaleUpperCase('fr') + nom.slice(1);
+    const old = mnMeal(mnCur.ds, mnCur.moment);
+    const mangeurs = old ? old.mangeurs : mnEaters().map(p=>p.id);
+    if (!old || old.plat !== nom) mnCountRecipe(nom);
+    mnSave(mnCur.ds, mnCur.moment, nom, mangeurs);
+    mnEl.search.value = ''; mnEl.search.blur();
+    mnFill();
+  }
+  function mnToggleEater(pid){
+    const m = mnMeal(mnCur.ds, mnCur.moment);
+    if (!m) { mnToast("Choisis d'abord un plat"); return; }
+    const w = m.mangeurs.includes(pid) ? m.mangeurs.filter(x=>x!==pid) : m.mangeurs.concat(pid);
+    mnSave(mnCur.ds, mnCur.moment, m.plat, w); mnFill();
+  }
+  function mnClear(){
+    if (!mnCur || !mnMeal(mnCur.ds, mnCur.moment)) return;
+    mnDelete(mnCur.ds, mnCur.moment); mnClose();
+  }
+
+  /* ---------- Recopier ---------- */
+  function mnStartCopy(){
+    const m = mnCur && mnMeal(mnCur.ds, mnCur.moment); if (!m) return;
+    mnCopy = { moment:mnCur.moment, plat:m.plat, mangeurs:m.mangeurs.slice(), days:new Set() };
+    mnEl.bar.querySelector('span').textContent = `« ${m.plat} » (${mnCur.moment === 'midi' ? 'midi' : 'soir'}) : touche les jours`;
+    mnEl.bar.hidden = false; document.body.classList.add('mn-copying');
+    mnClose();
+  }
+  function mnToggleCopyDay(ds){
+    const c = mnCopy;
+    if (c.days.has(ds)) { c.days.delete(ds); mnDelete(ds, c.moment); }
+    else { c.days.add(ds); mnSave(ds, c.moment, c.plat, c.mangeurs.slice()); mnCountRecipe(c.plat); }
+    render();
+  }
+  function mnStopCopy(silent){
+    if (!mnCopy) return;
+    const n = mnCopy.days.size; mnCopy = null;
+    if (mnEl.bar) mnEl.bar.hidden = true;
+    document.body.classList.remove('mn-copying');
+    if (!silent) { render(); if (n) mnToast(`Recopié sur ${n} jour${n>1?'s':''}`); }
+  }
+  // La semaine (lundi → dimanche) du jour ouvert reprend les repas de la semaine d'avant, sans rien écraser
+  function mnCopyWeek(){
+    if (!mnCur) return;
+    const md = mondayOf(mnCur.ds), mon = dstr(md.getFullYear(), md.getMonth(), md.getDate()); let n = 0;   // mondayOf renvoie une date, pas un texte
+    for (let i = 0; i < 7; i++) {
+      const ds = addDays(mon, i), src = addDays(ds, -7);
+      ['midi','soir'].forEach(k=>{
+        const s = mnMeal(src, k);
+        if (s && !mnMeal(ds, k)) { mnSave(ds, k, s.plat, s.mangeurs.slice()); mnCountRecipe(s.plat); mnFlash.add(ds); n++; }
+      });
+    }
+    mnClose();
+    mnToast(n ? `${n} repas repris de la semaine d'avant` : "Rien à reprendre : cette semaine est déjà remplie, ou celle d'avant est vide");
+    if (n) setTimeout(()=>{ mnFlash.clear(); if (menuModeOn()) render(); }, 2500);
+  }
+  document.addEventListener('keydown', e=>{
+    if (e.key !== 'Escape') return;
+    if (document.body.classList.contains('mn-open')) mnClose();
+    else if (mnCopy) mnStopCopy(false);
+  });
+
+
   async function boot(){
     render();
     const { data: { session } } = await sb.auth.getSession();
@@ -3856,7 +4208,8 @@
       } else {
         if (rtChannel) { try { sb.removeChannel(rtChannel); } catch(e){} rtChannel = null; }
         if (listsOpen()) closeLists();
-        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = []; state.articles = []; state.articlesReady = null;
+        document.body.classList.remove('mn-open'); mnStopCopy(true);
+        state.household = null; state.myProfile = null; state.profiles = []; state.events = []; state.log = []; state.articles = []; state.articlesReady = null; state.repas = {}; state.recettes = []; state.menusReady = null;
         render();
       }
     });
