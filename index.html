@@ -589,13 +589,13 @@
   body:not(.is-wide) .mn-meal { padding:2px; font-size:9px; letter-spacing:-.15px; }
   /* 3.0.2 : les deux repas se partagent toute la hauteur de la case, jusqu'à 3 lignes chacun
      (2 quand les points « qui mange » sont affichés, pour qu'ils restent visibles) */
-  body:not(.compact-h) .day-cell.mn-cell .mn-meals { flex:1 1 0; min-height:0; margin-bottom:1px; }
-  body:not(.compact-h) .day-cell.mn-cell .mn-meal { flex:1 1 0; min-height:0; overflow:hidden; }
+  body:is(:not(.compact-h), .mn-2w) .day-cell.mn-cell .mn-meals { flex:1 1 0; min-height:0; margin-bottom:1px; }
+  body:is(:not(.compact-h), .mn-2w) .day-cell.mn-cell .mn-meal { flex:1 1 0; min-height:0; overflow:hidden; }
   /* 3.1 : un repas vide reste petit, les repas remplis prennent la place ; chaque plat sur sa ligne */
-  body:not(.compact-h) .day-cell.mn-cell .mn-meal.empty { flex:0 0 auto; }
+  body:is(:not(.compact-h), .mn-2w) .day-cell.mn-cell .mn-meal.empty { flex:0 0 auto; }
   .mn-dish { display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:normal; word-break:normal; -webkit-hyphens:auto; hyphens:auto; }
   .mn-dish + .mn-dish { border-top:1px dashed color-mix(in srgb, currentColor 35%, transparent); margin-top:2px; padding-top:2px; }
-  body.compact-h .mn-dish { -webkit-line-clamp:1 !important; }
+  body.compact-h:not(.mn-2w) .mn-dish { -webkit-line-clamp:1 !important; }
   .mn-meal.empty .mn-t { display:inline; }
   .mn-dots { display:flex; gap:2px; margin-top:2px; flex-wrap:wrap; }
   .mn-dots b { width:6px; height:6px; border-radius:50%; display:block; flex-shrink:0; }
@@ -605,6 +605,21 @@
   body.is-wide .mn-meal i { font-size:11px; margin-right:3px; }
   body.is-wide .mn-dots b { width:8px; height:8px; }
   body.compact-h .mn-meal { min-height:0; font-size:9.5px; line-height:11px; }
+  /* 3.2 : téléphone couché + fourchette = 2 semaines, grandes cases */
+  body.compact-h.mn-2w .mn-meal { font-size:12.5px; line-height:15px; padding:4px 6px; border-radius:8px; }
+  body.compact-h.mn-2w .mn-dots b { width:7px; height:7px; }
+  body.compact-h.mn-2w .day-num { font-size:12px; }
+  body.compact-h.mn-2w.lists-open .mn-meal { font-size:10px; line-height:12px; padding:3px 4px; }
+  body.compact-h.mn-2w .mn-meal.empty { white-space:nowrap; overflow:hidden; }
+  body.compact-h .lh-avatar { margin-left:8px; }
+  /* 3.2 : téléphone couché -> noms collés au titre, profil en haut à droite, listes sous ↺ */
+  body.compact-h .main-col { grid-template-columns:auto minmax(0,1fr) auto; }
+  body.compact-h .legend, body.compact-h .select-bar { justify-content:flex-start; }
+  body.compact-h .lh-avatar { grid-column:3; grid-row:1; align-self:center; margin-right:16px; }
+  body.compact-h #side-lists, body.compact-h #side-profile { display:none; }
+  body.compact-h .fab-row .lp-fab { position:relative; }
+  /* 3.2 : pas d'étoile « important » en vue repas */
+  .day-cell.mn-cell .imp-day { display:none; }
   /* Fenêtre du repas */
   .mn-scrim { position:fixed; inset:0; background:rgba(20,22,26,.35); z-index:24; opacity:0; pointer-events:none; transition:opacity .2s; touch-action:none; }
   body.mn-open .mn-scrim { opacity:1; pointer-events:auto; }
@@ -656,9 +671,9 @@
   .mn-rc.on { border-color:var(--meal); background:color-mix(in srgb, var(--meal) 16%, var(--surface)); }
   .mn-rc.new { border-style:dashed; color:var(--ink-soft); }
   .mn-empty { font-size:13px; color:var(--ink-soft); }
-  .mn-who { display:flex; gap:8px; flex-wrap:wrap; }
-  .mn-pp { display:flex; align-items:center; gap:6px; padding:7px 12px 7px 7px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
-  .mn-pp .d { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+  .mn-who { display:flex; gap:5px; flex-wrap:wrap; }
+  .mn-pp { display:flex; align-items:center; gap:5px; white-space:nowrap; padding:6px 9px 6px 5px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13px 'Karla',sans-serif; cursor:pointer; }
+  .mn-pp .d { flex-shrink:0; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:10px; }
   .mn-pp.off { opacity:.4; } .mn-pp.off .d { background:var(--line) !important; }
   .mn-pp.wait { opacity:.55; }
   .mn-copy { display:flex; flex-direction:column; gap:6px; }
@@ -1248,11 +1263,19 @@
     if (!state.myProfile) { root.appendChild(renderHouseholdSetup()); return; }
     document.body.classList.toggle('day-mode', usesTimeline() || (view.mode==='week' && !landscapePhone && !isWide()));
     document.body.classList.toggle('month-fit', view.mode==='month' && !isWide());
+    document.body.classList.toggle('mn-2w', mn2w());
     const shell = document.createElement('div'); shell.className='shell';
     shell.appendChild(renderSidebar());
     const main = document.createElement('div'); main.className='main-col';
     main.appendChild(renderHeader());
     main.appendChild(renderLegend());
+    if (landscapePhone) {   // 3.2 : téléphone couché -> profil en haut à droite
+      const pp = activeProfile();
+      const av = document.createElement('button'); av.className = 'avatar lh-avatar'; av.setAttribute('aria-label', 'Mon compte');
+      av.style.background = pp.color; av.textContent = pp.name[0].toUpperCase();
+      av.onclick = ()=>{ view.sheet='switch'; render(); };
+      main.appendChild(av);
+    }
     const viewport = document.createElement('div'); viewport.className='cal-viewport';
     const calEl = renderCalendar();
     attachSwipeNav(viewport);
@@ -1456,14 +1479,40 @@
       const d = new Date((view.dayAnchor||todayStr())+'T00:00:00');
       return d.toLocaleDateString('fr-FR',{weekday:'long', day:'numeric', month:'long'});
     }
+    if (mn2w()) {
+      const a = new Date(mn2wStart()+'T00:00:00'), e = new Date(a); e.setDate(a.getDate()+13);
+      const fmt = (d)=> d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0,3).toLowerCase();
+      return `${fmt(a)} – ${fmt(e)}`;
+    }
     return `${MONTHS[view.month]} ${view.year}`;
   }
+  /* 3.2 : téléphone couché + fourchette -> 2 semaines (lundi de départ) */
+  let mn2wAnchor = null;
+  function mn2w(){ return !!view.menuMode && view.mode === 'month' && document.body.classList.contains('compact-h'); }
+  function mn2wStart(){
+    if (mn2wAnchor) {
+      const a = new Date(mn2wAnchor+'T00:00:00'), e = new Date(a); e.setDate(a.getDate()+13);
+      const inM = (d)=> d.getFullYear()===view.year && d.getMonth()===view.month;
+      if (inM(a) || inM(e)) return mn2wAnchor;
+    }
+    const t = todayStr(), td = new Date(t+'T00:00:00');
+    const base = (td.getFullYear()===view.year && td.getMonth()===view.month) ? t : dstr(view.year, view.month, 1);
+    const md = mondayOf(base);
+    return (mn2wAnchor = dstr(md.getFullYear(), md.getMonth(), md.getDate()));
+  }
+  function mn2wStep(n){
+    mn2wAnchor = addDays(mn2wStart(), n);
+    const th = new Date(mn2wAnchor+'T00:00:00'); th.setDate(th.getDate()+3);   // le mois affiché = celui du jeudi de la 1re semaine
+    view.year = th.getFullYear(); view.month = th.getMonth();
+  }
   function stepPrev(){
+    if (mn2w()) { mn2wStep(-14); return; }
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), -7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), -1); }
     else { view.month--; if(view.month<0){view.month=11; view.year--;} }
   }
   function stepNext(){
+    if (mn2w()) { mn2wStep(14); return; }
     if (view.mode==='week') { view.weekAnchor = addDays(view.weekAnchor||todayStr(), 7); }
     else if (view.mode==='day') { view.dayAnchor = addDays(view.dayAnchor||todayStr(), 1); }
     else { view.month++; if(view.month>11){view.month=0; view.year++;} }
@@ -1965,6 +2014,15 @@
     const daysInMonth = new Date(view.year, view.month+1, 0).getDate();
     const prevDays = new Date(view.year, view.month, 0).getDate();
 
+    if (mn2w()) {
+      const a = new Date(mn2wStart()+'T00:00:00');
+      for (let i=0; i<14; i++) {
+        const d = new Date(a); d.setDate(a.getDate()+i);
+        grid.appendChild(buildDayCell(dstr(d.getFullYear(), d.getMonth(), d.getDate()), false, 8, false));
+      }
+      wrap.appendChild(grid);
+      return wrap;
+    }
     const cells = [];
     for (let i=startOffset; i>0; i--) cells.push({ d: prevDays-i+1, other:true, m: view.month-1 });
     for (let d=1; d<=daysInMonth; d++) cells.push({ d, other:false, m: view.month });
@@ -2461,6 +2519,14 @@
     undoBtn.disabled = !state._undoStack.length;
     undoBtn.onclick = undo;
     row.appendChild(undoBtn);
+    if (!hideable && landscapePhone) {   // 3.2 : téléphone couché -> bouton listes sous ↺
+      const nC = lpOpenIn('courses').length;
+      const lb = document.createElement('button'); lb.type = 'button';
+      lb.className = 'fab-undo lp-fab'; lb.setAttribute('aria-label', 'Ouvrir les listes');
+      lb.innerHTML = listIcon(22) + `<span class="lp-badge"${nC?'':' hidden'}>${nC}</span>`;
+      lb.onclick = toggleLists;
+      row.appendChild(lb);
+    }
     if (hideable) {
       fab.classList.add('fab-hide'); undoBtn.classList.add('fab-hide');
       // 2.0 : bouton « liste », caché avec + et ↺ ; pastille = articles de courses à prendre
@@ -4068,6 +4134,7 @@
   function mnFitCells(){
     document.querySelectorAll('.cal-viewport .mn-meal:not(.empty)').forEach(el=>{
       const dishes = [...el.querySelectorAll('.mn-dish')];
+      mnFitWords(el, dishes);
       let guard = 20;
       while (guard-- && el.scrollHeight > el.clientHeight + 1) {
         const big = dishes.reduce((a,d)=> (Number(d.dataset.c) > Number(a ? a.dataset.c : 0) ? d : a), null);
@@ -4075,6 +4142,30 @@
         const c = Number(big.dataset.c) - 1; big.dataset.c = c; big.style.webkitLineClamp = c; big.style.lineClamp = c;
       }
     });
+  }
+  // 3.2 : si un mot ne tient pas entier sur la largeur de la case (ex. « Jam-bon »),
+  // la case réduit un peu son texte (12 % au plus) — seulement si ça suffit à le faire tenir
+  function mnFitWords(el, dishes){
+    if (!dishes.length) return;
+    const avail = dishes[0].clientWidth;
+    if (!avail) return;
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;left:-9999px;top:0';
+    el.appendChild(probe);
+    let need = 1;
+    dishes.forEach(d=>{
+      String(d.textContent || '').split(/\s+/).forEach(w=>{
+        if (!w) return;
+        probe.textContent = w;
+        const wpx = probe.getBoundingClientRect().width;
+        if (wpx > avail + .5) need = Math.min(need, avail / wpx);
+      });
+    });
+    probe.remove();
+    if (need < 1 && need >= 0.88) {
+      const fs = parseFloat(getComputedStyle(el).fontSize) || 9;
+      el.style.fontSize = (Math.floor(fs * need * 10) / 10) + 'px';
+    }
   }
   // Toucher une case quand la fourchette est allumée
   function mnCellClick(ds, target, cell, y){
