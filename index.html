@@ -573,7 +573,10 @@
   .mn-meal[data-k="soir"] { background:color-mix(in srgb, var(--meal-soir) 16%, var(--surface)); }   /* midi : orangé, soir : bleuté */
   .mn-meal:not(.empty) i { display:none; }
   .mn-t { min-width:0; }
-  .mn-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; -webkit-hyphens:auto; hyphens:auto; }
+  .mn-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:normal; word-break:normal; -webkit-hyphens:auto; hyphens:auto; }
+  /* 3.0.1 : plus de place pour le texte (moins de marges, police un peu plus fine) : « Quiche » tient sur une ligne */
+  body:not(.is-wide) .day-cell.mn-cell { padding-left:2px; padding-right:2px; }
+  body:not(.is-wide) .mn-meal { padding:2px; font-size:9px; letter-spacing:-.15px; }
   .mn-meal.empty .mn-t { display:inline; }
   .mn-dots { display:flex; gap:2px; margin-top:2px; flex-wrap:wrap; }
   .mn-dots b { width:6px; height:6px; border-radius:50%; display:block; flex-shrink:0; }
@@ -605,7 +608,23 @@
   .mn-search { width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font:16px 'Karla',sans-serif; }
   .mn-search:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
   .mn-lab { font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px; }
-  .mn-recipes { display:flex; flex-wrap:wrap; gap:6px; }
+  .mn-field { position:relative; }
+  .mn-field .mn-search { padding-right:38px; }
+  .mn-erase { position:absolute; right:4px; top:50%; transform:translateY(-50%); width:32px; height:32px; border:none; background:none; color:var(--ink-soft); font-size:15px; cursor:pointer; }
+  /* 3.0.1 : liste qui défile au lieu des pastilles */
+  .mn-recipes { display:flex; flex-direction:column; max-height:min(34vh, 260px); overflow-y:auto; overscroll-behavior:contain; border:1.5px solid var(--line); border-radius:12px; }
+  .mn-ri { display:flex; align-items:center; border-bottom:1px solid var(--line); min-height:44px; }
+  .mn-ri:last-child { border-bottom:none; }
+  .mn-ri.on { background:color-mix(in srgb, var(--meal) 14%, var(--surface)); }
+  .mn-rn { flex:1; min-width:0; display:flex; align-items:baseline; justify-content:space-between; gap:8px; text-align:left; padding:11px 12px; border:none; background:none; color:var(--ink); font:600 14.5px 'Karla',sans-serif; cursor:pointer; }
+  .mn-rn small { font-size:12px; font-weight:500; color:var(--ink-soft); flex-shrink:0; }
+  .mn-rdel { width:40px; align-self:stretch; border:none; border-left:1px solid var(--line); background:none; color:var(--ink-soft); font-size:14px; cursor:pointer; }
+  .mn-ri.new { border:none; border-bottom:1px solid var(--line); background:none; padding:11px 12px; color:var(--ink-soft); font:600 14.5px 'Karla',sans-serif; text-align:left; cursor:pointer; width:100%; }
+  .mn-ri.ask { gap:6px; padding:6px 8px 6px 12px; font-size:13.5px; flex-wrap:wrap; }
+  .mn-ri.ask span { flex:1 1 150px; }
+  .mn-ri.ask button { border:none; border-radius:9px; padding:7px 11px; font:700 13px 'Karla',sans-serif; cursor:pointer; }
+  .mn-ri.ask .yes { background:#E5484D; color:#fff; } .mn-ri.ask .no { background:var(--line); color:var(--ink); }
+  .mn-empty { padding:12px; }
   .mn-rc { padding:7px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
   .mn-rc.on { border-color:var(--meal); background:color-mix(in srgb, var(--meal) 16%, var(--surface)); }
   .mn-rc.new { border-style:dashed; color:var(--ink-soft); }
@@ -634,7 +653,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.0</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="150" y2="0"><stop offset="0" stop-color="#3E5C86" stop-opacity=".78"/><stop offset=".55" stop-color="#3E5C86" stop-opacity=".3"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.0.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1733,6 +1752,7 @@
       linesHtml += `<div class="ev-line${e.important?' imp':''}" data-eid="${e.id}" style="background:${lineBg(cols)}"><span class="ev-line-text">${impHtml(e)}${lnk(e)}${iconHtml(e)}${e.start?escapeHtml(e.start)+' · ':''}${escapeHtml(e.title)}</span></div>`;
     });
     if (menu) {
+      cell.classList.add('mn-cell');
       linesHtml = mnCellHtml(ds);
       if (mnFlash.has(ds) || (mnCopy && mnCopy.days.has(ds))) cell.classList.add('mn-flash');
     }
@@ -1748,7 +1768,7 @@
         return;
       }
       // 3.0 : fenêtre du repas. La case « capture » le pointeur (appui long) : on retrouve la ligne touchée par sa position
-      if (menu) { const hit = ev && typeof ev.clientX === 'number' ? (document.elementFromPoint(ev.clientX, ev.clientY) || ev.target) : null; mnCellClick(ds, hit); return; }
+      if (menu) { const hit = ev && typeof ev.clientX === 'number' ? (document.elementFromPoint(ev.clientX, ev.clientY) || ev.target) : null; mnCellClick(ds, hit, cell, ev ? ev.clientY : null); return; }
       if (!evs.length) { openEventForm(null, ds); return; }
       view.openDay = ds; view.sheet='day'; render();
     };
@@ -3995,10 +4015,20 @@
     return `<div class="mn-meals">${line('midi','☀')}${line('soir','☾')}</div>`;
   }
   // Toucher une case quand la fourchette est allumée
-  function mnCellClick(ds, target){
+  function mnCellClick(ds, target, cell, y){
     if (mnCopy) { mnToggleCopyDay(ds); return; }
-    const hit = target && target.closest ? target.closest('.mn-meal[data-k]') : null;
-    const moment = hit ? hit.dataset.k : ((mnMeal(ds,'midi') && !mnMeal(ds,'soir')) ? 'soir' : 'midi');
+    let hit = target && target.closest ? target.closest('.mn-meal[data-k]') : null;
+    // 3.0.1 : si le doigt n'est pas pile sur une ligne, on prend la ligne (midi / soir) la plus proche du doigt
+    if (!hit && cell && typeof y === 'number') {
+      let best = null, dist = Infinity;
+      cell.querySelectorAll('.mn-meal[data-k]').forEach(el=>{
+        const r = el.getBoundingClientRect();
+        const d = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
+        if (d < dist) { dist = d; best = el; }
+      });
+      hit = best;
+    }
+    const moment = hit ? hit.dataset.k : 'midi';
     mnOpen(ds, moment);
   }
 
@@ -4011,7 +4041,7 @@
       <div class="mn-grab"></div>
       <div class="mn-head"><h2>Menu</h2><span class="mn-date"></span><button type="button" class="mn-x" aria-label="Fermer">✕</button></div>
       <div class="mn-tabs"><button type="button" class="mn-tab" data-m="midi">☀ Midi</button><button type="button" class="mn-tab" data-m="soir">☾ Soir</button></div>
-      <input class="mn-search" type="text" placeholder="Chercher ou écrire un plat…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Chercher un plat">
+      <div class="mn-field"><input class="mn-search" type="text" placeholder="Écrire un plat ou chercher…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Plat"><button type="button" class="mn-erase" aria-label="Effacer le texte">✕</button></div>
       <div class="mn-lab mn-lab-rc">Les plus faits</div>
       <div class="mn-recipes"></div>
       <div class="mn-lab">Qui mange ?</div>
@@ -4026,12 +4056,20 @@
     Object.assign(mnEl, { scrim, sheet, bar, toast:toastEl, search:sheet.querySelector('.mn-search'), recipes:sheet.querySelector('.mn-recipes'), who:sheet.querySelector('.mn-who') });
     scrim.addEventListener('click', mnClose);
     sheet.querySelector('.mn-x').addEventListener('click', mnClose);
-    sheet.querySelector('.mn-ok').addEventListener('click', mnClose);
+    sheet.querySelector('.mn-ok').addEventListener('click', mnOk);
+    sheet.querySelector('.mn-erase').addEventListener('click', ()=>{ mnEl.search.value = ''; mnTyped = true; mnFill(); mnEl.search.focus(); });
     sheet.querySelector('.mn-clear').addEventListener('click', mnClear);
-    sheet.querySelectorAll('.mn-tab').forEach(t=>t.addEventListener('click', ()=>{ mnCur.moment = t.dataset.m; mnFill(); }));
-    mnEl.search.addEventListener('input', mnFill);
+    sheet.querySelectorAll('.mn-tab').forEach(t=>t.addEventListener('click', ()=>{ mnCur.moment = t.dataset.m; mnSetField(); mnFill(); }));
+    mnEl.search.addEventListener('input', ()=>{ mnTyped = true; mnFill(); });
     mnEl.search.addEventListener('keydown', e=>{ if (e.key === 'Enter') { e.preventDefault(); const v = mnEl.search.value.trim(); if (v) mnPick(v); } });
-    mnEl.recipes.addEventListener('click', e=>{ const b = e.target.closest('[data-r]'); if (b) mnPick(b.dataset.r); });
+    mnEl.recipes.addEventListener('click', e=>{
+      const del = e.target.closest('[data-del]');
+      if (del) { mnAskDelete = del.dataset.del; mnFill(); return; }
+      if (e.target.closest('[data-del-no]')) { mnAskDelete = null; mnFill(); return; }
+      const yes = e.target.closest('[data-del-yes]');
+      if (yes) { mnDeleteRecipe(yes.dataset.delYes); return; }
+      const b = e.target.closest('[data-r]'); if (b) mnPick(b.dataset.r);
+    });
     mnEl.who.addEventListener('click', e=>{ const b = e.target.closest('[data-p]'); if (b) mnToggleEater(b.dataset.p); });
     sheet.querySelector('[data-act="days"]').addEventListener('click', mnStartCopy);
     sheet.querySelector('[data-act="week"]').addEventListener('click', mnCopyWeek);
@@ -4057,13 +4095,39 @@
     if (!state.household) return;
     ensureMenuSheet();
     mnCur = { ds, moment };
-    mnEl.search.value = '';
+    mnSetField();
     const d = new Date(ds + 'T00:00:00');
     mnEl.sheet.querySelector('.mn-date').textContent = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
     mnFill();
     document.body.classList.add('mn-open');
     mnEl.sheet.scrollTop = 0;
     if (!state.menusReady) reloadMenus();
+  }
+  // 3.0.1 : le champ montre le plat du repas affiché (modifiable) ; la liste n'est filtrée que si on tape
+  let mnTyped = false, mnAskDelete = null;
+  function mnSetField(){
+    const m = mnCur && mnMeal(mnCur.ds, mnCur.moment);
+    mnEl.search.value = m ? m.plat : '';
+    mnTyped = false; mnAskDelete = null;
+  }
+  // OK : ce qui est écrit dans le champ est enregistré (nouveau plat, ou correction du plat existant)
+  function mnOk(){
+    if (mnCur) {
+      const v = mnEl.search.value.trim().replace(/\s+/g, ' ');
+      const m = mnMeal(mnCur.ds, mnCur.moment);
+      if (v && (!m || v !== m.plat)) mnPick(v);
+    }
+    mnClose();
+  }
+  async function mnDeleteRecipe(id){
+    const r = (state.recettes || []).find(x=>x.id === id);
+    mnAskDelete = null;
+    if (!r) { mnFill(); return; }
+    state.recettes = state.recettes.filter(x=>x !== r);
+    mnFill();
+    mnToast(`« ${r.nom} » retiré de la liste (les repas déjà prévus restent)`);
+    const { error } = await sb.from('recettes').delete().eq('id', id);
+    if (error) mnFail(error);
   }
   function mnClose(){
     if (!mnEl.sheet) return;
@@ -4076,15 +4140,17 @@
     if (!mnEl.sheet || !mnCur) return;
     const m = mnMeal(mnCur.ds, mnCur.moment);
     mnEl.sheet.querySelectorAll('.mn-tab').forEach(t=>t.classList.toggle('on', t.dataset.m === mnCur.moment));
-    const q = mnEl.search.value.trim(), ql = q.toLocaleLowerCase('fr');
-    let list = (state.recettes || []).slice().sort((a,b)=>(b.nb - a.nb) || a.nom.localeCompare(b.nom, 'fr'));
+    const q = mnTyped ? mnEl.search.value.trim() : '', ql = q.toLocaleLowerCase('fr');
+    let list = (state.recettes || []).slice().sort((a,b)=>(b.nb - a.nb) || a.nom.localeCompare(b.nom, 'fr'));   // du plus fait au moins fait
     if (ql) list = list.filter(r=>r.nom.toLocaleLowerCase('fr').includes(ql));
-    const shown = list.slice(0, ql ? 40 : 16);
     const exact = ql && (state.recettes || []).some(r=>r.nom.toLocaleLowerCase('fr') === ql);
-    mnEl.sheet.querySelector('.mn-lab-rc').textContent = ql ? 'Recettes' : 'Les plus faits';
-    mnEl.recipes.innerHTML = shown.map(r=>`<button type="button" class="mn-rc${m && m.plat.toLocaleLowerCase('fr') === r.nom.toLocaleLowerCase('fr') ? ' on' : ''}" data-r="${escapeAttr(r.nom)}">${escapeHtml(r.nom)}</button>`).join('')
-      + (ql && !exact ? `<button type="button" class="mn-rc new" data-r="${escapeAttr(q)}">+ « ${escapeHtml(q)} »</button>` : '')
-      + (!shown.length && !ql ? `<span class="mn-empty">Écris le nom d'un plat ci-dessus : il rejoindra tes recettes.</span>` : '');
+    mnEl.sheet.querySelector('.mn-lab-rc').textContent = ql ? 'Recettes trouvées' : 'Mes recettes (les plus faites en haut)';
+    const cur = m ? m.plat.toLocaleLowerCase('fr') : '';
+    mnEl.recipes.innerHTML = (ql && !exact ? `<button type="button" class="mn-ri new" data-r="${escapeAttr(q)}"><span>+ Ajouter « ${escapeHtml(q)} »</span></button>` : '')
+      + list.map(r=> mnAskDelete === r.id
+          ? `<div class="mn-ri ask"><span>Retirer « ${escapeHtml(r.nom)} » de la liste ?</span><button type="button" class="no" data-del-no="1">Garder</button><button type="button" class="yes" data-del-yes="${r.id}">Retirer</button></div>`
+          : `<div class="mn-ri${r.nom.toLocaleLowerCase('fr') === cur ? ' on' : ''}"><button type="button" class="mn-rn" data-r="${escapeAttr(r.nom)}">${escapeHtml(r.nom)}<small>${r.nb > 1 ? r.nb + ' fois' : ''}</small></button><button type="button" class="mn-rdel" data-del="${r.id}" aria-label="Retirer ${escapeAttr(r.nom)} de la liste">✕</button></div>`).join('')
+      + (!list.length && !ql ? `<span class="mn-empty">Écris le nom d'un plat ci-dessus : il rejoindra tes recettes.</span>` : '');
     const eaters = mnEaters();
     const who = m ? m.mangeurs : eaters.map(p=>p.id);
     mnEl.who.innerHTML = eaters.map(p=>`<button type="button" class="mn-pp${who.includes(p.id) ? '' : ' off'}${m ? '' : ' wait'}" data-p="${p.id}"><span class="d" style="background:${p.color}">✓</span>${escapeHtml(p.name)}</button>`).join('');
@@ -4132,7 +4198,7 @@
     const mangeurs = old ? old.mangeurs : mnEaters().map(p=>p.id);
     if (!old || old.plat !== nom) mnCountRecipe(nom);
     mnSave(mnCur.ds, mnCur.moment, nom, mangeurs);
-    mnEl.search.value = ''; mnEl.search.blur();
+    mnEl.search.value = nom; mnTyped = false; mnEl.search.blur();
     mnFill();
   }
   function mnToggleEater(pid){
