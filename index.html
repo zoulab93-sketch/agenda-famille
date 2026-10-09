@@ -635,6 +635,15 @@
       background:var(--surface); border:none; box-shadow:var(--shadow); -webkit-backdrop-filter:none; backdrop-filter:none; color:var(--ink); }
   body.compact-h #side-lists, body.compact-h #side-profile { display:none; }
   body.compact-h .fab-row .lp-fab { position:relative; }
+  /* 3.3 : rappels sur ce téléphone */
+  .push-row { display:flex; align-items:center; gap:12px; margin-top:10px; padding:12px; border-radius:12px; border:1.5px solid var(--line); }
+  .push-row span { flex:1; min-width:0; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; }
+  .push-row small { display:block; font-family:'Karla',sans-serif; font-weight:500; font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .push-switch { width:46px; height:28px; border-radius:14px; border:none; background:var(--line); position:relative; cursor:pointer; flex-shrink:0; transition:background .2s; }
+  .push-switch::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--surface); box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .2s; }
+  .push-switch[aria-checked="true"] { background:#3FA796; }
+  .push-switch[aria-checked="true"]::after { transform:translateX(18px); }
+  .push-switch:disabled { opacity:.5; cursor:default; }
   /* 3.2 : pas d'étoile « important » en vue repas */
   .day-cell.mn-cell .imp-day { display:none; }
   /* Fenêtre du repas */
@@ -712,7 +721,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.2.6</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.3</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2815,7 +2824,7 @@
         }));
       }
       remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
-        ? "Sans heure de début, le rappel se comptera à partir de minuit."
+        ? "Sans heure de début, le rappel arrive le jour même à 8 h (« 24 h » : la veille à 8 h)."
         : '';
     }
     drawReminders();
@@ -3277,6 +3286,7 @@
       <div style="height:22px"></div>
       <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
       <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
+      <div id="push-box"></div>
       <button class="ghost-btn" id="left-hand-btn">✋ Mode gaucher : ${document.body.classList.contains('left-hand') ? 'activé' : 'désactivé'}</button>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
@@ -3332,6 +3342,7 @@
     sheet.querySelector('#open-links-btn').onclick = ()=>{ view.sheet='links'; render(); };
     sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
     // 3.2 : mode gaucher, réglé pour CET appareil (bouton de vue à gauche, bouton liste à droite)
+    renderPushBox(sheet.querySelector('#push-box'));
     sheet.querySelector('#left-hand-btn').onclick = ()=>{
       const on = !document.body.classList.contains('left-hand');
       document.body.classList.toggle('left-hand', on);
@@ -4480,6 +4491,116 @@
   });
   setInterval(esBackSync, 400);   // filet de sécurité : fenêtres ouvertes en dehors du dessin principal
 
+  /* ---------- 3.3 : rappels envoyés par EarthShade (notifications) ---------- */
+  function pushSupported(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+  function b64ToBytes(str){
+    const pad = '='.repeat((4 - str.length % 4) % 4);
+    const bin = atob((str + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(bin, c=>c.charCodeAt(0));
+  }
+  async function pushCurrentSub(){
+    try { const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; }
+    catch(e){ return null; }
+  }
+  async function swReady(){
+    let reg = null;
+    try { reg = await navigator.serviceWorker.getRegistration(); } catch(e){}
+    if (!reg) { try { await navigator.serviceWorker.register('sw.js'); } catch(e){} }
+    return await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, rej)=>setTimeout(()=>rej(new Error("L'appli n'est pas encore prête. Ferme-la, rouvre-la, puis réessaie.")), 10000))
+    ]);
+  }
+  async function pushSave(sub){
+    const j = sub.toJSON();
+    const hh = (state.myProfile && state.myProfile.household_id) || (state.household && state.household.id);
+    const { error } = await sb.from('push_abonnements').upsert({
+      household_id: hh, profile_id: state.myProfile.id, endpoint: j.endpoint,
+      p256dh: j.keys.p256dh, auth: j.keys.auth, appareil: navigator.userAgent.slice(0, 180)
+    }, { onConflict: 'endpoint' });
+    if (error) throw new Error(error.message);
+  }
+  async function pushEnable(){
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') throw new Error("Notifications refusées. Autorise-les pour EarthShade dans les réglages du téléphone.");
+    const reg = await swReady();
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const { data, error } = await sb.functions.invoke('rappels', { body: { action: 'cle' } });
+      if (error || !data || !data.cle) throw new Error((data && data.error) || "Le service des rappels ne répond pas. Réessaie dans un moment.");
+      try { sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(data.cle) }); }
+      catch(e){ throw new Error("Le téléphone a refusé l'abonnement aux rappels (" + (e.message || e) + ")."); }
+    }
+    await pushSave(sub);
+  }
+  async function pushDisable(){
+    const sub = await pushCurrentSub();
+    if (!sub) return;
+    try { await sb.from('push_abonnements').delete().eq('endpoint', sub.endpoint); } catch(e){}
+    try { await sub.unsubscribe(); } catch(e){}
+  }
+  let pushBusy = false;
+  async function renderPushBox(box){
+    if (!box) return;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!pushSupported()) {
+      box.innerHTML = `<div class="push-row"><span>🔔 Rappels sur ce téléphone<small>${isIOS
+        ? "Sur iPhone : installe d'abord EarthShade sur l'écran d'accueil (Partager → Sur l'écran d'accueil), puis ouvre-le depuis son icône."
+        : "Ce navigateur ne peut pas recevoir de rappels."}</small></span></div>`;
+      return;
+    }
+    const sub = await pushCurrentSub();
+    const on = !!sub && Notification.permission === 'granted';
+    if (on) { pushSave(sub).catch(()=>{}); }   // garde l'abonnement à jour côté Supabase
+    const denied = Notification.permission === 'denied';
+    const note = denied ? "Bloqués dans les réglages du téléphone : autorise les notifications pour EarthShade, puis réessaie."
+      : on ? 'Activés : tes rappels arrivent sur ce téléphone.' : 'Désactivés';
+    box.innerHTML = `<div class="push-row"><span>🔔 Rappels sur ce téléphone<small>${note}</small></span>`
+      + `<button type="button" class="push-switch" id="push-switch" role="switch" aria-checked="${on}" aria-label="Rappels sur ce téléphone"${pushBusy ? ' disabled' : ''}></button></div>`
+      + (on ? '<button class="ghost-btn" id="push-test-btn">Envoyer un rappel de test</button>' : '');
+    box.querySelector('#push-switch').onclick = async ()=>{
+      if (pushBusy) return;
+      pushBusy = true; box.querySelector('#push-switch').disabled = true;
+      try {
+        if (on) { await pushDisable(); toast('Rappels désactivés sur ce téléphone.'); }
+        else { await pushEnable(); toast('Rappels activés sur ce téléphone.'); }
+      } catch(e){ toast(e.message || 'Impossible de changer le réglage.'); }
+      pushBusy = false;
+      renderPushBox(box);
+    };
+    const t = box.querySelector('#push-test-btn');
+    if (t) t.onclick = async ()=>{
+      t.disabled = true; t.textContent = 'Envoi…';
+      try {
+        const { data, error } = await sb.functions.invoke('rappels', { body: { action: 'test' } });
+        if (error || !data || !data.ok) throw new Error((data && data.error) || "Le service des rappels ne répond pas.");
+        toast(data.envoyes ? 'Rappel de test envoyé : il arrive dans quelques secondes.' : "Le rappel n'a pas pu partir. Désactive puis réactive les rappels.");
+      } catch(e){ toast(e.message || 'Envoi impossible.'); }
+      t.disabled = false; t.textContent = 'Envoyer un rappel de test';
+    };
+  }
+  function esOpenDay(ds){
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ds || '')) || !auth.session || !state.myProfile) return;
+    const d = new Date(ds + 'T00:00:00');
+    view.year = d.getFullYear(); view.month = d.getMonth();
+    view.weekAnchor = ds; view.dayAnchor = ds;
+    view.openDay = ds; view.sheet = 'day';
+    render();
+  }
+  function esOpenDayFromUrl(){
+    try {
+      const ds = new URLSearchParams(location.search).get('jour');
+      if (!ds) return;
+      history.replaceState(history.state, '', location.pathname);
+      esOpenDay(ds);
+    } catch(e){}
+  }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (e)=>{
+      if (e.data && e.data.type === 'es-open-day') esOpenDay(e.data.jour);
+    });
+  }
+
   async function boot(){
     render();
     const { data: { session } } = await sb.auth.getSession();
@@ -4490,6 +4611,7 @@
       if (linked) { try { await reloadHouseholdData(); } catch(e){} }
     }
     render();
+    esOpenDayFromUrl();   // 3.3 : toucher une notification ouvre le bon jour
     sb.auth.onAuthStateChange((event, session)=>{
       const hadSession = !!auth.session, hasSession = !!session;
       auth.session = session;
