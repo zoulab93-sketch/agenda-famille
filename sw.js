@@ -11,7 +11,7 @@
 // fermer et rouvrir l'appli deux fois (la 1re fois télécharge, la 2e affiche).
 //
 // À CHAQUE NOUVELLE VERSION : changer le numéro ci-dessous (ex. earthshade-v2.0.1).
-const CACHE_NAME = 'earthshade-v3.3.1';
+const CACHE_NAME = 'earthshade-v3.3.2';
  
 self.addEventListener('install', (event) => {
   // La nouvelle version prend la main sans attendre la fermeture de tous les onglets
@@ -65,4 +65,37 @@ self.addEventListener('fetch', (event) => {
       return network;
     })
   );
+});
+
+// ---------------------------------------------------------------------
+// 3.3 : rappels envoyés par EarthShade (notifications)
+// ---------------------------------------------------------------------
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; }
+  catch (e) { d = { title: 'EarthShade', body: event.data ? event.data.text() : '' }; }
+  event.waitUntil(self.registration.showNotification(d.title || 'EarthShade', {
+    body: d.body || '',
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    data: { url: d.url || './' }
+  }));
+});
+
+// Toucher la notification : ouvre EarthShade (ou le ramène devant) sur le bon jour
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = new URL((event.notification.data && event.notification.data.url) || './', self.registration.scope);
+  const jour = url.searchParams.get('jour');
+  event.waitUntil((async () => {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of list) {
+      if (c.url.startsWith(self.registration.scope)) {
+        await c.focus();
+        if (jour) c.postMessage({ type: 'es-open-day', jour });
+        return;
+      }
+    }
+    await self.clients.openWindow(url.href);
+  })());
 });
