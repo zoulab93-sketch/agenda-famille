@@ -11,7 +11,7 @@
 // fermer et rouvrir l'appli deux fois (la 1re fois télécharge, la 2e affiche).
 //
 // À CHAQUE NOUVELLE VERSION : changer le numéro ci-dessous (ex. earthshade-v2.0.1).
-const CACHE_NAME = 'earthshade-v3.2.6';
+const CACHE_NAME = 'earthshade-v3.3';
  
 self.addEventListener('install', (event) => {
   // La nouvelle version prend la main sans attendre la fermeture de tous les onglets
