@@ -691,6 +691,36 @@
   .mn-chip-t { border:none; background:none; color:var(--ink); font:700 14px 'Karla',sans-serif; padding:6px 4px 6px 12px; cursor:pointer; }
   .mn-chip-x { border:none; background:none; color:var(--ink-soft); font-size:13px; padding:6px 10px 6px 6px; cursor:pointer; }
   .mn-nodish { font-size:13px; color:var(--ink-soft); }
+  /* 3.4 : ingrédients des recettes -> liste de courses */
+  .mn-ingbar { display:flex; flex-direction:column; gap:6px; margin:2px 0 6px; }
+  .mn-ingbar[hidden] { display:none; }
+  .mn-ingrow { display:flex; flex-wrap:wrap; gap:6px; }
+  .mn-ingbtn { border:1.5px solid var(--line); background:var(--surface); color:var(--ink); border-radius:999px; padding:6px 11px; font:600 13px 'Karla',sans-serif; cursor:pointer; }
+  .mn-ingbtn.empty { border-style:dashed; color:var(--ink-soft); }
+  .mn-cart { height:42px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font:700 14px 'Quicksand',sans-serif; cursor:pointer; }
+  .mn-cart:disabled { opacity:.45; cursor:default; }
+  .mn-sub { position:absolute; inset:0; z-index:2; background:var(--surface); padding:10px 16px calc(22px + env(safe-area-inset-bottom, 0px)); overflow-y:auto; overscroll-behavior:contain; display:flex; flex-direction:column; gap:10px; }
+  .mn-sub[hidden] { display:none; }
+  .mn-sheet.mn-has-sub { overflow:hidden; }
+  .mn-sub .mn-sub-h { display:flex; align-items:baseline; gap:10px; }
+  .mn-sub .mn-sub-h h3 { margin:0; font:700 18px 'Quicksand',sans-serif; min-width:0; overflow-wrap:anywhere; }
+  .mn-sub .mn-sub-h span { flex:1; font-size:13px; color:var(--ink-soft); }
+  .mn-hint { font-size:12.5px; color:var(--ink-soft); }
+  .mn-ing { display:flex; align-items:center; gap:8px; padding:9px 2px; border-bottom:1px solid var(--line); }
+  .mn-ing span { flex:1; min-width:0; font-size:15px; }
+  .mn-ing em { font-style:normal; color:var(--ink-soft); font-size:13px; }
+  .mn-ing button { border:none; background:none; color:var(--ink-soft); font-size:15px; cursor:pointer; padding:2px 6px; }
+  .mn-ing-add { display:flex; gap:8px; }
+  .mn-ing-add input { flex:1; min-width:0; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font:16px 'Karla',sans-serif; }
+  .mn-ing-add button { border:none; border-radius:10px; padding:0 16px; background:var(--ink); color:var(--surface); font:700 14px 'Quicksand',sans-serif; cursor:pointer; }
+  .mn-big { height:46px; border-radius:12px; border:none; background:var(--ink); color:var(--surface); font:700 15px 'Quicksand',sans-serif; cursor:pointer; }
+  .mn-big:disabled { opacity:.4; cursor:default; }
+  .mn-grp { font:700 12.5px 'Quicksand',sans-serif; color:var(--meal); margin-top:4px; }
+  .mn-ck2 { display:flex; align-items:center; gap:10px; padding:8px 2px; cursor:pointer; border:none; background:none; color:var(--ink); text-align:left; font:15px 'Karla',sans-serif; width:100%; }
+  .mn-ck2 i { width:22px; height:22px; border-radius:6px; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-style:normal; font-size:13px; color:#fff; }
+  .mn-ck2.on i { background:#3FA796; border-color:#3FA796; }
+  .mn-ck2 span { flex:1; min-width:0; } .mn-ck2 small { color:var(--ink-soft); font-size:12.5px; }
+  .mn-ck2.dim { opacity:.5; cursor:default; }
   .mn-ck { color:var(--meal); margin-right:6px; }
   .mn-rn span { flex:1; min-width:0; }
   .mn-rc { padding:7px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
@@ -721,7 +751,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.3.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.4</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4106,6 +4136,7 @@
   let mnCopy = null;       // mode « recopier » : { moment, plats, mangeurs, days:Set }
   let mnFlash = new Set(); // jours entourés un instant après « Reprendre la semaine d'avant »
   let mnTyped = false, mnAskDelete = null;
+  let mnSub = null;        // 3.4 : sous-fenêtre ouverte { type:'ing', nom } ou { type:'courses', choix }
 
   function menuModeOn(){ return !!view.menuMode && view.mode === 'month'; }
   function toggleMenuMode(){
@@ -4144,7 +4175,7 @@
         const plats = Array.isArray(r.plats) && r.plats.length ? r.plats : String(r.plat || '').split(/\s+\+\s+/).filter(Boolean);
         state.repas[mnKey(r.jour, r.moment)] = { id:r.id, jour:r.jour, moment:r.moment, plats, mangeurs:r.mangeurs || [] };
       });
-      state.recettes = (rc || []).map(r=>({ id:r.id, nom:r.nom, nb:Number(r.nb_fois)||0 }));
+      state.recettes = (rc || []).map(r=>({ id:r.id, nom:r.nom, nb:Number(r.nb_fois)||0, ing: Array.isArray(r.ingredients) ? r.ingredients : [] }));
       state.menusReady = true;
     } catch(e){ state.repas = state.repas || {}; state.recettes = state.recettes || []; state.menusReady = false; }
     if (menuModeOn()) render();
@@ -4229,6 +4260,7 @@
       <div class="mn-head"><h2>Menu</h2><span class="mn-date"></span><button type="button" class="mn-x" aria-label="Fermer">✕</button></div>
       <div class="mn-tabs"><button type="button" class="mn-tab" data-m="midi">☀ Midi</button><button type="button" class="mn-tab" data-m="soir">☾ Soir</button></div>
       <div class="mn-dishes"></div>
+      <div class="mn-ingbar" hidden><div class="mn-ingrow"></div><button type="button" class="mn-cart">🛒 Ajouter aux courses</button></div>
       <div class="mn-field"><input class="mn-search" type="text" placeholder="Ajouter un plat ou chercher…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Ajouter un plat"><button type="button" class="mn-erase" aria-label="Effacer le texte">✕</button></div>
       <div class="mn-lab mn-lab-rc">Mes recettes</div>
       <div class="mn-recipes"></div>
@@ -4236,13 +4268,26 @@
       <div class="mn-who"></div>
       <div class="mn-lab">Recopier</div>
       <div class="mn-copy"><button type="button" class="mn-cp" data-act="days">Ce repas sur d'autres jours…</button><button type="button" class="mn-cp" data-act="week">Reprendre la semaine d'avant</button></div>
-      <div class="mn-row"><button type="button" class="mn-clear">Pas de repas</button><button type="button" class="mn-ok">OK</button></div>`;
+      <div class="mn-row"><button type="button" class="mn-clear">Pas de repas</button><button type="button" class="mn-ok">OK</button></div>
+      <div class="mn-sub" hidden></div>`;
     const bar = document.createElement('div'); bar.className = 'mn-copybar'; bar.hidden = true;
     bar.innerHTML = `<span></span><button type="button">Terminé</button>`;
     const toastEl = document.createElement('div'); toastEl.className = 'mn-toast'; toastEl.setAttribute('role', 'status');
     document.body.append(scrim, sheet, bar, toastEl);
     Object.assign(mnEl, { scrim, sheet, bar, toast:toastEl, search:sheet.querySelector('.mn-search'), recipes:sheet.querySelector('.mn-recipes'),
-                          who:sheet.querySelector('.mn-who'), dishes:sheet.querySelector('.mn-dishes') });
+                          who:sheet.querySelector('.mn-who'), dishes:sheet.querySelector('.mn-dishes'),
+                          ingbar:sheet.querySelector('.mn-ingbar'), sub:sheet.querySelector('.mn-sub') });
+    // 3.4 : ingrédients et courses
+    mnEl.ingbar.addEventListener('click', e=>{
+      const b = e.target.closest('[data-ing]');
+      if (b) { mnSub = { type:'ing', nom:b.dataset.ing }; mnFillSub(); return; }
+      if (e.target.closest('.mn-cart')) {
+        mnSub = { type:'courses', choix:{} }; mnFillSub();
+        if (!state.articlesReady) reloadArticles().then(()=>{ if (mnSub && mnSub.type === 'courses') mnFillSub(); });
+      }
+    });
+    mnEl.sub.addEventListener('click', mnSubClick);
+    mnEl.sub.addEventListener('keydown', e=>{ if (e.key === 'Enter' && e.target.matches('.mn-ing-add input')) { e.preventDefault(); mnIngAdd(); } });
     scrim.addEventListener('click', mnClose);
     sheet.querySelector('.mn-x').addEventListener('click', mnClose);
     sheet.querySelector('.mn-ok').addEventListener('click', mnOk);
@@ -4277,7 +4322,7 @@
     let drag = null;
     sheet.addEventListener('touchstart', e=>{
       drag = null;
-      if (e.touches.length !== 1 || sheet.scrollTop > 0 || e.target.closest('input, button, .mn-recipes')) return;
+      if (e.touches.length !== 1 || sheet.scrollTop > 0 || mnSub || e.target.closest('input, button, .mn-recipes')) return;
       drag = { y:e.touches[0].clientY, dy:0, live:false };
     }, { passive:true });
     sheet.addEventListener('touchmove', e=>{
@@ -4294,6 +4339,7 @@
     if (!state.household) return;
     ensureMenuSheet();
     mnCur = { ds, moment };
+    mnSub = null;
     mnResetField();
     const d = new Date(ds + 'T00:00:00');
     mnEl.sheet.querySelector('.mn-date').textContent = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
@@ -4322,7 +4368,7 @@
     if (!mnEl.sheet) return;
     document.body.classList.remove('mn-open');
     if (document.activeElement && mnEl.sheet.contains(document.activeElement)) document.activeElement.blur();
-    mnCur = null;
+    mnCur = null; mnSub = null; if (mnEl.sub) { mnEl.sub.hidden = true; mnEl.sheet.classList.remove('mn-has-sub'); }
     render();
   }
   function mnFill(){
@@ -4333,6 +4379,17 @@
     mnEl.dishes.innerHTML = m && m.plats.length
       ? m.plats.map((p,i)=>`<span class="mn-chip"><button type="button" class="mn-chip-t" data-edit="${i}" aria-label="Corriger ${escapeAttr(p)}">${escapeHtml(p)}</button><button type="button" class="mn-chip-x" data-rm="${i}" aria-label="Retirer ${escapeAttr(p)}">✕</button></span>`).join('')
       : `<span class="mn-nodish">Pas encore de plat</span>`;
+    // 3.4 : un bouton « Ingrédients » par plat, puis « Ajouter aux courses »
+    const plats = m ? m.plats : [];
+    mnEl.ingbar.hidden = !plats.length;
+    if (plats.length) {
+      mnEl.ingbar.querySelector('.mn-ingrow').innerHTML = plats.map(p=>{
+        const n = mnIngOf(p).length;
+        return `<button type="button" class="mn-ingbtn${n ? '' : ' empty'}" data-ing="${escapeAttr(p)}">🧾 ${escapeHtml(p)} · ${n ? n + ' ingrédient' + (n > 1 ? 's' : '') : '+ ingrédients'}</button>`;
+      }).join('');
+      mnEl.ingbar.querySelector('.mn-cart').disabled = !plats.some(p=>mnIngOf(p).length);
+    }
+    if (mnSub) mnFillSub();
     const inMeal = new Set((m ? m.plats : []).map(mnLow));
     const q = mnTyped ? mnEl.search.value.trim() : '', ql = mnLow(q);
     let list = (state.recettes || []).slice().sort((a,b)=>(b.nb - a.nb) || a.nom.localeCompare(b.nom, 'fr'));   // du plus fait au moins fait
@@ -4349,6 +4406,138 @@
     mnEl.who.innerHTML = eaters.map(p=>`<button type="button" class="mn-pp${who.includes(p.id) ? '' : ' off'}${m ? '' : ' wait'}" data-p="${p.id}"><span class="d" style="background:${p.color}">✓</span>${escapeHtml(p.name)}</button>`).join('');
     mnEl.sheet.querySelector('[data-act="days"]').disabled = !m;
     mnEl.sheet.querySelector('.mn-clear').disabled = !m;
+  }
+
+  /* ---------- 3.4 : ingrédients des recettes et liste de courses ---------- */
+  const MN_UNITS = { g:'g', kg:'kg', cl:'cl', l:'L' };
+  function mnRecipeOf(nom){ return (state.recettes || []).find(r=>mnLow(r.nom) === mnLow(nom)) || null; }
+  function mnIngOf(nom){ const r = mnRecipeOf(nom); return r && Array.isArray(r.ing) ? r.ing : []; }
+  // « Lardons 200 g » -> { t:'Lardons', m:200, u:'g' } ; « Œufs x3 » -> { t:'Œufs', q:3 }
+  function mnParseIng(raw){
+    let t = String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 120), q = null, mes = null, u = null;
+    let mm = t.match(/^(.*\S)\s+x\s?(\d{1,2})$/i);
+    if (mm) { t = mm[1]; q = Math.max(1, Math.min(99, Number(mm[2]))); }
+    mm = t.match(/^(.*\S)\s+(\d+(?:[.,]\d+)?)\s?(g|kg|cl|l)$/i);
+    if (mm) { t = mm[1]; mes = Number(mm[2].replace(',', '.')); u = MN_UNITS[mm[3].toLowerCase()]; if (!(mes > 0)) { mes = null; u = null; } }
+    if (!t) return null;
+    t = t.charAt(0).toLocaleUpperCase('fr') + t.slice(1);
+    return { t, q, m: mes, u };
+  }
+  function mnIngLabel(x){
+    const parts = [];
+    if (x.u) parts.push((x.m ? String(x.m).replace('.', ',') + ' ' : '') + x.u);
+    if (x.q && x.q > 1) parts.push('x' + x.q);
+    return parts.join(' · ');
+  }
+  async function mnSaveIng(nom, list){
+    let r = mnRecipeOf(nom);
+    if (!r) {   // plat pas encore dans « Mes recettes » : on l'y ajoute
+      r = { id:uid(), nom, nb:0, ing:list };
+      state.recettes.push(r);
+      const { error } = await sb.from('recettes').insert({ id:r.id, household_id:state.household.id, nom, nb_fois:0, ingredients:list });
+      if (error) mnFail(error);
+      return;
+    }
+    r.ing = list;
+    const { error } = await sb.from('recettes').update({ ingredients:list }).eq('id', r.id);
+    if (error) mnFail(error);
+  }
+  function mnIngAdd(){
+    if (!mnSub || mnSub.type !== 'ing') return;
+    const inp = mnEl.sub.querySelector('.mn-ing-add input');
+    const x = mnParseIng(inp && inp.value);
+    if (!x) { if (inp) inp.focus(); return; }
+    const list = mnIngOf(mnSub.nom).slice();
+    if (list.some(y=>mnLow(y.t) === mnLow(x.t))) { mnToast(`« ${x.t} » est déjà dans les ingrédients`); return; }
+    list.push(x);
+    mnSaveIng(mnSub.nom, list);
+    mnFillSub();
+    const again = mnEl.sub.querySelector('.mn-ing-add input'); if (again) again.focus();
+  }
+  // Les ingrédients du repas, sans doublon, avec leur situation dans la liste de courses
+  function mnCartItems(){
+    const m = mnMeal(mnCur.ds, mnCur.moment);
+    const seen = new Set(), groups = [];
+    (m ? m.plats : []).forEach(p=>{
+      const items = [];
+      mnIngOf(p).forEach(x=>{
+        const k = mnLow(x.t);
+        if (seen.has(k)) return;
+        seen.add(k);
+        const art = (state.articles || []).find(a=>a.liste === 'courses' && mnLow(a.texte) === k) || null;
+        items.push({ x, k, art, deja: !!(art && !art.coche) });
+      });
+      groups.push({ plat:p, items, vide: !mnIngOf(p).length });
+    });
+    return groups;
+  }
+  function mnFillSub(){
+    if (!mnEl.sub) return;
+    if (!mnSub || !mnCur) { mnEl.sub.hidden = true; mnEl.sheet.classList.remove('mn-has-sub'); return; }
+    if (mnEl.sub.hidden) mnEl.sheet.scrollTop = 0;
+    mnEl.sub.hidden = false; mnEl.sheet.classList.add('mn-has-sub');
+    if (mnSub.type === 'ing') {
+      const list = mnIngOf(mnSub.nom);
+      mnEl.sub.innerHTML = `<div class="mn-sub-h"><h3>${escapeHtml(mnSub.nom)}</h3><span>ingrédients</span><button type="button" class="mn-x" data-sub-close="1" aria-label="Retour">✕</button></div>
+        <div class="mn-hint">À saisir une seule fois : ils restent avec la recette. Quantité facultative à la fin (200 g, 20 cl, x3).</div>
+        <div>${list.map((x,i)=>`<div class="mn-ing"><span>${escapeHtml(x.t)}</span><em>${escapeHtml(mnIngLabel(x))}</em><button type="button" data-ing-del="${i}" aria-label="Retirer ${escapeAttr(x.t)}">✕</button></div>`).join('') || '<div class="mn-hint">Pas encore d\'ingrédients.</div>'}</div>
+        <div class="mn-ing-add"><input type="text" placeholder="Ex. Lardons 200 g" maxlength="120" enterkeyhint="done" autocomplete="off" aria-label="Nouvel ingrédient"><button type="button" data-ing-add="1">OK</button></div>
+        <button type="button" class="mn-big" data-sub-close="1">Terminé</button>`;
+      return;
+    }
+    // Ajouter aux courses
+    const groups = mnCartItems();
+    let n = 0;
+    const body = groups.map(g=>`<div class="mn-grp">${escapeHtml(g.plat)}</div>` + (g.vide
+      ? `<div class="mn-hint">Pas encore d'ingrédients</div>`
+      : g.items.map(it=>{
+          if (it.deja) return `<div class="mn-ck2 dim"><i></i><span>${escapeHtml(it.x.t)} <small>· déjà dans la liste</small></span></div>`;
+          if (!(it.k in mnSub.choix)) mnSub.choix[it.k] = true;
+          const on = mnSub.choix[it.k]; if (on) n++;
+          const lab = mnIngLabel(it.x);
+          return `<button type="button" class="mn-ck2${on ? ' on' : ''}" data-ck="${escapeAttr(it.k)}"><i>${on ? '✓' : ''}</i><span>${escapeHtml(it.x.t)}${lab ? ` <small>· ${escapeHtml(lab)}</small>` : ''}${it.art && it.art.coche ? ' <small>· déjà pris, il revient</small>' : ''}</span></button>`;
+        }).join(''))).join('');
+    const d = new Date(mnCur.ds + 'T00:00:00');
+    mnEl.sub.innerHTML = `<div class="mn-sub-h"><h3>Ajouter aux courses</h3><span>${d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric' })} ${mnCur.moment === 'midi' ? 'midi' : 'soir'}</span><button type="button" class="mn-x" data-sub-close="1" aria-label="Retour">✕</button></div>
+      <div class="mn-hint">Décoche ce que tu as déjà à la maison.</div>
+      <div>${body}</div>
+      <button type="button" class="mn-big" data-cart-ok="1"${n ? '' : ' disabled'}>Ajouter ${n} article${n > 1 ? 's' : ''}</button>`;
+  }
+  function mnSubClick(e){
+    if (e.target.closest('[data-sub-close]')) { mnSub = null; mnFillSub(); mnFill(); return; }
+    const del = e.target.closest('[data-ing-del]');
+    if (del && mnSub && mnSub.type === 'ing') { const list = mnIngOf(mnSub.nom).slice(); list.splice(Number(del.dataset.ingDel), 1); mnSaveIng(mnSub.nom, list); mnFillSub(); return; }
+    if (e.target.closest('[data-ing-add]')) { mnIngAdd(); return; }
+    const ck = e.target.closest('[data-ck]');
+    if (ck && mnSub && mnSub.type === 'courses') { mnSub.choix[ck.dataset.ck] = !mnSub.choix[ck.dataset.ck]; mnFillSub(); return; }
+    if (e.target.closest('[data-cart-ok]')) mnCartOk();
+  }
+  function mnCartOk(){
+    if (!mnSub || mnSub.type !== 'courses' || !state.household || !state.myProfile) return;
+    state.articles = state.articles || [];
+    const nouveaux = []; let n = 0;
+    mnCartItems().forEach(g=>g.items.forEach(it=>{
+      if (it.deja || !mnSub.choix[it.k]) return;
+      const x = it.x;
+      if (it.art) {   // « Déjà pris » : il revient dans la liste, avec la quantité de la recette si elle en a une
+        const a = it.art;
+        a.coche = false; a.pos = lpNextPos('courses');
+        const patch = Object.assign({ coche:false, coche_le:null, coche_par:null, position:a.pos }, lpCountCheck(a, false));
+        if (x.u) { a.unite = x.u; a.mesure = x.m ? String(x.m) : ''; patch.unite = x.u; patch.mesure = x.m || null; }
+        if (x.q) { a.qte = x.q; patch.quantite = x.q; }
+        lpUpdate(a, patch);
+      } else {
+        const a = { id:uid(), liste:'courses', texte:x.t, qte:x.q || 1, mesure: x.u && x.m ? String(x.m) : '', unite:x.u || '',
+                    coche:false, cocheLe:0, ajoutePar:state.myProfile.id, pos:lpNextPos('courses'), nb:0, nbJour:0, jour:'' };
+        state.articles.push(a); nouveaux.push(a);
+      }
+      n++;
+    }));
+    if (nouveaux.length) lpInsert(nouveaux);
+    mnSub = null; mnFillSub(); mnFill();
+    if (typeof renderLists === 'function') renderLists();
+    updateListBadges();
+    mnToast(n ? `${n} article${n > 1 ? 's' : ''} ajouté${n > 1 ? 's' : ''} à la liste de courses` : 'Rien à ajouter');
   }
 
   /* ---------- Écritures ---------- */
@@ -4480,6 +4669,7 @@
     if (esBackIgnore > 0) { esBackIgnore--; return; }
     const small = document.querySelector('body > .scrim');          // petite fenêtre (heure, lieu…)
     if (small) small.remove();
+    else if (document.body.classList.contains('mn-open') && typeof mnSub !== 'undefined' && mnSub) { mnSub = null; mnFillSub(); mnFill(); }
     else if (document.body.classList.contains('mn-open')) mnClose();
     else if (typeof mnCopy !== 'undefined' && mnCopy) mnStopCopy(false);
     else if (document.body.classList.contains('lists-open')) closeLists();
