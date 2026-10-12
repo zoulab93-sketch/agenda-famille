@@ -1,0 +1,45 @@
+# EarthShade — fabrication automatique de l'appli « ES Widget » (V4)
+# À chaque modification du dossier widget-android, GitHub fabrique l'appli
+# et la dépose dans « Releases » du dépôt, prête à télécharger sur le téléphone.
+name: Widget Android
+
+on:
+  push:
+    paths:
+      - 'widget-android/**'
+      - '.github/workflows/widget-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Fabriquer l'appli
+        working-directory: widget-android
+        run: gradle assembleDebug --stacktrace
+
+      - name: Renommer l'appli
+        run: cp widget-android/app/build/outputs/apk/debug/app-debug.apk EarthShade-widget.apk
+
+      - name: Publier dans Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: widget-${{ github.run_number }}
+          name: ES Widget 4.0.${{ github.run_number }}
+          body: Appli « ES Widget » pour Android. Sur le téléphone, télécharge EarthShade-widget.apk puis ouvre-le pour l'installer.
+          files: EarthShade-widget.apk
+          make_latest: true
