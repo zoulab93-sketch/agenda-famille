@@ -170,9 +170,9 @@ private fun lum(c: Int): Double {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
-/** Texte foncé si les couleurs de la pastille sont claires en moyenne, blanc sinon. */
+/** Texte foncé dès qu'une des couleurs de la pastille est claire (jaune, bleu clair…), blanc sinon. */
 private fun textOnAll(colors: List<Int>): Color =
-    if (colors.map { lum(it) }.average() > 0.55) Color(0xFF1E232A) else Color.White
+    if (colors.any { lum(it) > 0.5 }) Color(0xFF1E232A) else Color.White
 
 private sealed class Item {
     class DayHead(val day: Day) : Item()
@@ -208,7 +208,7 @@ private fun TimePill(text: String, colors: List<Int>, small: Boolean) {
             for (c in colors) Box(modifier = GlanceModifier.defaultWeight().fillMaxHeight().background(Color(c))) {}
         }
         Text(text, style = TextStyle(color = ColorProvider(textOnAll(colors)), fontSize = if (small) 10.sp else 11.5.sp,
-            fontWeight = FontWeight.Medium), maxLines = 1)
+            fontWeight = FontWeight.Bold), maxLines = 1)
     }
 }
 
