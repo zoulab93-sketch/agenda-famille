@@ -691,6 +691,15 @@
   .mn-chip-t { border:none; background:none; color:var(--ink); font:700 14px 'Karla',sans-serif; padding:6px 4px 6px 12px; cursor:pointer; }
   .mn-chip-x { border:none; background:none; color:var(--ink-soft); font-size:13px; padding:6px 10px 6px 6px; cursor:pointer; }
   .mn-nodish { font-size:13px; color:var(--ink-soft); }
+  /* 3.4.1 : remplacer un cas déjà posé */
+  .rc-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; max-height:40vh; overflow:auto; }
+  .rc-row { display:flex; align-items:center; gap:8px; background:var(--surface-soft, var(--bg)); border-radius:12px; padding:9px 12px; font-size:14px; }
+  .rc-d { flex:1; min-width:0; }
+  .rc-chip { font-size:12px; font-weight:700; padding:2px 8px; border-radius:6px; white-space:nowrap; box-shadow:0 0 0 1px var(--line); }
+  .rc-old { opacity:.55; text-decoration:line-through; }
+  .rc-arr { color:var(--ink-soft, #9AA1AB); }
+  .rc-note { margin:0 0 12px; font-size:14px; color:var(--ink-soft, #9AA1AB); }
+  .rc-cancel { display:block; width:100%; margin-top:8px; padding:10px; background:none; border:none; color:var(--ink-soft, #9AA1AB); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; }
   /* 3.4 : ingrédients des recettes -> liste de courses */
   .mn-ingbar { display:flex; flex-direction:column; gap:6px; margin:2px 0 6px; }
   .mn-ingbar[hidden] { display:none; }
@@ -751,7 +760,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.4</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.4.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2893,10 +2902,23 @@
       if (!title) { sheet.querySelector('#f-title').focus(); return; }
       ev.title = title;
       if (!ev.participants.length && state.activeId) ev.participants=[state.activeId];
+      // 3.4.1 : un seul cas par jour et par personne -> proposer de remplacer l'ancien
+      let replaced = [];
+      if (caseColorOf({ title })) {
+        const days = bulk ? bulk : [sheet.querySelector('#f-date').value || ev.date];
+        const conflicts = caseConflicts(days, ev);
+        if (conflicts.length) {
+          const choice = await askReplaceCases(conflicts, title, bulk ? bulk.length : 1);
+          if (!choice) return;
+          if (choice === 'replace') replaced = conflicts.map(c=>c.e);
+        }
+      }
       const btn = sheet.querySelector('#f-save'); btn.disabled = true; btn.textContent = 'Enregistrement…';
       snapshot();
       try {
         const pushedIds = [];
+        for (const e of replaced) { if (isLinked(e)) await hideImportedDb(e); else await deleteEventDb(e.id); }
+        if (replaced.length) await logActivity(`a remplacé ${replaced.length} cas par « ${title} »`);
         if (bulk) {
           for (const ds of bulk) {
             const newId = uid();
@@ -2913,6 +2935,7 @@
           pushedIds.push(ev.id);
         }
         await reloadHouseholdData();
+        replaced.forEach(e=>{ if (e.googleId && !isLinked(e)) syncToGoogle('remove', { google_event_id: e.googleId }); });
         pushedIds.forEach(id=>syncToGoogle('push', { event_id: id }));
         view.sheet = null;
       } catch(err){
@@ -3509,6 +3532,49 @@
     });
   }
 
+  /* 3.4.1 : cas déjà posés pour la même personne sur ces jours */
+  function caseConflicts(days, ev){
+    const mine = ev.participants.length ? ev.participants : (state.activeId ? [state.activeId] : []);
+    const out = [];
+    days.forEach(ds=>{
+      state.events.filter(e=>e.date===ds && e.id!==ev.id && !e.masque && caseColorOf(e)).forEach(e=>{
+        const shared = !mine.length || !e.participants.length || e.participants.some(id=>mine.includes(id));
+        if (shared) out.push({ ds, e });
+      });
+    });
+    return out;
+  }
+  function askReplaceCases(conflicts, newTitle, nDays){
+    return new Promise(resolve=>{
+      const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
+      const sheet = document.createElement('div'); sheet.className='sheet';
+      const chip = (t, old)=>{ const c = caseColorOf({ title:t }) || '#8E96A3';
+        return `<span class="rc-chip${old?' rc-old':''}" style="background:${c};color:${textOn(c)}">${escapeHtml(t)}</span>`; };
+      const daysN = new Set(conflicts.map(c=>c.ds)).size;
+      const rows = conflicts.map(c=>{
+        const d = new Date(c.ds+'T00:00:00');
+        const lab = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'short' });
+        return `<div class="rc-row"><span class="rc-d">${escapeHtml(lab.charAt(0).toUpperCase()+lab.slice(1))}</span>${chip(c.e.title, true)}<span class="rc-arr">→</span>${chip(newTitle, false)}</div>`;
+      }).join('');
+      sheet.innerHTML = `
+        <div class="sheet-header"><h2>${daysN>1 ? daysN+' jours ont déjà un cas' : 'Déjà un cas ce jour-là'}</h2><button class="sheet-close" id="rc-close">✕</button></div>
+        <div class="rc-list">${rows}</div>
+        ${nDays > daysN ? `<p class="rc-note">Les autres jours reçoivent ${escapeHtml(newTitle)} normalement.</p>` : ''}
+        <div style="display:flex; gap:10px;">
+          <button class="ghost-btn" id="rc-keep" style="margin-top:0;">Garder les deux</button>
+          <button class="save-btn" id="rc-replace" style="margin-top:0;">Remplacer</button>
+        </div>
+        <button class="rc-cancel" id="rc-cancel">Annuler</button>`;
+      const done = v=>{ scrim.remove(); resolve(v); };
+      sheet.querySelector('#rc-close').onclick = ()=>done(null);
+      sheet.querySelector('#rc-cancel').onclick = ()=>done(null);
+      sheet.querySelector('#rc-keep').onclick = ()=>done('keep');
+      sheet.querySelector('#rc-replace').onclick = ()=>done('replace');
+      scrim.onclick = e=>{ if (e.target===scrim) done(null); };
+      scrim.appendChild(sheet);
+      document.body.appendChild(scrim);
+    });
+  }
   function openTextPrompt(title, currentValue, onConfirm){
     const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
     const sheet = document.createElement('div'); sheet.className='sheet';
