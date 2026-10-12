@@ -28,6 +28,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
@@ -164,6 +165,15 @@ private fun textOn(c: Int): Color {
     return if (0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55) Color(0xFF1E232A) else Color.White
 }
 
+private fun lum(c: Int): Double {
+    val r = (c shr 16 and 255) / 255.0; val g = (c shr 8 and 255) / 255.0; val b = (c and 255) / 255.0
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+/** Texte foncé si les couleurs de la pastille sont claires en moyenne, blanc sinon. */
+private fun textOnAll(colors: List<Int>): Color =
+    if (colors.map { lum(it) }.average() > 0.55) Color(0xFF1E232A) else Color.White
+
 private sealed class Item {
     class DayHead(val day: Day) : Item()
     class Line(val ev: WEv) : Item()
@@ -190,11 +200,15 @@ private fun ShiftChip(name: String, color: Int) {
     }
 }
 
+/** Pastille arrondie autour de l'heure : une tranche de couleur par participant. */
 @Composable
-private fun Bar(colors: List<Int>) {
-    val h = 15f / colors.size
-    Column(modifier = GlanceModifier.width(5.dp).height(15.dp)) {
-        for (c in colors) Box(modifier = GlanceModifier.width(5.dp).height(h.dp).background(Color(c))) {}
+private fun TimePill(text: String, colors: List<Int>, small: Boolean) {
+    Box(modifier = GlanceModifier.width(52.dp).height(19.dp).cornerRadius(6.dp), contentAlignment = Alignment.Center) {
+        Row(modifier = GlanceModifier.fillMaxSize()) {
+            for (c in colors) Box(modifier = GlanceModifier.defaultWeight().fillMaxHeight().background(Color(c))) {}
+        }
+        Text(text, style = TextStyle(color = ColorProvider(textOnAll(colors)), fontSize = if (small) 10.sp else 11.5.sp,
+            fontWeight = FontWeight.Medium), maxLines = 1)
     }
 }
 
@@ -235,10 +249,8 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
                 }
                 is Item.Line -> Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Bar(item.ev.colors)
-                    Spacer(GlanceModifier.width(6.dp))
-                    Text(item.ev.start ?: "Journée", modifier = GlanceModifier.width(50.dp),
-                        style = TextStyle(color = ColorProvider(SOFT), fontSize = if (item.ev.start == null) 10.sp else 11.5.sp), maxLines = 1)
+                    TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
+                    Spacer(GlanceModifier.width(8.dp))
                     if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
                     Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
                         style = TextStyle(color = ColorProvider(INK), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
