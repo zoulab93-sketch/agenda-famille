@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -20,6 +19,8 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -60,12 +61,9 @@ private val SHIFTS = mapOf(
     "rh" to ("RH" to 0xFFFFFFFF), "rtt" to ("RTT" to 0xFFFFFFFF)
 )
 
-// Hauteurs (dp) utilisées pour savoir combien de lignes tiennent dans le widget
+// Hauteurs (dp) des lignes
 private const val PAD = 10f
 private const val H_HEADER = 24f
-private const val H_DAY = 20f
-private const val H_LINE = 18f
-private const val H_MORE = 16f
 
 /* ------------------------------------------------------------------ */
 /* Données                                                             */
@@ -169,41 +167,18 @@ private fun textOn(c: Int): Color {
 private sealed class Item {
     class DayHead(val day: Day) : Item()
     class Line(val ev: WEv) : Item()
-    class More(val n: Int, val date: LocalDate) : Item()
     class Note(val text: String, val date: LocalDate) : Item()
 }
 
-/** Ce qui tient dans la hauteur disponible : aujourd'hui d'abord, puis les jours suivants. */
-private fun plan(days: List<Day>, heightDp: Float): List<Item> {
-    var budget = heightDp - 2 * PAD - H_HEADER
+/** Toute la liste : aujourd'hui d'abord, puis chaque jour suivant qui a quelque chose. On fait glisser pour voir la suite. */
+private fun listItems(days: List<Day>): List<Item> {
     val out = mutableListOf<Item>()
     val today = days.firstOrNull() ?: return out
-    if (today.events.isEmpty()) {
-        if (budget >= H_LINE) { out.add(Item.Note("Rien de prévu aujourd'hui", today.date)); budget -= H_LINE }
-    } else {
-        val total = today.events.size
-        var shown = 0
-        for (ev in today.events) {
-            val left = total - shown - 1
-            val need = H_LINE + (if (left > 0) H_MORE else 0f)
-            if (budget < need && !(left == 0 && budget >= H_LINE)) break
-            out.add(Item.Line(ev)); budget -= H_LINE; shown++
-        }
-        if (shown < total && budget >= H_MORE) { out.add(Item.More(total - shown, today.date)); budget -= H_MORE }
-    }
+    if (today.events.isEmpty()) out.add(Item.Note("Rien de prévu aujourd'hui", today.date))
+    else today.events.forEach { out.add(Item.Line(it)) }
     for (day in days.drop(1)) {
-        if (budget < H_DAY) break
-        val need = H_DAY + (if (day.events.isNotEmpty()) H_LINE else 0f)
-        if (budget < need) break
-        out.add(Item.DayHead(day)); budget -= H_DAY
-        for ((i, ev) in day.events.withIndex()) {
-            val left = day.events.size - i - 1
-            if (budget < H_LINE || (left > 0 && budget < H_LINE + H_MORE && budget < 2 * H_LINE)) {
-                if (budget >= H_MORE) { out.add(Item.More(day.events.size - i, day.date)); budget -= H_MORE }
-                return out
-            }
-            out.add(Item.Line(ev)); budget -= H_LINE
-        }
+        out.add(Item.DayHead(day))
+        day.events.forEach { out.add(Item.Line(it)) }
     }
     return out
 }
@@ -225,7 +200,6 @@ private fun Bar(colors: List<Int>) {
 
 @Composable
 private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
-    val size = LocalSize.current
     val base = GlanceModifier.fillMaxSize().background(BG).cornerRadius(22.dp).padding(horizontal = 12.dp, vertical = PAD.dp)
     if (!logged || days == null) {
         Column(modifier = base.clickable(actionStartActivity<MainActivity>()),
@@ -250,19 +224,20 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
             Text("↻", modifier = GlanceModifier.padding(start = 6.dp).clickable(actionRunCallback<RefreshAction>()),
                 style = TextStyle(color = ColorProvider(SOFT), fontSize = 15.sp))
         }
-        for (item in plan(days, size.height.value)) {
+        LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+          items(listItems(days)) { item ->
             when (item) {
-                is Item.DayHead -> Row(modifier = GlanceModifier.fillMaxWidth().height(H_DAY.dp).padding(top = 4.dp).clickable(openDay(item.day.date)),
+                is Item.DayHead -> Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 7.dp, bottom = 2.dp).clickable(openDay(item.day.date)),
                     verticalAlignment = Alignment.CenterVertically) {
                     Text(item.day.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)).uppercase(FR),
                         style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp, fontWeight = FontWeight.Bold), maxLines = 1)
                     for ((name, color) in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
                 }
-                is Item.Line -> Row(modifier = GlanceModifier.fillMaxWidth().height(H_LINE.dp).clickable(openDay(item.ev.date)),
+                is Item.Line -> Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
                     verticalAlignment = Alignment.CenterVertically) {
                     Bar(item.ev.colors)
                     Spacer(GlanceModifier.width(6.dp))
-                    Text(item.ev.start ?: "Journée", modifier = GlanceModifier.width(40.dp),
+                    Text(item.ev.start ?: "Journée", modifier = GlanceModifier.width(50.dp),
                         style = TextStyle(color = ColorProvider(SOFT), fontSize = if (item.ev.start == null) 10.sp else 11.5.sp), maxLines = 1)
                     if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
                     Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
@@ -271,12 +246,10 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
                         Text("jusqu'au ${it.dayOfMonth}", style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp), maxLines = 1)
                     }
                 }
-                is Item.More -> Text("+${item.n} autre${if (item.n > 1) "s" else ""}",
-                    modifier = GlanceModifier.height(H_MORE.dp).padding(start = 11.dp).clickable(openDay(item.date)),
-                    style = TextStyle(color = ColorProvider(SOFT), fontSize = 11.sp))
-                is Item.Note -> Text(item.text, modifier = GlanceModifier.height(H_LINE.dp).clickable(openDay(item.date)),
+                is Item.Note -> Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
                     style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
             }
+          }
         }
     }
 }
