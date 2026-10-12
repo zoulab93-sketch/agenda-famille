@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ES Widget</string>
+    <string name="widget_name">EarthShade</string>
+    <string name="widget_desc">Ta journée et les jours suivants, avec les shifts</string>
+</resources>
