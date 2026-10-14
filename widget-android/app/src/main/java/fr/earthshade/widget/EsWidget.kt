@@ -118,7 +118,7 @@ private fun loadDays(ctx: Context): List<Day>? {
         if (end.isAfter(ev.date)) ev.until = end
     }
     val days = mutableListOf<Day>()
-    for (d in 0..7) {
+    for (d in 0..14) {
         val date = today.plusDays(d.toLong())
         val list = evs.filter { it.date == date }.sortedWith(compareBy<WEv>({ it.start != null }, { it.start ?: "" }, { it.title }))
         val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
