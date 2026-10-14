@@ -5,10 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -50,6 +53,7 @@ private val BG = Color(0xE6171A1E)          // fond sombre légèrement transpar
 private val INK = Color(0xFFECEEF1)
 private val SOFT = Color(0xFF9AA1AB)
 private val STAR = Color(0xFFE5B93C)
+private val RAIL = Color(0xFF6B7079)        // ligne grise des journées entières qui se suivent
 private val NEUTRAL: Int = 0xFF8E96A3.toInt()
 private const val SITE = "https://zoulab93-sketch.github.io/agenda-famille/"
 private val FR = Locale.FRENCH
@@ -71,7 +75,11 @@ private const val H_HEADER = 24f
 /* ------------------------------------------------------------------ */
 private data class WEv(val title: String, val date: LocalDate, val start: String?, val important: Boolean,
                        val colors: List<Int>, val key: String, var until: LocalDate? = null)
-private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>, val events: List<WEv>)
+private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>, val events: List<WEv>,
+                       val cont: List<WEv> = emptyList()) {
+    /** Un fil gris traverse cette journée (journée entière commencée avant, ou qui continue après) */
+    val railOn: Boolean get() = cont.isNotEmpty() || events.any { it.until != null }
+}
 
 private fun parseColor(s: String?): Int = try { android.graphics.Color.parseColor(s ?: "") } catch (e: Exception) { NEUTRAL }
 
@@ -121,8 +129,10 @@ private fun loadDays(ctx: Context): List<Day>? {
     for (d in 0..14) {
         val date = today.plusDays(d.toLong())
         val list = evs.filter { it.date == date }.sortedWith(compareBy<WEv>({ it.start != null }, { it.start ?: "" }, { it.title }))
+        // Journées entières en cours : elles ne sont écrites que le premier jour, ensuite seule la ligne grise continue
+        val cont = evs.filter { it.until != null && date.isAfter(it.date) && !date.isAfter(it.until) }
         val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
-        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty()) days.add(Day(date, sh, list))
+        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont))
     }
     return days
 }
@@ -138,7 +148,8 @@ class EsWidget : GlanceAppWidget() {
         val logged = Store.isLoggedIn(context)
         val days = if (logged) runCatching { loadDays(context) }.getOrNull() else null
         val warn = Store.error(context) != null
-        provideContent { Content(logged, days, warn) }
+        val elbow = makeElbow(context)
+        provideContent { Content(logged, days, warn, elbow) }
     }
 }
 
@@ -174,23 +185,66 @@ private fun lum(c: Int): Double {
 private fun textOnAll(colors: List<Int>): Color =
     if (colors.any { lum(it) > 0.5 }) Color(0xFF1E232A) else Color.White
 
+/** Coude de départ du fil : part vers la gauche puis descend à 90° dans le fil (dessiné une fois, en bitmap). */
+private fun makeElbow(ctx: Context): android.graphics.Bitmap {
+    val d = ctx.resources.displayMetrics.density
+    val w = (29 * d).toInt().coerceAtLeast(1)
+    val h = (12 * d).toInt().coerceAtLeast(1)
+    val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(bmp)
+    val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = RAIL.toArgb()
+        style = android.graphics.Paint.Style.STROKE
+        strokeWidth = 6 * d
+    }
+    val path = android.graphics.Path().apply {
+        moveTo(0f, 3 * d)
+        lineTo(20 * d, 3 * d)
+        quadTo(26 * d, 3 * d, 26 * d, 9 * d)
+        lineTo(26 * d, h.toFloat())
+    }
+    canvas.drawPath(path, paint)
+    return bmp
+}
+
 private sealed class Item {
     class DayHead(val day: Day) : Item()
-    class Line(val ev: WEv) : Item()
+    class Line(val ev: WEv, val rail: Boolean, val elbow: Boolean) : Item()
+    class Rail : Item()                       // journée sans rien d'autre : juste le fil gris
     class Note(val text: String, val date: LocalDate) : Item()
+}
+
+/** Ajoute un jour : son en-tête, ses lignes, et une simple ligne grise si rien d'autre ne s'y passe. */
+private fun addDay(out: MutableList<Item>, day: Day, head: Boolean) {
+    if (day.events.isEmpty() && day.cont.isNotEmpty()) { out.add(Item.Rail()); return }
+    if (head) out.add(Item.DayHead(day))
+    day.events.forEach { out.add(Item.Line(it, day.railOn, it.until != null)) }
 }
 
 /** Toute la liste : aujourd'hui d'abord, puis chaque jour suivant qui a quelque chose. On fait glisser pour voir la suite. */
 private fun listItems(days: List<Day>): List<Item> {
     val out = mutableListOf<Item>()
     val today = days.firstOrNull() ?: return out
-    if (today.events.isEmpty()) out.add(Item.Note("Rien de prévu aujourd'hui", today.date))
-    else today.events.forEach { out.add(Item.Line(it)) }
-    for (day in days.drop(1)) {
-        out.add(Item.DayHead(day))
-        day.events.forEach { out.add(Item.Line(it)) }
-    }
+    if (today.events.isEmpty() && today.cont.isEmpty()) out.add(Item.Note("Rien de prévu aujourd'hui", today.date))
+    else addDay(out, today, head = false)
+    for (day in days.drop(1)) addDay(out, day, head = true)
     return out
+}
+
+/** Le fil gris, posé SOUS le contenu : il passe derrière les pastilles et les textes sans les cacher. */
+@Composable
+private fun WithRail(on: Boolean, elbow: android.graphics.Bitmap? = null, content: @Composable () -> Unit) {
+    if (!on) { content(); return }
+    Box(modifier = GlanceModifier.fillMaxWidth()) {
+        Row(modifier = GlanceModifier.fillMaxSize()) {
+            Spacer(GlanceModifier.width(23.dp))          // centré sous la pastille de 52 dp
+            Box(modifier = GlanceModifier.width(6.dp).fillMaxHeight().background(RAIL)) {}
+        }
+        if (elbow != null) {
+            Image(provider = ImageProvider(elbow), contentDescription = null, modifier = GlanceModifier.width(29.dp).height(12.dp))
+        }
+        content()
+    }
 }
 
 @Composable
@@ -213,7 +267,7 @@ private fun TimePill(text: String, colors: List<Int>, small: Boolean) {
 }
 
 @Composable
-private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
+private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: android.graphics.Bitmap?) {
     val base = GlanceModifier.fillMaxSize().background(BG).cornerRadius(22.dp).padding(horizontal = 12.dp, vertical = PAD.dp)
     if (!logged || days == null) {
         Column(modifier = base.clickable(actionStartActivity<MainActivity>()),
@@ -241,21 +295,28 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean) {
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
           items(listItems(days)) { item ->
             when (item) {
-                is Item.DayHead -> Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 7.dp, bottom = 2.dp).clickable(openDay(item.day.date)),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.day.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)).uppercase(FR),
-                        style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp, fontWeight = FontWeight.Bold), maxLines = 1)
-                    for ((name, color) in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
+                is Item.DayHead -> WithRail(item.day.railOn) {
+                    Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 7.dp, bottom = 2.dp).clickable(openDay(item.day.date)),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Text(item.day.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)).uppercase(FR),
+                            style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp, fontWeight = FontWeight.Bold), maxLines = 1)
+                        for ((name, color) in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
+                    }
                 }
-                is Item.Line -> Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
-                    Spacer(GlanceModifier.width(8.dp))
-                    if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
-                    Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
-                        style = TextStyle(color = ColorProvider(INK), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
-                    item.ev.until?.let {
-                        Text("jusqu'au ${it.dayOfMonth}", style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp), maxLines = 1)
+                is Item.Rail -> WithRail(true) {
+                    Spacer(GlanceModifier.fillMaxWidth().height(14.dp))
+                }
+                is Item.Line -> WithRail(item.rail, if (item.elbow) elbow else null) {
+                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
+                        Spacer(GlanceModifier.width(8.dp))
+                        if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
+                        Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
+                            style = TextStyle(color = ColorProvider(INK), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
+                        item.ev.until?.let {
+                            Text("jusqu'au ${it.dayOfMonth}", style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp), maxLines = 1)
+                        }
                     }
                 }
                 is Item.Note -> Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
