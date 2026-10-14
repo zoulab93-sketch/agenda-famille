@@ -1,3 +1,4 @@
+
 package fr.earthshade.widget
 
 import android.content.Context
@@ -119,18 +120,22 @@ private fun loadDays(ctx: Context): List<Day>? {
         evs.add(WEv(title, date, start, e.optBoolean("important", false), colors, title.lowercase(FR) + "|" + ids.joinToString(",")))
     }
     // Journée entière sur plusieurs jours de suite : « jusqu'au N »
+    // La base enregistre une ligne par jour : on ne garde que le premier jour de chaque série, les suivants ne sont plus écrits
     val allDay = evs.filter { it.start == null }
-    for (ev in allDay) {
+    val continuation = allDay.filter { ev -> allDay.any { it.key == ev.key && it.date == ev.date.minusDays(1) } }
+    evs.removeAll { c -> continuation.any { it === c } }
+    for (ev in evs.filter { it.start == null }) {
         var end = ev.date
         while (allDay.any { it.key == ev.key && it.date == end.plusDays(1) }) end = end.plusDays(1)
         if (end.isAfter(ev.date)) ev.until = end
     }
+    val runs = evs.filter { it.until != null }
     val days = mutableListOf<Day>()
     for (d in 0..14) {
         val date = today.plusDays(d.toLong())
         val list = evs.filter { it.date == date }.sortedWith(compareBy<WEv>({ it.start != null }, { it.start ?: "" }, { it.title }))
         // Journées entières en cours : elles ne sont écrites que le premier jour, ensuite seule la ligne grise continue
-        val cont = evs.filter { it.until != null && date.isAfter(it.date) && !date.isAfter(it.until) }
+        val cont = runs.filter { date.isAfter(it.date) && !date.isAfter(it.until) }
         val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
         if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont))
     }
