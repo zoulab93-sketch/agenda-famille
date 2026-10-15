@@ -212,6 +212,10 @@ private fun textOnAll(colors: List<Int>): Color =
 
 private fun elbowKey(ev: WEv) = "${ev.lane}|${ev.colors.first()}"
 
+/** Rayon de l'arrondi : 9 dp quand la place le permet (le fil de droite a moins de place dans la gouttière). */
+private fun elbowRadius(lane: Int): Float =
+    minOf(9f, GUTTER - (railX(lane) + RAIL_W / 2f))
+
 /** Coude de départ : sort du bord gauche de la pastille, file vers la gauche puis plonge à 90° dans son fil. */
 private fun makeElbow(ctx: Context, lane: Int, color: Int): android.graphics.Bitmap {
     val d = ctx.resources.displayMetrics.density
@@ -226,11 +230,13 @@ private fun makeElbow(ctx: Context, lane: Int, color: Int): android.graphics.Bit
     }
     val xc = (railX(lane) + RAIL_W / 2f) * d      // milieu du fil
     val yc = ROW_H / 2f * d                         // milieu de la pastille
-    val r = 5 * d                                   // rayon de l'arrondi
+    val r = elbowRadius(lane) * d                   // rayon de l'arrondi (doux)
+    val k = 0.5523f * r                             // quart de cercle parfait
+    paint.strokeCap = android.graphics.Paint.Cap.BUTT
     val path = android.graphics.Path().apply {
         moveTo(w.toFloat(), yc)
         lineTo(xc + r, yc)
-        quadTo(xc, yc, xc, yc + r)
+        cubicTo(xc + r - k, yc, xc, yc + r - k, xc, yc + r)
         lineTo(xc, h.toFloat())
     }
     canvas.drawPath(path, paint)
@@ -269,7 +275,8 @@ private fun listItems(days: List<Day>): List<Item> {
 
 /** Chaque ligne de la liste : la gouttière avec ses fils (et le coude éventuel), puis le contenu à droite. */
 @Composable
-private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null, content: @Composable () -> Unit) {
+private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null, elbowSeg: RailSeg? = null,
+                   content: @Composable () -> Unit) {
     Box(modifier = GlanceModifier.fillMaxWidth()) {
         Row(modifier = GlanceModifier.fillMaxSize()) {
             var x = 0
@@ -283,6 +290,17 @@ private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null,
         if (elbow != null) {
             Image(provider = ImageProvider(elbow), contentDescription = null,
                 modifier = GlanceModifier.width(GUTTER.dp).height(ROW_H.dp))
+        }
+        if (elbowSeg != null) {
+            // Sous l'arrondi, le fil continue jusqu'au bas de la ligne, quelle que soit sa hauteur réelle (plus de petit trou)
+            val top = ROW_H / 2f + elbowRadius(elbowSeg.lane) - 1f
+            Row(modifier = GlanceModifier.fillMaxSize()) {
+                Spacer(GlanceModifier.width(railX(elbowSeg.lane).dp))
+                Column(modifier = GlanceModifier.width(RAIL_W.dp).fillMaxHeight()) {
+                    Spacer(GlanceModifier.height(top.dp))
+                    Box(modifier = GlanceModifier.fillMaxWidth().defaultWeight().background(Color(elbowSeg.color))) {}
+                }
+            }
         }
         Row(modifier = GlanceModifier.fillMaxWidth()) {
             Spacer(GlanceModifier.width(GUTTER.dp))
@@ -351,25 +369,7 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
                 is Item.Rail -> Gutter(item.rails) {
                     Spacer(GlanceModifier.fillMaxWidth().height(14.dp))
                 }
-                is Item.Line -> Gutter(item.rails, if (item.elbow) elbows[elbowKey(item.ev)] else null) {
-                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
-                        verticalAlignment = Alignment.CenterVertically) {
-                        TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
-                        Spacer(GlanceModifier.width(8.dp))
-                        if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
-                        Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
-                            style = TextStyle(color = ColorProvider(INK), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
-                        item.ev.until?.let {
-                            Text("jusqu'au ${it.dayOfMonth}", style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp), maxLines = 1)
-                        }
-                    }
-                }
-                is Item.Note -> Gutter(emptyList()) {
-                    Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
-                        style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
-                }
-            }
-          }
-        }
-    }
-}
+                is Item.Line -> Gutter(item.rails,
+                    if (item.elbow) elbows[elbowKey(item.ev)] else null,
+                    if (item.elbow) RailSeg(item.ev.lane, item.ev.colors.first()) else null) {
+                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clicka
