@@ -1,4 +1,3 @@
-
 package fr.earthshade.widget
 
 import android.content.Context
@@ -75,12 +74,20 @@ private const val H_HEADER = 24f
 /* Données                                                             */
 /* ------------------------------------------------------------------ */
 private data class WEv(val title: String, val date: LocalDate, val start: String?, val important: Boolean,
-                       val colors: List<Int>, val key: String, var until: LocalDate? = null)
+                       val colors: List<Int>, val key: String, var until: LocalDate? = null, var lane: Int = 0)
+/** Un fil = une couloir (lane) et une couleur. Plusieurs séries en même temps → plusieurs fils côte à côte. */
+private data class RailSeg(val lane: Int, val color: Int)
 private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>, val events: List<WEv>,
-                       val cont: List<WEv> = emptyList()) {
-    /** Un fil gris traverse cette journée (journée entière commencée avant, ou qui continue après) */
-    val railOn: Boolean get() = cont.isNotEmpty() || events.any { it.until != null }
+                       val cont: List<WEv> = emptyList(), val rails: List<RailSeg> = emptyList()) {
+    val railOn: Boolean get() = rails.isNotEmpty()
 }
+
+// Les fils passent dans une gouttière à gauche des pastilles (plus jamais dessous)
+private const val GUTTER = 16      // dp, largeur de la gouttière
+private const val RAIL_W = 4       // dp, épaisseur d'un fil
+private const val RAIL_MAX = 3     // fils côte à côte au maximum
+private const val ROW_H = 23       // dp, hauteur d'une ligne d'événement (2 + pastille 19 + 2)
+private fun railX(lane: Int) = 1 + lane * 5   // dp, bord gauche du fil dans la gouttière
 
 private fun parseColor(s: String?): Int = try { android.graphics.Color.parseColor(s ?: "") } catch (e: Exception) { NEUTRAL }
 
@@ -130,6 +137,13 @@ private fun loadDays(ctx: Context): List<Day>? {
         if (end.isAfter(ev.date)) ev.until = end
     }
     val runs = evs.filter { it.until != null }
+    // Chaque série reçoit un couloir libre : deux séries qui se chevauchent ne se cachent plus l'une l'autre
+    val laneEnd = mutableListOf<LocalDate>()
+    for (r in runs.sortedBy { it.date }) {
+        var l = laneEnd.indexOfFirst { it.isBefore(r.date) }
+        if (l < 0) { laneEnd.add(r.until!!); l = laneEnd.size - 1 } else laneEnd[l] = r.until!!
+        r.lane = l.coerceAtMost(RAIL_MAX - 1)
+    }
     val days = mutableListOf<Day>()
     for (d in 0..14) {
         val date = today.plusDays(d.toLong())
@@ -137,7 +151,9 @@ private fun loadDays(ctx: Context): List<Day>? {
         // Journées entières en cours : elles ne sont écrites que le premier jour, ensuite seule la ligne grise continue
         val cont = runs.filter { date.isAfter(it.date) && !date.isAfter(it.until) }
         val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
-        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont))
+        val rails = runs.filter { !date.isBefore(it.date) && !date.isAfter(it.until) }
+            .map { RailSeg(it.lane, it.colors.first()) }.distinctBy { it.lane }.sortedBy { it.lane }
+        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont, rails))
     }
     return days
 }
@@ -153,8 +169,12 @@ class EsWidget : GlanceAppWidget() {
         val logged = Store.isLoggedIn(context)
         val days = if (logged) runCatching { loadDays(context) }.getOrNull() else null
         val warn = Store.error(context) != null
-        val elbow = makeElbow(context)
-        provideContent { Content(logged, days, warn, elbow) }
+        // Un coude de départ par série (couloir + couleur), dessiné une fois
+        val elbows = mutableMapOf<String, android.graphics.Bitmap>()
+        days?.flatMap { it.events }?.filter { it.until != null }?.forEach { ev ->
+            elbows.getOrPut(elbowKey(ev)) { makeElbow(context, ev.lane, ev.colors.first()) }
+        }
+        provideContent { Content(logged, days, warn, elbows) }
     }
 }
 
@@ -190,40 +210,51 @@ private fun lum(c: Int): Double {
 private fun textOnAll(colors: List<Int>): Color =
     if (colors.any { lum(it) > 0.5 }) Color(0xFF1E232A) else Color.White
 
-/** Coude de départ du fil : part vers la gauche puis descend à 90° dans le fil (dessiné une fois, en bitmap). */
-private fun makeElbow(ctx: Context): android.graphics.Bitmap {
+private fun elbowKey(ev: WEv) = "${ev.lane}|${ev.colors.first()}"
+
+/** Coude de départ : sort du bord gauche de la pastille, file vers la gauche puis plonge à 90° dans son fil. */
+private fun makeElbow(ctx: Context, lane: Int, color: Int): android.graphics.Bitmap {
     val d = ctx.resources.displayMetrics.density
-    val w = (29 * d).toInt().coerceAtLeast(1)
-    val h = (12 * d).toInt().coerceAtLeast(1)
+    val w = (GUTTER * d).toInt().coerceAtLeast(1)
+    val h = (ROW_H * d).toInt().coerceAtLeast(1)
     val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
     val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = RAIL.toArgb()
+        this.color = color
         style = android.graphics.Paint.Style.STROKE
-        strokeWidth = 6 * d
+        strokeWidth = RAIL_W * d
     }
+    val xc = (railX(lane) + RAIL_W / 2f) * d      // milieu du fil
+    val yc = ROW_H / 2f * d                         // milieu de la pastille
+    val r = 5 * d                                   // rayon de l'arrondi
     val path = android.graphics.Path().apply {
-        moveTo(0f, 3 * d)
-        lineTo(20 * d, 3 * d)
-        quadTo(26 * d, 3 * d, 26 * d, 9 * d)
-        lineTo(26 * d, h.toFloat())
+        moveTo(w.toFloat(), yc)
+        lineTo(xc + r, yc)
+        quadTo(xc, yc, xc, yc + r)
+        lineTo(xc, h.toFloat())
     }
     canvas.drawPath(path, paint)
     return bmp
 }
 
 private sealed class Item {
-    class DayHead(val day: Day) : Item()
-    class Line(val ev: WEv, val rail: Boolean, val elbow: Boolean) : Item()
-    class Rail : Item()                       // journée sans rien d'autre : juste le fil gris
+    class DayHead(val day: Day, val rails: List<RailSeg>) : Item()
+    class Line(val ev: WEv, val rails: List<RailSeg>, val elbow: Boolean) : Item()
+    class Rail(val rails: List<RailSeg>) : Item()   // journée sans rien d'autre : juste les fils
     class Note(val text: String, val date: LocalDate) : Item()
 }
 
-/** Ajoute un jour : son en-tête, ses lignes, et une simple ligne grise si rien d'autre ne s'y passe. */
+/** Ajoute un jour : son en-tête, ses lignes, et une ligne « fil seul » si rien d'autre ne s'y passe.
+ *  Un fil ne commence qu'à la ligne de son premier jour (avec le coude), pas au-dessus. */
 private fun addDay(out: MutableList<Item>, day: Day, head: Boolean) {
-    if (day.events.isEmpty() && day.cont.isNotEmpty()) { out.add(Item.Rail()); return }
-    if (head) out.add(Item.DayHead(day))
-    day.events.forEach { out.add(Item.Line(it, day.railOn, it.until != null)) }
+    val active = day.cont.map { RailSeg(it.lane, it.colors.first()) }.distinctBy { it.lane }.toMutableList()
+    if (head) out.add(Item.DayHead(day, active.toList()))
+    if (day.events.isEmpty() && active.isNotEmpty()) { out.add(Item.Rail(active.toList())); return }
+    for (ev in day.events) {
+        val starts = ev.until != null
+        out.add(Item.Line(ev, active.toList(), starts))
+        if (starts && active.none { it.lane == ev.lane }) active.add(RailSeg(ev.lane, ev.colors.first()))
+    }
 }
 
 /** Toute la liste : aujourd'hui d'abord, puis chaque jour suivant qui a quelque chose. On fait glisser pour voir la suite. */
@@ -236,19 +267,27 @@ private fun listItems(days: List<Day>): List<Item> {
     return out
 }
 
-/** Le fil gris, posé SOUS le contenu : il passe derrière les pastilles et les textes sans les cacher. */
+/** Chaque ligne de la liste : la gouttière avec ses fils (et le coude éventuel), puis le contenu à droite. */
 @Composable
-private fun WithRail(on: Boolean, elbow: android.graphics.Bitmap? = null, content: @Composable () -> Unit) {
-    if (!on) { content(); return }
+private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null, content: @Composable () -> Unit) {
     Box(modifier = GlanceModifier.fillMaxWidth()) {
         Row(modifier = GlanceModifier.fillMaxSize()) {
-            Spacer(GlanceModifier.width(23.dp))          // centré sous la pastille de 52 dp
-            Box(modifier = GlanceModifier.width(6.dp).fillMaxHeight().background(RAIL)) {}
+            var x = 0
+            for (r in rails.sortedBy { it.lane }) {
+                val gap = railX(r.lane) - x
+                if (gap > 0) Spacer(GlanceModifier.width(gap.dp))
+                Box(modifier = GlanceModifier.width(RAIL_W.dp).fillMaxHeight().background(Color(r.color))) {}
+                x = railX(r.lane) + RAIL_W
+            }
         }
         if (elbow != null) {
-            Image(provider = ImageProvider(elbow), contentDescription = null, modifier = GlanceModifier.width(29.dp).height(12.dp))
+            Image(provider = ImageProvider(elbow), contentDescription = null,
+                modifier = GlanceModifier.width(GUTTER.dp).height(ROW_H.dp))
         }
-        content()
+        Row(modifier = GlanceModifier.fillMaxWidth()) {
+            Spacer(GlanceModifier.width(GUTTER.dp))
+            Box(modifier = GlanceModifier.defaultWeight()) { content() }
+        }
     }
 }
 
@@ -272,8 +311,9 @@ private fun TimePill(text: String, colors: List<Int>, small: Boolean) {
 }
 
 @Composable
-private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: android.graphics.Bitmap?) {
-    val base = GlanceModifier.fillMaxSize().background(BG).cornerRadius(22.dp).padding(horizontal = 12.dp, vertical = PAD.dp)
+private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Map<String, android.graphics.Bitmap>) {
+    val base = GlanceModifier.fillMaxSize().background(BG).cornerRadius(22.dp)
+        .padding(start = 4.dp, end = 12.dp, top = PAD.dp, bottom = PAD.dp)
     if (!logged || days == null) {
         Column(modifier = base.clickable(actionStartActivity<MainActivity>()),
             verticalAlignment = Alignment.CenterVertically, horizontalAlignment = Alignment.CenterHorizontally) {
@@ -286,7 +326,7 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: and
     val today = days.first()
     Column(modifier = base) {
         // En-tête : Aujourd'hui · date · shifts · ↻
-        Row(modifier = GlanceModifier.fillMaxWidth().height(H_HEADER.dp).clickable(openDay(today.date)), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = GlanceModifier.fillMaxWidth().height(H_HEADER.dp).padding(start = 8.dp).clickable(openDay(today.date)), verticalAlignment = Alignment.CenterVertically) {
             Text("Aujourd'hui", style = TextStyle(color = ColorProvider(INK), fontSize = 14.sp, fontWeight = FontWeight.Bold), maxLines = 1)
             Spacer(GlanceModifier.width(6.dp))
             Text(today.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)),
@@ -300,7 +340,7 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: and
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
           items(listItems(days)) { item ->
             when (item) {
-                is Item.DayHead -> WithRail(item.day.railOn) {
+                is Item.DayHead -> Gutter(item.rails) {
                     Row(modifier = GlanceModifier.fillMaxWidth().padding(top = 7.dp, bottom = 2.dp).clickable(openDay(item.day.date)),
                         verticalAlignment = Alignment.CenterVertically) {
                         Text(item.day.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)).uppercase(FR),
@@ -308,10 +348,10 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: and
                         for ((name, color) in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
                     }
                 }
-                is Item.Rail -> WithRail(true) {
+                is Item.Rail -> Gutter(item.rails) {
                     Spacer(GlanceModifier.fillMaxWidth().height(14.dp))
                 }
-                is Item.Line -> WithRail(item.rail, if (item.elbow) elbow else null) {
+                is Item.Line -> Gutter(item.rails, if (item.elbow) elbows[elbowKey(item.ev)] else null) {
                     Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
                         verticalAlignment = Alignment.CenterVertically) {
                         TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
@@ -324,8 +364,10 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbow: and
                         }
                     }
                 }
-                is Item.Note -> Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
-                    style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
+                is Item.Note -> Gutter(emptyList()) {
+                    Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
+                        style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
+                }
             }
           }
         }
