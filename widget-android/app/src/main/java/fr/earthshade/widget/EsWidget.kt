@@ -372,4 +372,24 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
                 is Item.Line -> Gutter(item.rails,
                     if (item.elbow) elbows[elbowKey(item.ev)] else null,
                     if (item.elbow) RailSeg(item.ev.lane, item.ev.colors.first()) else null) {
-                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clicka
+                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
+                        Spacer(GlanceModifier.width(8.dp))
+                        if (item.ev.important) Text("★ ", style = TextStyle(color = ColorProvider(STAR), fontSize = 12.5.sp))
+                        Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
+                            style = TextStyle(color = ColorProvider(INK), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
+                        item.ev.until?.let {
+                            Text("jusqu'au ${it.dayOfMonth}", style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp), maxLines = 1)
+                        }
+                    }
+                }
+                is Item.Note -> Gutter(emptyList()) {
+                    Text(item.text, modifier = GlanceModifier.padding(vertical = 2.dp).clickable(openDay(item.date)),
+                        style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
+                }
+            }
+          }
+        }
+    }
+}
