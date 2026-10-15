@@ -84,10 +84,10 @@ private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>,
 
 // Les fils passent dans une gouttière à gauche des pastilles (plus jamais dessous)
 private const val GUTTER = 16      // dp, largeur de la gouttière
-private const val RAIL_W = 4       // dp, épaisseur d'un fil
-private const val RAIL_MAX = 3     // fils côte à côte au maximum
+private const val RAIL_W = 6       // dp, épaisseur d'un fil
+private const val RAIL_MAX = 2     // fils côte à côte au maximum (un 3e se superpose au 2e)
 private const val ROW_H = 23       // dp, hauteur d'une ligne d'événement (2 + pastille 19 + 2)
-private fun railX(lane: Int) = 1 + lane * 5   // dp, bord gauche du fil dans la gouttière
+private fun railX(lane: Int) = 1 + lane * 8   // dp, bord gauche du fil dans la gouttière
 
 private fun parseColor(s: String?): Int = try { android.graphics.Color.parseColor(s ?: "") } catch (e: Exception) { NEUTRAL }
 
