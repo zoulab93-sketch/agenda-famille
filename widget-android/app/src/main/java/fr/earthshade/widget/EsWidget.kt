@@ -294,7 +294,8 @@ private sealed class Item {
 private fun addDay(out: MutableList<Item>, day: Day, head: Boolean) {
     val active = day.cont.map { RailSeg(it.lane, it.colors.first()) }.distinctBy { it.lane }.toMutableList()
     if (head) out.add(Item.DayHead(day, active.toList()))
-    if (day.events.isEmpty() && active.isNotEmpty()) out.add(Item.Rail(active.toList()))
+    // Jour sans événement : l'en-tête porte déjà le fil, pas de ligne vide en plus (sauf aujourd'hui, qui n'a pas d'en-tête)
+    if (day.events.isEmpty()) { if (!head && active.isNotEmpty()) out.add(Item.Rail(active.toList())) }
     else for (ev in day.events) {
         val starts = ev.until != null
         out.add(Item.Line(ev, active.toList(), starts))
