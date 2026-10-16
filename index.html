@@ -479,7 +479,10 @@
   .splash-scene .tw:nth-of-type(3n) { animation-delay:.9s; }
   .splash-scene .tw:nth-of-type(3n+1) { animation-delay:1.7s; }
   @keyframes splashTwinkle { 0%,100% { opacity:1; } 50% { opacity:.35; } }
-  @media (prefers-reduced-motion: reduce) { .splash-scene .tw { animation:none; } }
+  /* 3.7.5 : le ciel tourne lentement, comme un timelapse de la nuit (les étoiles glissent en arc) */
+  .splash-scene > g:first-child { transform-box:view-box; transform-origin:200px -420px; animation:splashSky 8s linear infinite; }
+  @keyframes splashSky { from { transform:rotate(0deg); } to { transform:rotate(20deg); } }
+  @media (prefers-reduced-motion: reduce) { .splash-scene .tw, .splash-scene > g:first-child { animation:none; } }
   .splash-word { position:absolute; top:17vh; left:0; right:0; text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:42px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
   .splash-dots { position:absolute; left:0; right:0; bottom:calc(46px + env(safe-area-inset-bottom, 0px)); display:flex; justify-content:center; gap:9px; }
   .splash-dots span { width:8px; height:8px; border-radius:50%; background:#3E5C86; opacity:.4; animation:splashPulse 1.3s ease-in-out infinite; }
@@ -799,7 +802,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.7.4</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.7.6</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1120,6 +1123,13 @@
     const consecutive = ds.every((d,i)=> i===0 || d === addDays(ds[i-1], 1));
     return consecutive ? `du ${lab(a, !sameMonth)} au ${lab(b)}` : `${ds.length} jours entre le ${lab(a, !sameMonth)} et le ${lab(b)}`;
   }
+  /* 3.7.6 : … et POUR QUI : « · Participant : Caroline », « · Participants : Léo, Commun » */
+  function pourQui(ids){
+    const names = [...new Set(ids || [])].map(id=>{ const p = profileById(id); return p ? p.name : null; }).filter(Boolean);
+    if (!names.length) return '';
+    return ` · Participant${names.length>1?'s':''} : ${names.join(', ')}`;
+  }
+  const idsOf = list => (list || []).flatMap(x=>x.participants || []);
   async function logActivity(action){
     if (!state.household || !state.myProfile) return;
     try { await sb.from('activity_log').insert({ household_id: state.household.id, who: state.myProfile.name, action }); } catch(e){}
@@ -1413,7 +1423,7 @@
       // Les événements d'agendas liés sont masqués plutôt que supprimés
       // (sinon ils reviendraient à la prochaine actualisation)
       for (const e of list) { if (isLinked(e)) await hideImportedDb(e); else await deleteEventDb(e.id); }
-      await logActivity(`a supprimé ${list.length} événement${list.length>1?'s':''}, ${quandLabel(list.map(x=>x.date))}`);
+      await logActivity(`a supprimé ${list.length} événement${list.length>1?'s':''}, ${quandLabel(list.map(x=>x.date))}${pourQui(idsOf(list))}`);
       await reloadHouseholdData();
       list.forEach(e=>{ if (e.googleId && !isLinked(e)) syncToGoogle('remove', { google_event_id: e.googleId }); });
       view.selectMode = false; view.selectedDays = [];
@@ -1481,7 +1491,7 @@
       list.forEach(x=>touchUndo(x.id));
       const { error } = await sb.from('events').delete().in('id', [...ids]);
       if (error) throw error;
-      await logActivity(`a supprimé « ${list[0].title} », ${quandLabel(list.map(x=>x.date))}`);
+      await logActivity(`a supprimé « ${list[0].title} », ${quandLabel(list.map(x=>x.date))}${pourQui(idsOf(list))}`);
       await reloadHouseholdData();
       list.forEach(x=>{ if (x.googleId) syncToGoogle('remove', { google_event_id: x.googleId }); });
       toast(`« ${list[0].title} » supprimé sur ${list.length} jours — ↺ pour annuler`);
@@ -1506,7 +1516,7 @@
     if (isLinked(e)) {
       try {
         await hideImportedDb(e);
-        await logActivity(`a masqué « ${e.title} », ${quandLabel([e.date])}`);
+        await logActivity(`a masqué « ${e.title} », ${quandLabel([e.date])}${pourQui(e.participants)}`);
         await reloadHouseholdData();
         toast('Événement masqué — ↺ pour annuler');
       } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); alert('Erreur : '+err.message); }
@@ -1514,7 +1524,7 @@
     }
     try {
       await deleteEventDb(e.id);
-      await logActivity(`a supprimé « ${e.title} », ${quandLabel([e.date])}`);
+      await logActivity(`a supprimé « ${e.title} », ${quandLabel([e.date])}${pourQui(e.participants)}`);
       await reloadHouseholdData();
       if (googleId) syncToGoogle('remove', { google_event_id: googleId });
       fabsShown = !isWide(); if (fabsShown) { clearTimeout(fabsTimer); fabsTimer = setTimeout(hideFabs, 6000); }
@@ -3273,10 +3283,10 @@
       try {
         const existed = !bulk && state.events.some(x=>x.id===ev.id);
         const pushedIds = await op;
-        if (replaced.length) await logActivity(`a remplacé ${replaced.length} cas par « ${title} », ${quandLabel(replaced.map(x=>x.date))}`);
-        if (bulk) { await logActivity(`a ajouté « ${title} », ${quandLabel(bulk)}`); view.selectMode = false; view.selectedDays = []; }
-        else if (seriesOthers.length) await logActivity(`a modifié « ${title} », ${quandLabel([ev.date, ...seriesOthers.map(x=>x.date)])}`);
-        else await logActivity(`${existed ? 'a modifié' : 'a ajouté'} « ${title} », ${quandLabel([ev.date])}`);
+        if (replaced.length) await logActivity(`a remplacé ${replaced.length} cas par « ${title} », ${quandLabel(replaced.map(x=>x.date))}${pourQui(ev.participants)}`);
+        if (bulk) { await logActivity(`a ajouté « ${title} », ${quandLabel(bulk)}${pourQui(ev.participants)}`); view.selectMode = false; view.selectedDays = []; }
+        else if (seriesOthers.length) await logActivity(`a modifié « ${title} », ${quandLabel([ev.date, ...seriesOthers.map(x=>x.date)])}${pourQui(ev.participants)}`);
+        else await logActivity(`${existed ? 'a modifié' : 'a ajouté'} « ${title} », ${quandLabel([ev.date])}${pourQui(ev.participants)}`);
         await reloadHouseholdData();
         replaced.forEach(e=>{ if (e.googleId && !isLinked(e)) syncToGoogle('remove', { google_event_id: e.googleId }); });
         pushedIds.forEach(id=>syncToGoogle('push', { event_id: id }));
@@ -3307,7 +3317,7 @@
         try {
           const { error } = await sb.from('events').update({ detache:true }).eq('id', ev.id);
           if (error) throw error;
-          await logActivity(`a détaché « ${ev.title} » de son agenda lié, ${quandLabel([ev.date])}`);
+          await logActivity(`a détaché « ${ev.title} » de son agenda lié, ${quandLabel([ev.date])}${pourQui(ev.participants)}`);
           await reloadHouseholdData();
           toast('Événement détaché : tu peux maintenant le modifier librement.');
           const fresh = state.events.find(x=>x.id===ev.id);
@@ -5268,7 +5278,7 @@
         await upsertEventDb({ id, title: src.title, date: ds, start: src.start, end: src.end, icon: src.icon||'', reminder: src.reminder ?? null, important: !!src.important, lieu: src.lieu || '', participants: [...src.participants] });
         ids.push(id);
       }
-      await logActivity(`a collé « ${src.title} », ${quandLabel(list)}`);
+      await logActivity(`a collé « ${src.title} », ${quandLabel(list)}${pourQui(src.participants)}`);
       await reloadHouseholdData();
       ids.forEach(id=>syncToGoogle('push', { event_id: id }));
       if (view.selectMode) { view.selectMode = false; view.selectedDays = []; }
