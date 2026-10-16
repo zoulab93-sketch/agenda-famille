@@ -250,11 +250,11 @@ private fun makeElbow(ctx: Context, lane: Int, color: Int): android.graphics.Bit
     return bmp
 }
 
-/** Retour de fin : le fil descend, s'arrondit et repart vers la droite sous la pastille. */
+/** Fin de série : le fil descend, s'arrondit et entre dans la pastille « Fin » (le miroir de l'arrondi de départ). */
 private fun makeFoot(ctx: Context, lane: Int, color: Int): android.graphics.Bitmap {
     val d = ctx.resources.displayMetrics.density
-    val w = ((GUTTER + FOOT_LEN) * d).toInt().coerceAtLeast(1)
-    val h = (FOOT_H * d).toInt().coerceAtLeast(1)
+    val w = (GUTTER * d).toInt().coerceAtLeast(1)
+    val h = (ROW_H * d).toInt().coerceAtLeast(1)
     val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
     val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
@@ -264,20 +264,16 @@ private fun makeFoot(ctx: Context, lane: Int, color: Int): android.graphics.Bitm
         strokeCap = android.graphics.Paint.Cap.BUTT
     }
     val xc = (railX(lane) + RAIL_W / 2f) * d
-    val yE = h - RAIL_W / 2f * d - 1 * d             // la barre du retour, en bas de la ligne
-    val r = 6 * d
+    val yc = ROW_H / 2f * d
+    val r = elbowRadius(lane) * d
     val k = 0.5523f * r
-    val xEnd = w - RAIL_W / 2f * d
     val path = android.graphics.Path().apply {
         moveTo(xc, 0f)
-        lineTo(xc, yE - r)
-        cubicTo(xc, yE - r + k, xc + r - k, yE, xc + r, yE)
-        lineTo(xEnd, yE)
+        lineTo(xc, yc - r)
+        cubicTo(xc, yc - r + k, xc + r - k, yc, xc + r, yc)
+        lineTo(w.toFloat(), yc)
     }
     canvas.drawPath(path, paint)
-    // bout arrondi
-    paint.style = android.graphics.Paint.Style.FILL
-    canvas.drawCircle(xEnd, yE, RAIL_W / 2f * d, paint)
     return bmp
 }
 
@@ -338,7 +334,7 @@ private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null,
         }
         if (foot != null) {
             Image(provider = ImageProvider(foot), contentDescription = null,
-                modifier = GlanceModifier.width((GUTTER + FOOT_LEN).dp).height(FOOT_H.dp))
+                modifier = GlanceModifier.width(GUTTER.dp).height(ROW_H.dp))
         }
         if (elbowSeg != null) {
             // Sous l'arrondi, le fil continue jusqu'au bas de la ligne, quelle que soit sa hauteur réelle (plus de petit trou)
@@ -420,7 +416,14 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
                     Spacer(GlanceModifier.fillMaxWidth().height(14.dp))
                 }
                 is Item.RailEnd -> Gutter(item.rails, foot = feet[elbowKey(item.ev)]) {
-                    Spacer(GlanceModifier.fillMaxWidth().height(FOOT_H.dp))
+                    // Dernier jour d'une série : pastille « Fin » + le nom de l'événement
+                    Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.until ?: item.ev.date)),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        TimePill("Fin", item.ev.colors, true)
+                        Spacer(GlanceModifier.width(8.dp))
+                        Text(item.ev.title, modifier = GlanceModifier.defaultWeight(),
+                            style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.5.sp, fontWeight = FontWeight.Medium), maxLines = 1)
+                    }
                 }
                 is Item.Line -> Gutter(item.rails,
                     if (item.elbow) elbows[elbowKey(item.ev)] else null,
