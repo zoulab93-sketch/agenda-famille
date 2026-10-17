@@ -635,6 +635,15 @@
   body:is(:not(.compact-h), .mn-2w) .day-cell.mn-cell .mn-meal { flex:1 1 0; min-height:0; overflow:hidden; }
   /* 3.1 : un repas vide reste petit, les repas remplis prennent la place ; chaque plat sur sa ligne */
   body:is(:not(.compact-h), .mn-2w) .day-cell.mn-cell .mn-meal.empty { flex:0 0 auto; }
+  .mn-dish.mn-q { color:var(--ink-soft); font-size:1.25em; line-height:1; }
+  .mn-conv { position:fixed; left:50%; transform:translateX(-50%); bottom:calc(84px + env(safe-area-inset-bottom, 0px)); z-index:25; width:min(470px, calc(100vw - 32px));
+    display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:10px 12px; font-size:13.5px; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .mn-conv span { flex:1; line-height:1.35; }
+  .mn-conv button { border-radius:10px; padding:8px 12px; font-weight:700; font-size:14px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+  .mn-conv button.p { background:var(--accent, #2BA88F); border-color:var(--accent, #2BA88F); color:#fff; }
+  .mn-cv-row { display:flex; align-items:center; gap:8px; background:var(--surface-soft, var(--bg)); border-radius:10px; padding:8px 10px; font-size:14px; }
+  .mn-cv-row .old { flex:1; color:var(--ink-soft); text-decoration:line-through; }
+  .mn-cv-row .dots { display:flex; gap:3px; } .mn-cv-row .dots b { width:8px; height:8px; border-radius:50%; display:block; }
   .mn-dish { display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:normal; word-break:normal; -webkit-hyphens:auto; hyphens:auto; }
   .mn-dish + .mn-dish { border-top:1px dashed color-mix(in srgb, currentColor 35%, transparent); margin-top:2px; padding-top:2px; }
   body.compact-h:not(.mn-2w) .mn-dish { -webkit-line-clamp:1 !important; }
@@ -802,7 +811,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.7.6</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.7.7</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1630,6 +1639,7 @@
     initMarquees();
     fitDayView();
     restoreAgendaScroll();
+    if (typeof mnConvBanner === 'function') mnConvBanner();   // 3.7.7 : proposer de convertir les « Caro seule »
   }
 
   function initMarquees(){
@@ -4612,7 +4622,9 @@
       const all = eaters.every(p=>who.includes(p.id));
       const dots = all ? '' : `<span class="mn-dots">${who.length ? eaters.filter(p=>who.includes(p.id)).map(p=>`<b style="background:${p.color}"></b>`).join('') : '<em>personne</em>'}</span>`;
       const start = m.plats.length === 1 ? 3 : 2;   // un plat : jusqu'à 3 lignes ; plusieurs : 2 chacun (réduit ensuite si ça déborde)
-      return `<div class="mn-meal${all ? '' : ' has-dots'}" data-k="${moment}" lang="fr">${m.plats.map(p=>`<span class="mn-dish" style="-webkit-line-clamp:${start}" data-c="${start}">${escapeHtml(p)}</span>`).join('')}${dots}</div>`;
+      const dishes = m.plats.length ? m.plats.map(p=>`<span class="mn-dish" style="-webkit-line-clamp:${start}" data-c="${start}">${escapeHtml(p)}</span>`).join('')
+        : `<span class="mn-dish mn-q" data-c="1">?</span>`;   // 3.7.7 : on sait qui mange, pas encore quoi
+      return `<div class="mn-meal${all ? '' : ' has-dots'}" data-k="${moment}" lang="fr">${dishes}${dots}</div>`;
     };
     return `<div class="mn-meals">${line('midi','☀')}${line('soir','☾')}</div>`;
   }
@@ -4823,7 +4835,7 @@
       + (!list.length && !ql ? `<span class="mn-empty">Écris le nom d'un plat ci-dessus : il rejoindra tes recettes.</span>` : '');
     const eaters = mnEaters();
     const who = m ? m.mangeurs : eaters.map(p=>p.id);
-    mnEl.who.innerHTML = eaters.map(p=>`<button type="button" class="mn-pp${who.includes(p.id) ? '' : ' off'}${m ? '' : ' wait'}" data-p="${p.id}"><span class="d" style="background:${p.color}">✓</span>${escapeHtml(p.name)}</button>`).join('');
+    mnEl.who.innerHTML = eaters.map(p=>`<button type="button" class="mn-pp${who.includes(p.id) ? '' : ' off'}" data-p="${p.id}"><span class="d" style="background:${p.color}">✓</span>${escapeHtml(p.name)}</button>`).join('');
     mnEl.sheet.querySelector('[data-act="days"]').disabled = !m;
     mnEl.sheet.querySelector('.mn-clear').disabled = !m;
   }
@@ -4967,9 +4979,11 @@
     clearTimeout(mnToast.t); mnToast.t = setTimeout(()=>mnEl.toast.classList.remove('show'), 2600);
   }
   function mnFail(err){ mnToast('Pas enregistré : ' + ((err && err.message) || 'connexion ?')); reloadMenus(); }
-  // Enregistre un repas ; sans plat, il est supprimé
+  // Enregistre un repas ; sans plat ET avec tout le monde, il est supprimé.
+  // 3.7.7 : sans plat mais avec quelqu'un de décoché, il reste (« ? » + qui mange)
+  function mnAllEat(mangeurs){ return mnEaters().every(p=>(mangeurs || []).includes(p.id)); }
   async function mnSave(ds, moment, plats, mangeurs){
-    if (!plats.length) return mnDelete(ds, moment);
+    if (!plats.length && mnAllEat(mangeurs)) return mnDelete(ds, moment);
     const k = mnKey(ds, moment);
     state.repas[k] = { id:(state.repas[k] && state.repas[k].id) || null, jour:ds, moment, plats, mangeurs };
     const plat = plats.join(' + ').slice(0, 120);   // ancienne colonne, gardée lisible
@@ -5013,11 +5027,87 @@
     mnSave(mnCur.ds, mnCur.moment, plats, m.mangeurs);
     mnFill();
   }
+  /* 3.7.7 : un « plat » qui n'est qu'une liste de prénoms (« Caro seule », « Caro + Emma », « Léo et Colin »)
+     -> on le convertit en « qui mange ». Renvoie les ids des personnes, ou null si ce n'est pas un prénom. */
+  function mnNamesOf(txt){
+    const norm = x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    let t = norm(txt).replace(/\s+(tout\s+)?seul(e|s|es)?\s*$/, '').trim();
+    if (!t) return null;
+    const parts = t.split(/\s*(?:\+|,|&|\bet\b)\s*/).filter(Boolean);
+    if (!parts.length) return null;
+    const eaters = mnEaters(), ids = [];
+    for (const w of parts) {
+      const p = eaters.find(e=>{ const n = norm(e.name); return n === w || (w.length >= 3 && n.startsWith(w)); });
+      if (!p) return null;
+      if (!ids.includes(p.id)) ids.push(p.id);
+    }
+    return ids;
+  }
+  function mnConvList(){
+    const out = [];
+    Object.values(state.repas || {}).forEach(m=>{
+      const names = m.plats.map(p=>({ p, ids: mnNamesOf(p) })).filter(x=>x.ids);
+      if (!names.length) return;
+      const ids = [...new Set(names.flatMap(x=>x.ids))];
+      out.push({ m, labels: names.map(x=>x.p), ids, plats: m.plats.filter(p=>!mnNamesOf(p)) });
+    });
+    return out;
+  }
+  let mnConvLater = false, mnConvUndo = null;
+  function mnConvBanner(){
+    document.querySelectorAll('.mn-conv').forEach(el=>el.remove());
+    if (!view.menuMode || view.sheet) return;
+    if (mnConvUndo) {
+      const b = document.createElement('div'); b.className = 'mn-conv';
+      b.innerHTML = `<span>${mnConvUndo.list.length} repas convertis en « qui mange ».</span><button type="button" class="p">Annuler</button>`;
+      b.querySelector('button').onclick = ()=>{ const u = mnConvUndo; mnConvUndo = null; clearTimeout(u.t);
+        u.list.forEach(x=>mnSave(x.m.jour, x.m.moment, x.oldPlats, x.oldMangeurs)); mnConvLater = true; render(); };
+      document.body.appendChild(b); return;
+    }
+    if (mnConvLater) return;
+    const list = mnConvList();
+    if (!list.length) return;
+    const ex = [...new Set(list.flatMap(x=>x.labels))].slice(0,2).map(t=>`« ${escapeHtml(t)} »`).join(', ');
+    const b = document.createElement('div'); b.className = 'mn-conv';
+    b.innerHTML = `<span>${list.length} repas notés ${ex}${list.length > 1 ? '…' : ''} peuvent devenir « Qui mange ».</span><button type="button" class="p">Convertir</button>`;
+    b.querySelector('button').onclick = ()=>mnConvAsk(list);
+    document.body.appendChild(b);
+  }
+  function mnConvAsk(list){
+    document.querySelectorAll('.mn-conv').forEach(el=>el.remove());
+    const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
+    const sheet = document.createElement('div'); sheet.className='sheet';
+    const groups = {};
+    list.forEach(x=>x.labels.forEach(l=>{ const k = l + '|' + x.ids.join(','); (groups[k] = groups[k] || { l, ids:x.ids, n:0 }).n++; }));
+    const rows = Object.values(groups).map(g=>`<div class="mn-cv-row"><span class="old">${escapeHtml(g.l)}</span><span>→ ?</span><span class="dots">${g.ids.map(id=>{ const p = profileById(id); return `<b style="background:${safeColor(p ? p.color : '')}"></b>`; }).join('')}</span><small style="color:var(--ink-soft)">×${g.n}</small></div>`).join('');
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>Convertir ${list.length} repas</h2><button class="sheet-close" id="cv-close">✕</button></div>
+      <div class="rc-list">${rows}</div>
+      <p class="rc-note">Les prénoms deviennent « Qui mange ». Si le repas a aussi un vrai plat, il reste.</p>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost-btn" id="cv-later" style="margin-top:0;">Plus tard</button>
+        <button class="save-btn" id="cv-ok" style="margin-top:0;">Convertir</button>
+      </div>`;
+    const close = ()=>{ scrim.remove(); };
+    sheet.querySelector('#cv-close').onclick = ()=>{ close(); mnConvBanner(); };
+    sheet.querySelector('#cv-later').onclick = ()=>{ mnConvLater = true; close(); };
+    scrim.onclick = e=>{ if (e.target===scrim) { close(); mnConvBanner(); } };
+    sheet.querySelector('#cv-ok').onclick = ()=>{
+      const done = list.map(x=>({ m:{ jour:x.m.jour, moment:x.m.moment }, oldPlats:x.m.plats.slice(), oldMangeurs:x.m.mangeurs.slice() }));
+      list.forEach(x=>mnSave(x.m.jour, x.m.moment, x.plats, x.ids));
+      close();
+      mnConvUndo = { list: done, t: setTimeout(()=>{ mnConvUndo = null; mnConvBanner(); }, 10000) };
+      render();
+    };
+    scrim.appendChild(sheet);
+    document.body.appendChild(scrim);
+  }
   function mnToggleEater(pid){
     const m = mnMeal(mnCur.ds, mnCur.moment);
-    if (!m) { mnToast("Choisis d'abord un plat"); return; }
-    const w = m.mangeurs.includes(pid) ? m.mangeurs.filter(x=>x!==pid) : m.mangeurs.concat(pid);
-    mnSave(mnCur.ds, mnCur.moment, m.plats, w); mnFill();
+    // 3.7.7 : pas encore de plat -> on part de « tout le monde » et on décoche
+    const cur = m ? m.mangeurs : mnEaters().map(p=>p.id);
+    const w = cur.includes(pid) ? cur.filter(x=>x!==pid) : cur.concat(pid);
+    mnSave(mnCur.ds, mnCur.moment, m ? m.plats : [], w); mnFill();
   }
   function mnClear(){
     if (!mnCur || !mnMeal(mnCur.ds, mnCur.moment)) return;
