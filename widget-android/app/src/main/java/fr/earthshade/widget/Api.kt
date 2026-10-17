@@ -77,11 +77,12 @@ object Api {
         return Store.access(ctx)!!
     }
 
-    /** Télécharge les profils et les événements d'aujourd'hui à J+14, et les range pour le widget. */
+    /** Télécharge les profils et les événements d'aujourd'hui à J+45 (14 jours affichés), et les range pour le widget. */
     fun sync(ctx: Context) {
         val t = token(ctx)
         val from = LocalDate.now()
-        val to = from.plusDays(14)
+        // 14 jours affichés, mais on lit 45 jours : une série (vacances…) qui dépasse l'écran garde sa vraie date de fin
+        val to = from.plusDays(45)
         val (c1, profiles) = request("GET", "/rest/v1/profiles?select=id,name,color,user_id", null, t)
         if (c1 == 401) { Store.clearAccess(ctx); throw IOException("Jeton refusé, nouvel essai au prochain passage") }
         if (c1 !in 200..299) throw IOException("Profils : erreur $c1")
