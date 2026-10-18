@@ -76,18 +76,20 @@ private const val H_HEADER = 24f
 private data class WEv(val title: String, val date: LocalDate, val start: String?, val important: Boolean,
                        val colors: List<Int>, val key: String, var until: LocalDate? = null, var lane: Int = 0)
 /** Un fil = une couloir (lane) et une couleur. Plusieurs séries en même temps → plusieurs fils côte à côte. */
-private data class RailSeg(val lane: Int, val color: Int)
+private data class RailSeg(val lane: Int, val colors: List<Int>)   // 3.8 : une couleur par personne (filets côte à côte)
 private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>, val events: List<WEv>,
                        val cont: List<WEv> = emptyList(), val rails: List<RailSeg> = emptyList()) {
     val railOn: Boolean get() = rails.isNotEmpty()
 }
 
 // Les fils passent dans une gouttière à gauche des pastilles (plus jamais dessous)
-private const val GUTTER = 16      // dp, largeur de la gouttière
-private const val RAIL_W = 6       // dp, épaisseur d'un fil
+private const val GUTTER = 20      // dp, largeur de la gouttière
+private const val RAIL_W = 6       // dp, épaisseur d'un fil d'une seule personne
+private const val RAIL_W_MULTI = 8 // dp, épaisseur quand plusieurs personnes (un filet chacune)
+private fun railW(n: Int) = if (n > 1) RAIL_W_MULTI else RAIL_W
 private const val RAIL_MAX = 2     // fils côte à côte au maximum (un 3e se superpose au 2e)
 private const val ROW_H = 23       // dp, hauteur d'une ligne d'événement (2 + pastille 19 + 2)
-private fun railX(lane: Int) = 1 + lane * 8   // dp, bord gauche du fil dans la gouttière
+private fun railX(lane: Int) = 1 + lane * 9   // dp, bord gauche du fil dans la gouttière
 private const val FOOT_H = 12      // dp, hauteur de la ligne du retour de fin
 private const val FOOT_LEN = 32    // dp, longueur du retour vers la droite, au-delà de la gouttière
 
@@ -154,7 +156,7 @@ private fun loadDays(ctx: Context): List<Day>? {
         val cont = runs.filter { date.isAfter(it.date) && !date.isAfter(it.until) }
         val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
         val rails = runs.filter { !date.isBefore(it.date) && !date.isAfter(it.until) }
-            .map { RailSeg(it.lane, it.colors.first()) }.distinctBy { it.lane }.sortedBy { it.lane }
+            .map { RailSeg(it.lane, it.colors) }.distinctBy { it.lane }.sortedBy { it.lane }
         if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont, rails))
     }
     return days
@@ -174,12 +176,12 @@ class EsWidget : GlanceAppWidget() {
         // Un coude de départ par série (couloir + couleur), dessiné une fois
         val elbows = mutableMapOf<String, android.graphics.Bitmap>()
         days?.flatMap { it.events }?.filter { it.until != null }?.forEach { ev ->
-            elbows.getOrPut(elbowKey(ev)) { makeElbow(context, ev.lane, ev.colors.first()) }
+            elbows.getOrPut(elbowKey(ev)) { makeElbow(context, ev.lane, ev.colors) }
         }
         // Un retour de fin par série qui se termine dans la fenêtre affichée
         val feet = mutableMapOf<String, android.graphics.Bitmap>()
         days?.forEach { day -> (day.cont + day.events).filter { it.until == day.date }.forEach { ev ->
-            feet.getOrPut(elbowKey(ev)) { makeFoot(context, ev.lane, ev.colors.first()) }
+            feet.getOrPut(elbowKey(ev)) { makeFoot(context, ev.lane, ev.colors) }
         } }
         provideContent { Content(logged, days, warn, elbows, feet) }
     }
@@ -217,63 +219,72 @@ private fun lum(c: Int): Double {
 private fun textOnAll(colors: List<Int>): Color =
     if (colors.any { lum(it) > 0.5 }) Color(0xFF1E232A) else Color.White
 
-private fun elbowKey(ev: WEv) = "${ev.lane}|${ev.colors.first()}"
+private fun elbowKey(ev: WEv) = "${ev.lane}|${ev.colors.joinToString(",")}"
 
 /** Rayon de l'arrondi : 9 dp quand la place le permet (le fil de droite a moins de place dans la gouttière). */
-private fun elbowRadius(lane: Int): Float =
-    minOf(9f, GUTTER - (railX(lane) + RAIL_W / 2f))
+private fun elbowRadius(lane: Int, n: Int = 1): Float =
+    minOf(9f, GUTTER - (railX(lane) + railW(n) / 2f) - 1f)
 
-/** Coude de départ : sort du bord gauche de la pastille, file vers la gauche puis plonge à 90° dans son fil. */
-private fun makeElbow(ctx: Context, lane: Int, color: Int): android.graphics.Bitmap {
+/** Coude de départ : sort du bord gauche de la pastille, file vers la gauche puis plonge à 90° dans son fil.
+ *  3.8 : un filet par personne, en arcs parallèles (concentriques). */
+private fun makeElbow(ctx: Context, lane: Int, colors: List<Int>): android.graphics.Bitmap {
     val d = ctx.resources.displayMetrics.density
     val w = (GUTTER * d).toInt().coerceAtLeast(1)
     val h = (ROW_H * d).toInt().coerceAtLeast(1)
     val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
-    val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        this.color = color
-        style = android.graphics.Paint.Style.STROKE
-        strokeWidth = RAIL_W * d
+    val rw = railW(colors.size) * d
+    val sw = rw / colors.size
+    val xc = (railX(lane) + railW(colors.size) / 2f) * d   // milieu du fil
+    val yc = ROW_H / 2f * d                                 // milieu de la pastille
+    val r = elbowRadius(lane, colors.size) * d
+    val cx = xc + r; val cy = yc + r                        // centre de l'arrondi
+    colors.forEachIndexed { i, col ->
+        val o = -rw / 2 + sw * (i + 0.5f)
+        val rr = r - o; val k = 0.5523f * rr
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = col; style = android.graphics.Paint.Style.STROKE; strokeWidth = sw + 0.3f * d
+            strokeCap = android.graphics.Paint.Cap.BUTT
+        }
+        val path = android.graphics.Path().apply {
+            moveTo(w.toFloat(), yc + o)
+            lineTo(cx, yc + o)
+            cubicTo(cx - k, yc + o, xc + o, cy - k, xc + o, cy)
+            lineTo(xc + o, h.toFloat())
+        }
+        canvas.drawPath(path, paint)
     }
-    val xc = (railX(lane) + RAIL_W / 2f) * d      // milieu du fil
-    val yc = ROW_H / 2f * d                         // milieu de la pastille
-    val r = elbowRadius(lane) * d                   // rayon de l'arrondi (doux)
-    val k = 0.5523f * r                             // quart de cercle parfait
-    paint.strokeCap = android.graphics.Paint.Cap.BUTT
-    val path = android.graphics.Path().apply {
-        moveTo(w.toFloat(), yc)
-        lineTo(xc + r, yc)
-        cubicTo(xc + r - k, yc, xc, yc + r - k, xc, yc + r)
-        lineTo(xc, h.toFloat())
-    }
-    canvas.drawPath(path, paint)
     return bmp
 }
 
-/** Fin de série : le fil descend, s'arrondit et entre dans la pastille « Fin » (le miroir de l'arrondi de départ). */
-private fun makeFoot(ctx: Context, lane: Int, color: Int): android.graphics.Bitmap {
+/** Fin de série : le fil descend, s'arrondit et entre dans la pastille « Fin » (miroir de l'arrondi de départ). */
+private fun makeFoot(ctx: Context, lane: Int, colors: List<Int>): android.graphics.Bitmap {
     val d = ctx.resources.displayMetrics.density
     val w = (GUTTER * d).toInt().coerceAtLeast(1)
     val h = (ROW_H * d).toInt().coerceAtLeast(1)
     val bmp = android.graphics.Bitmap.createBitmap(w, h, android.graphics.Bitmap.Config.ARGB_8888)
     val canvas = android.graphics.Canvas(bmp)
-    val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        this.color = color
-        style = android.graphics.Paint.Style.STROKE
-        strokeWidth = RAIL_W * d
-        strokeCap = android.graphics.Paint.Cap.BUTT
+    val rw = railW(colors.size) * d
+    val sw = rw / colors.size
+    val xc = (railX(lane) + railW(colors.size) / 2f) * d
+    val yE = ROW_H / 2f * d
+    val r = elbowRadius(lane, colors.size) * d
+    val cx = xc + r; val cy = yE - r
+    colors.forEachIndexed { i, col ->
+        val o = -rw / 2 + sw * (i + 0.5f)
+        val rr = r - o; val k = 0.5523f * rr
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = col; style = android.graphics.Paint.Style.STROKE; strokeWidth = sw + 0.3f * d
+            strokeCap = android.graphics.Paint.Cap.BUTT
+        }
+        val path = android.graphics.Path().apply {
+            moveTo(xc + o, 0f)
+            lineTo(xc + o, cy)
+            cubicTo(xc + o, cy + k, cx - k, yE - o, cx, yE - o)
+            lineTo(w.toFloat(), yE - o)
+        }
+        canvas.drawPath(path, paint)
     }
-    val xc = (railX(lane) + RAIL_W / 2f) * d
-    val yc = ROW_H / 2f * d
-    val r = elbowRadius(lane) * d
-    val k = 0.5523f * r
-    val path = android.graphics.Path().apply {
-        moveTo(xc, 0f)
-        lineTo(xc, yc - r)
-        cubicTo(xc, yc - r + k, xc + r - k, yc, xc + r, yc)
-        lineTo(w.toFloat(), yc)
-    }
-    canvas.drawPath(path, paint)
     return bmp
 }
 
@@ -288,14 +299,14 @@ private sealed class Item {
 /** Ajoute un jour : son en-tête, ses lignes, et une ligne « fil seul » si rien d'autre ne s'y passe.
  *  Un fil ne commence qu'à la ligne de son premier jour (avec le coude), pas au-dessus. */
 private fun addDay(out: MutableList<Item>, day: Day, head: Boolean) {
-    val active = day.cont.map { RailSeg(it.lane, it.colors.first()) }.distinctBy { it.lane }.toMutableList()
+    val active = day.cont.map { RailSeg(it.lane, it.colors) }.distinctBy { it.lane }.toMutableList()
     if (head) out.add(Item.DayHead(day, active.toList()))
     // Jour sans événement : l'en-tête porte déjà le fil, pas de ligne vide en plus (sauf aujourd'hui, qui n'a pas d'en-tête)
     if (day.events.isEmpty()) { if (!head && active.isNotEmpty()) out.add(Item.Rail(active.toList())) }
     else for (ev in day.events) {
         val starts = ev.until != null
         out.add(Item.Line(ev, active.toList(), starts))
-        if (starts && active.none { it.lane == ev.lane }) active.add(RailSeg(ev.lane, ev.colors.first()))
+        if (starts && active.none { it.lane == ev.lane }) active.add(RailSeg(ev.lane, ev.colors))
     }
     // Les séries qui finissent ce jour-là : une petite ligne avec le retour vers la droite
     for (ev in day.cont.filter { it.until == day.date }.sortedByDescending { it.lane }) {
@@ -324,8 +335,10 @@ private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null,
             for (r in rails.sortedBy { it.lane }) {
                 val gap = railX(r.lane) - x
                 if (gap > 0) Spacer(GlanceModifier.width(gap.dp))
-                Box(modifier = GlanceModifier.width(RAIL_W.dp).fillMaxHeight().background(Color(r.color))) {}
-                x = railX(r.lane) + RAIL_W
+                Row(modifier = GlanceModifier.width(railW(r.colors.size).dp).fillMaxHeight()) {
+                    for (c in r.colors) Box(modifier = GlanceModifier.defaultWeight().fillMaxHeight().background(Color(c))) {}
+                }
+                x = railX(r.lane) + railW(r.colors.size)
             }
         }
         if (elbow != null) {
@@ -338,12 +351,14 @@ private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null,
         }
         if (elbowSeg != null) {
             // Sous l'arrondi, le fil continue jusqu'au bas de la ligne, quelle que soit sa hauteur réelle (plus de petit trou)
-            val top = ROW_H / 2f + elbowRadius(elbowSeg.lane) - 1f
+            val top = ROW_H / 2f + elbowRadius(elbowSeg.lane, elbowSeg.colors.size) - 1f
             Row(modifier = GlanceModifier.fillMaxSize()) {
                 Spacer(GlanceModifier.width(railX(elbowSeg.lane).dp))
-                Column(modifier = GlanceModifier.width(RAIL_W.dp).fillMaxHeight()) {
+                Column(modifier = GlanceModifier.width(railW(elbowSeg.colors.size).dp).fillMaxHeight()) {
                     Spacer(GlanceModifier.height(top.dp))
-                    Box(modifier = GlanceModifier.fillMaxWidth().defaultWeight().background(Color(elbowSeg.color))) {}
+                    Row(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+                        for (c in elbowSeg.colors) Box(modifier = GlanceModifier.defaultWeight().fillMaxHeight().background(Color(c))) {}
+                    }
                 }
             }
         }
@@ -427,7 +442,7 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
                 }
                 is Item.Line -> Gutter(item.rails,
                     if (item.elbow) elbows[elbowKey(item.ev)] else null,
-                    if (item.elbow) RailSeg(item.ev.lane, item.ev.colors.first()) else null) {
+                    if (item.elbow) RailSeg(item.ev.lane, item.ev.colors) else null) {
                     Row(modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp).clickable(openDay(item.ev.date)),
                         verticalAlignment = Alignment.CenterVertically) {
                         TimePill(item.ev.start ?: "Journée", item.ev.colors, item.ev.start == null)
