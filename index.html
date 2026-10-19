@@ -480,6 +480,9 @@
   @keyframes splashTwinkle { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   /* 3.7.5 : le ciel tourne lentement, comme un timelapse de la nuit (les étoiles glissent en arc) */
   .splash-scene > g:first-child { transform-box:view-box; transform-origin:200px -420px; animation:splashSky 8s ease-in-out infinite alternate; }   /* 3.8 : aller-retour, plus de saut */
+  .has-wide-sky .splash-scene:not(.wide-sky) > g:first-child { display:none; }   /* 3.8.1 : sur PC, le ciel plein écran remplace le petit */
+  @media (prefers-reduced-motion: no-preference) { .wide-sky > g:first-child { animation-name:splashSkyWide !important; } }
+  @keyframes splashSkyWide { from { transform:rotate(0deg); } to { transform:rotate(6deg); } }
   @keyframes splashSky { from { transform:rotate(0deg); } to { transform:rotate(20deg); } }
   @media (prefers-reduced-motion: reduce) { .splash-scene .tw, .splash-scene > g:first-child { animation:none; } }
   .splash-word { position:absolute; top:17vh; left:0; right:0; text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:42px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
@@ -806,7 +809,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.8</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.8.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1564,6 +1567,23 @@
   // Durée minimale d'affichage de l'écran étoilé (en ms depuis l'ouverture de l'app)
   const BOOT_SPLASH_MIN = 1000;
   let bootSplashDone = false;
+  /* 3.8.1 : sur un écran plus large que haut (PC), l'image de l'écran d'ouverture est recadrée par le bas :
+     on ne voyait plus que la planète. On ajoute un ciel étoilé à la taille de l'écran. */
+  function addWideStars(container){
+    if (!container || window.innerWidth <= window.innerHeight || container.querySelector('.wide-sky')) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    let seed = 7; const rnd = ()=>{ seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const n = Math.min(220, Math.round(W * H / 9000));
+    let dots = '';
+    for (let i = 0; i < n; i++) {
+      const x = (rnd() * W).toFixed(1), y = (rnd() * H * 0.78).toFixed(1), r = (0.6 + rnd() * 1.3).toFixed(1);
+      dots += `<circle${rnd() < 0.3 ? ' class="tw"' : ''} cx="${x}" cy="${y}" r="${r}"/>`;
+    }
+    const svg = `<svg class="splash-scene wide-sky" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><g fill="#F1E3C4" style="transform-origin:${W/2}px ${-H}px">${dots}</g></svg>`;
+    container.insertAdjacentHTML('afterbegin', svg);
+    container.classList.add('has-wide-sky');
+  }
+  try { addWideStars(document.getElementById('boot-splash')); } catch(e){}
   function hideBootSplash(){
     if (bootSplashDone) return;
     bootSplashDone = true;
@@ -1663,6 +1683,7 @@
 
   function renderLoading(){
     const wrap = document.createElement('div'); wrap.id='splash';
+    setTimeout(()=>{ try { addWideStars(wrap); } catch(e){} }, 0);   // 3.8.1 : ciel sur grand écran
     wrap.innerHTML = `<svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeLoad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeLoad)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div>`;
     return wrap;
   }
@@ -1682,6 +1703,10 @@
     `;
     view._authNotice = null; view._authNoticeOk = false;
     wrap.querySelector('#auth-toggle').onclick = ()=>{ view.authMode = mode==='signup' ? 'signin' : 'signup'; render(); };
+    // 3.8.1 : Entrée dans l'email ou le mot de passe = « Se connecter »
+    ['#auth-email', '#auth-pass'].forEach(id=>wrap.querySelector(id).addEventListener('keydown', e=>{
+      if (e.key === 'Enter') { e.preventDefault(); wrap.querySelector('#auth-submit').click(); }
+    }));
     wrap.querySelector('#auth-submit').onclick = async ()=>{
       const email = wrap.querySelector('#auth-email').value.trim();
       const pass = wrap.querySelector('#auth-pass').value;
