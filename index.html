@@ -252,7 +252,6 @@
   .save-btn:disabled { opacity:.5; cursor:not-allowed; }
   .who { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
   .who .avatar { cursor:default; }
-  .switch-btn { margin-left:auto; background:none; border:1.5px solid var(--line); border-radius:8px; padding:6px 10px; font-size:12.5px; cursor:pointer; color:var(--ink); font-weight:700; }
   .ghost-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--ink); border:1.5px solid var(--line); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
   .danger-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--palette-4); border:1.5px solid var(--palette-4); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
   .danger-btn:disabled { opacity:.5; cursor:not-allowed; }
@@ -384,7 +383,6 @@
   .wk-text { position:sticky; top:2px; min-width:0; }
   .wk-title { font-size:11px; line-height:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .wk-title.wrap { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-  .wk-time { font-size:10px; line-height:12px; font-weight:600; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .wk-ev.s .wk-title { font-size:10.5px; line-height:12px; }
   .wk-ev.xs { padding:0 3px 0 9px; min-height:11px; }
   .wk-ev.xs .wk-title { font-size:9.5px; line-height:11px; }
@@ -399,7 +397,6 @@
 
   .pdot { display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:-.06em; margin-right:.32em; box-shadow:0 0 0 1px rgba(127,127,127,.55); flex:none; }
 
-  .icon-slot { width:30px; height:30px; flex-shrink:0; }
   .day-cell { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
   .wk-h.picked { background: color-mix(in srgb, var(--palette-3) 25%, transparent); border-radius:8px; }
 
@@ -482,7 +479,7 @@
   .splash-scene .tw:nth-of-type(3n+1) { animation-delay:1.7s; }
   @keyframes splashTwinkle { 0%,100% { opacity:1; } 50% { opacity:.35; } }
   /* 3.7.5 : le ciel tourne lentement, comme un timelapse de la nuit (les étoiles glissent en arc) */
-  .splash-scene > g:first-child { transform-box:view-box; transform-origin:200px -420px; animation:splashSky 8s linear infinite; }
+  .splash-scene > g:first-child { transform-box:view-box; transform-origin:200px -420px; animation:splashSky 8s ease-in-out infinite alternate; }   /* 3.8 : aller-retour, plus de saut */
   @keyframes splashSky { from { transform:rotate(0deg); } to { transform:rotate(20deg); } }
   @media (prefers-reduced-motion: reduce) { .splash-scene .tw, .splash-scene > g:first-child { animation:none; } }
   .splash-word { position:absolute; top:17vh; left:0; right:0; text-align:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:42px; letter-spacing:.01em; color:#F1E3C4; text-shadow:0 2px 18px rgba(0,0,0,.35); }
@@ -627,7 +624,6 @@
   .mn-meal[data-k="soir"] { background:color-mix(in srgb, var(--meal-soir) 16%, var(--surface)); }   /* midi : orangé, soir : bleuté */
   .mn-meal:not(.empty) i { display:none; }
   .mn-t { min-width:0; }
-  .mn-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:normal; word-break:normal; -webkit-hyphens:auto; hyphens:auto; }
   /* 3.0.1 : plus de place pour le texte (moins de marges, police un peu plus fine) : « Quiche » tient sur une ligne */
   body:not(.is-wide) .day-cell.mn-cell { padding-left:2px; padding-right:2px; }
   body:not(.is-wide) .mn-meal { padding:2px; font-size:9px; letter-spacing:-.15px; }
@@ -785,9 +781,6 @@
   .mn-ck2.dim { opacity:.5; cursor:default; }
   .mn-ck { color:var(--meal); margin-right:6px; }
   .mn-rn span { flex:1; min-width:0; }
-  .mn-rc { padding:7px 11px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px 'Karla',sans-serif; cursor:pointer; }
-  .mn-rc.on { border-color:var(--meal); background:color-mix(in srgb, var(--meal) 16%, var(--surface)); }
-  .mn-rc.new { border-style:dashed; color:var(--ink-soft); }
   .mn-empty { font-size:13px; color:var(--ink-soft); }
   .mn-who { display:flex; gap:5px; flex-wrap:wrap; }
   .mn-pp { display:flex; align-items:center; gap:5px; white-space:nowrap; padding:6px 9px 6px 5px; border-radius:999px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:600 13px 'Karla',sans-serif; cursor:pointer; }
@@ -813,7 +806,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.7.9</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.8</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2512,7 +2505,6 @@
     timed.forEach(it=>{ it.e = Math.max(it.e, Math.min(1440, it.s + minMin)); });
 
     const colorsOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.color:'#999'; });
-    const namesOf = (e)=> e.participants.map(id=>{ const pr=profileById(id); return pr?pr.name:'?'; }).join(', ');
 
     if (allDay.length) {
       const bar = document.createElement('div'); bar.className = 'day-allday';
@@ -3258,8 +3250,8 @@
       // 3.4.1 : un seul cas par jour et par personne -> proposer de remplacer l'ancien
       let replaced = [];
       if (caseColorOf({ title })) {
-        const days = bulk ? bulk : [sheet.querySelector('#f-date').value || ev.date];
-        const conflicts = caseConflicts(days, ev);
+        const days = bulk ? bulk : [sheet.querySelector('#f-date').value || ev.date, ...seriesOthers.map(x=>x.date)];   // 3.8 : toute la série
+        const conflicts = caseConflicts(days, ev).filter(c=>!seriesOthers.some(x=>x.id===c.e.id));
         if (conflicts.length) {
           const choice = await askReplaceCases(conflicts, title, bulk ? bulk.length : 1);
           if (!choice) return;
@@ -3343,10 +3335,16 @@
       del.type = 'button'; del.className = 'danger-btn';
       del.textContent = '🗑 Supprimer cet événement';
       del.onclick = async ()=>{
-        if (seriesOf(ev).length < 2 && !confirm(`Supprimer « ${ev.title} » ?`)) return;
+        // 3.8 : on part de l'événement ENREGISTRÉ (pas de la copie en cours de modification)
+        const orig = state.events.find(x=>x.id===ev.id) || ev;
+        const list = seriesOf(orig);
+        let choice = 'one';
+        if (list.length > 1) { choice = await askSeriesDelete(orig, list); if (!choice) return; }   // Annuler : la fiche reste ouverte
+        else if (!confirm(`Supprimer « ${orig.title} » ?`)) return;
         del.disabled = true;
         view.sheet = null;
-        await removeEvent(ev);
+        if (choice === 'all') await trackOp(removeSeriesNow(list));
+        else await trackOp(removeEventNow(orig));
         render();
       };
       sheet.appendChild(del);
@@ -4836,6 +4834,7 @@
     mnEl.sheet.querySelector('.mn-date').textContent = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
     mnFill();
     document.body.classList.add('mn-open');
+    document.querySelectorAll('.mn-conv').forEach(el=>el.remove());
     mnEl.sheet.scrollTop = 0;
     if (!state.menusReady) reloadMenus();
   }
@@ -5116,7 +5115,7 @@
   let mnConvLater = false, mnConvUndo = null;
   function mnConvBanner(){
     document.querySelectorAll('.mn-conv').forEach(el=>el.remove());
-    if (!view.menuMode || view.sheet) return;
+    if (!view.menuMode || view.sheet || document.body.classList.contains('mn-open')) return;   // 3.8 : jamais par-dessus la fenêtre d'un repas
     if (mnConvUndo) {
       const b = document.createElement('div'); b.className = 'mn-conv';
       b.innerHTML = `<span>${mnConvUndo.list.length} repas convertis en « qui mange ».</span><button type="button" class="p">Annuler</button>`;
@@ -5178,7 +5177,7 @@
   function mnStartCopy(){
     const m = mnCur && mnMeal(mnCur.ds, mnCur.moment); if (!m) return;
     mnCopy = { moment:mnCur.moment, plats:m.plats.slice(), mangeurs:m.mangeurs.slice(), days:new Set() };
-    mnEl.bar.querySelector('span').textContent = `« ${m.plats.join(' + ')} » (${mnCur.moment === 'midi' ? 'midi' : 'soir'}) : touche les jours`;
+    mnEl.bar.querySelector('span').textContent = `« ${m.plats.length ? m.plats.join(' + ') : '?'} » (${mnCur.moment === 'midi' ? 'midi' : 'soir'}) : touche les jours`;
     mnEl.bar.hidden = false; document.body.classList.add('mn-copying');
     mnClose();
   }
@@ -5477,6 +5476,7 @@
       hoverEventId = null;
       const wasLinked = isLinked(ev);
       removeEvent(ev).then((r)=>{
+        if (r === 'cancel') return;   // 3.8 : « Annuler » ne ferme pas la fiche
         if (r !== 'series' && !wasLinked && !state.events.some(x=>x.id===ev.id)) toast(`« ${ev.title} » supprimé — ↺ pour annuler`);
         if (view.sheet === 'form') view.sheet = (view._formFrom === 'day') ? 'day' : null;
         render();
