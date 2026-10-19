@@ -71,7 +71,8 @@ object Api {
         val refresh = Store.refresh(ctx) ?: throw AuthException("Pas connecté.")
         val (code, text) = request("POST", "/auth/v1/token?grant_type=refresh_token",
             JSONObject().put("refresh_token", refresh).toString(), null)
-        if (code in 400..499) { Store.logout(ctx); throw AuthException("Session expirée : reconnecte-toi dans l'appli ES Widget.") }
+        // 3.8 : seule une vraie session refusée déconnecte ; « trop de requêtes » ou un délai dépassé = on réessaiera
+        if (code == 400 || code == 401 || code == 403) { Store.logout(ctx); throw AuthException("Session expirée : reconnecte-toi dans l'appli ES Widget.") }
         if (code !in 200..299) throw IOException("Serveur indisponible ($code)")
         saveSession(ctx, JSONObject(text))
         return Store.access(ctx)!!
@@ -89,6 +90,7 @@ object Api {
         val q = "/rest/v1/events?select=id,title,date,start_time,end_time,important,masque,event_participants(profile_id)" +
             "&date=gte.$from&date=lte.$to&order=date.asc,start_time.asc.nullsfirst"
         val (c2, events) = request("GET", q, null, t)
+        if (c2 == 401) { Store.clearAccess(ctx); throw IOException("Jeton refusé, nouvel essai au prochain passage") }   // 3.8
         if (c2 !in 200..299) throw IOException("Événements : erreur $c2")
         // Vérifie que ce sont bien des listes avant d'enregistrer
         JSONArray(profiles); JSONArray(events)

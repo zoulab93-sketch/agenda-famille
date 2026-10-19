@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -53,12 +52,14 @@ private val BG = Color(0xE6171A1E)          // fond sombre légèrement transpar
 private val INK = Color(0xFFECEEF1)
 private val SOFT = Color(0xFF9AA1AB)
 private val STAR = Color(0xFFE5B93C)
-private val RAIL = Color(0xFF6B7079)        // ligne grise des journées entières qui se suivent
 private val NEUTRAL: Int = 0xFF8E96A3.toInt()
 private const val SITE = "https://zoulab93-sketch.github.io/agenda-famille/"
 private val FR = Locale.FRENCH
 
 // Les shifts d'EarthShade et leurs couleurs (comme le bouton couleurs de l'appli)
+// Abrégés pour le widget (4 lettres au plus) ; un cas absent de cette liste prend ses 4 premières lettres
+private val SHORT = mapOf("matin" to "Mat", "soir rouge" to "SR", "consultation" to "Cons", "formation" to "Form", "tutorat" to "Tut")
+private fun shortCase(name: String): String = SHORT[name.lowercase(FR)] ?: name.trim().take(4)
 private val SHIFTS = mapOf(
     "matin" to ("Matin" to 0xFF90CAF8), "soir" to ("Soir" to 0xFF00887A), "soir rouge" to ("Soir rouge" to 0xFFE53935),
     "dom" to ("Dom" to 0xFFCF93D9), "consultation" to ("Consultation" to 0xFF3949AB), "ca" to ("CA" to 0xFFFB8C00),
@@ -77,10 +78,10 @@ private data class WEv(val title: String, val date: LocalDate, val start: String
                        val colors: List<Int>, val key: String, var until: LocalDate? = null, var lane: Int = 0)
 /** Un fil = une couloir (lane) et une couleur. Plusieurs séries en même temps → plusieurs fils côte à côte. */
 private data class RailSeg(val lane: Int, val colors: List<Int>)   // 3.8 : une couleur par personne (filets côte à côte)
-private data class Day(val date: LocalDate, val shifts: List<Pair<String, Int>>, val events: List<WEv>,
-                       val cont: List<WEv> = emptyList(), val rails: List<RailSeg> = emptyList()) {
-    val railOn: Boolean get() = rails.isNotEmpty()
-}
+/** 3.8 : un cas = son libellé court, sa couleur, et la couleur de la personne (bord gauche de la pastille). */
+private data class ShiftTag(val label: String, val color: Int, val person: Int?)
+private data class Day(val date: LocalDate, val shifts: List<ShiftTag>, val events: List<WEv>,
+                       val cont: List<WEv> = emptyList())
 
 // Les fils passent dans une gouttière à gauche des pastilles (plus jamais dessous)
 private const val GUTTER = 20      // dp, largeur de la gouttière
@@ -90,8 +91,6 @@ private fun railW(n: Int) = if (n > 1) RAIL_W_MULTI else RAIL_W
 private const val RAIL_MAX = 2     // fils côte à côte au maximum (un 3e se superpose au 2e)
 private const val ROW_H = 23       // dp, hauteur d'une ligne d'événement (2 + pastille 19 + 2)
 private fun railX(lane: Int) = 1 + lane * 9   // dp, bord gauche du fil dans la gouttière
-private const val FOOT_H = 12      // dp, hauteur de la ligne du retour de fin
-private const val FOOT_LEN = 32    // dp, longueur du retour vers la droite, au-delà de la gouttière
 
 private fun parseColor(s: String?): Int = try { android.graphics.Color.parseColor(s ?: "") } catch (e: Exception) { NEUTRAL }
 
@@ -107,7 +106,7 @@ private fun loadDays(ctx: Context): List<Day>? {
         colorOf[p.getString("id")] = parseColor(p.optString("color"))
     }
     val today = LocalDate.now()
-    val shifts = mutableMapOf<LocalDate, MutableList<Pair<String, Int>>>()
+    val shifts = mutableMapOf<LocalDate, MutableList<ShiftTag>>()
     val evs = mutableListOf<WEv>()
     val arr = JSONArray(eventsTxt)
     for (i in 0 until arr.length()) {
@@ -116,16 +115,21 @@ private fun loadDays(ctx: Context): List<Day>? {
         val date = runCatching { LocalDate.parse(e.getString("date")) }.getOrNull() ?: continue
         if (date.isBefore(today)) continue
         val title = e.optString("title", "").trim()
-        val shift = SHIFTS[title.lowercase(FR)]
-        if (shift != null) {   // un shift devient une étiquette à côté de la date
-            val list = shifts.getOrPut(date) { mutableListOf() }
-            if (list.none { it.first == shift.first }) list.add(shift.first to shift.second.toInt())
-            continue
-        }
         val ids = mutableListOf<String>()
         val parts = e.optJSONArray("event_participants")
         if (parts != null) for (j in 0 until parts.length()) parts.getJSONObject(j).optString("profile_id").takeIf { it.isNotEmpty() }?.let { ids.add(it) }
         ids.sortBy { order[it] ?: 99 }
+        val shift = SHIFTS[title.lowercase(FR)]
+        if (shift != null) {   // un shift devient une étiquette à côté de la date
+            // 3.8 : une pastille par personne (deux personnes en RH = deux pastilles), bordée de sa couleur
+            val list = shifts.getOrPut(date) { mutableListOf() }
+            val who = ids.mapNotNull { colorOf[it] }.ifEmpty { listOf<Int?>(null) }
+            for (pc in who) {
+                val tag = ShiftTag(shortCase(shift.first), shift.second.toInt(), pc)
+                if (list.none { it.label == tag.label && it.person == tag.person }) list.add(tag)
+            }
+            continue
+        }
         val colors = ids.map { colorOf[it] ?: NEUTRAL }.ifEmpty { listOf(NEUTRAL) }
         val start = e.optString("start_time", "").takeIf { it.isNotEmpty() && it != "null" }?.take(5)
         evs.add(WEv(title, date, start, e.optBoolean("important", false), colors, title.lowercase(FR) + "|" + ids.joinToString(",")))
@@ -146,7 +150,7 @@ private fun loadDays(ctx: Context): List<Day>? {
     for (r in runs.sortedBy { it.date }) {
         var l = laneEnd.indexOfFirst { it.isBefore(r.date) }
         if (l < 0) { laneEnd.add(r.until!!); l = laneEnd.size - 1 } else laneEnd[l] = r.until!!
-        r.lane = l.coerceAtMost(RAIL_MAX - 1)
+        r.lane = if (l < RAIL_MAX) l else -1   // 3.8 : au-delà de 2 séries en même temps, pas de fil (mais « jusqu'au » et « Fin » restent)
     }
     val days = mutableListOf<Day>()
     for (d in 0..14) {
@@ -154,10 +158,8 @@ private fun loadDays(ctx: Context): List<Day>? {
         val list = evs.filter { it.date == date }.sortedWith(compareBy<WEv>({ it.start != null }, { it.start ?: "" }, { it.title }))
         // Journées entières en cours : elles ne sont écrites que le premier jour, ensuite seule la ligne grise continue
         val cont = runs.filter { date.isAfter(it.date) && !date.isAfter(it.until) }
-        val sh = shifts[date] ?: emptyList<Pair<String, Int>>()
-        val rails = runs.filter { !date.isBefore(it.date) && !date.isAfter(it.until) }
-            .map { RailSeg(it.lane, it.colors) }.distinctBy { it.lane }.sortedBy { it.lane }
-        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont, rails))
+        val sh = shifts[date] ?: emptyList<ShiftTag>()
+        if (d == 0 || list.isNotEmpty() || sh.isNotEmpty() || cont.isNotEmpty()) days.add(Day(date, sh, list, cont))
     }
     return days
 }
@@ -175,12 +177,12 @@ class EsWidget : GlanceAppWidget() {
         val warn = Store.error(context) != null
         // Un coude de départ par série (couloir + couleur), dessiné une fois
         val elbows = mutableMapOf<String, android.graphics.Bitmap>()
-        days?.flatMap { it.events }?.filter { it.until != null }?.forEach { ev ->
+        days?.flatMap { it.events }?.filter { it.until != null && it.lane >= 0 }?.forEach { ev ->
             elbows.getOrPut(elbowKey(ev)) { makeElbow(context, ev.lane, ev.colors) }
         }
         // Un retour de fin par série qui se termine dans la fenêtre affichée
         val feet = mutableMapOf<String, android.graphics.Bitmap>()
-        days?.forEach { day -> (day.cont + day.events).filter { it.until == day.date }.forEach { ev ->
+        days?.forEach { day -> day.cont.filter { it.until == day.date && it.lane >= 0 }.forEach { ev ->
             feet.getOrPut(elbowKey(ev)) { makeFoot(context, ev.lane, ev.colors) }
         } }
         provideContent { Content(logged, days, warn, elbows, feet) }
@@ -299,12 +301,12 @@ private sealed class Item {
 /** Ajoute un jour : son en-tête, ses lignes, et une ligne « fil seul » si rien d'autre ne s'y passe.
  *  Un fil ne commence qu'à la ligne de son premier jour (avec le coude), pas au-dessus. */
 private fun addDay(out: MutableList<Item>, day: Day, head: Boolean) {
-    val active = day.cont.map { RailSeg(it.lane, it.colors) }.distinctBy { it.lane }.toMutableList()
+    val active = day.cont.filter { it.lane >= 0 }.map { RailSeg(it.lane, it.colors) }.distinctBy { it.lane }.toMutableList()
     if (head) out.add(Item.DayHead(day, active.toList()))
     // Jour sans événement : l'en-tête porte déjà le fil, pas de ligne vide en plus (sauf aujourd'hui, qui n'a pas d'en-tête)
     if (day.events.isEmpty()) { if (!head && active.isNotEmpty()) out.add(Item.Rail(active.toList())) }
     else for (ev in day.events) {
-        val starts = ev.until != null
+        val starts = ev.until != null && ev.lane >= 0
         out.add(Item.Line(ev, active.toList(), starts))
         if (starts && active.none { it.lane == ev.lane }) active.add(RailSeg(ev.lane, ev.colors))
     }
@@ -370,9 +372,14 @@ private fun Gutter(rails: List<RailSeg>, elbow: android.graphics.Bitmap? = null,
 }
 
 @Composable
-private fun ShiftChip(name: String, color: Int) {
-    Box(modifier = GlanceModifier.background(Color(color)).cornerRadius(5.dp).padding(horizontal = 6.dp, vertical = 1.dp)) {
-        Text(name, style = TextStyle(color = ColorProvider(textOn(color)), fontSize = 10.sp, fontWeight = FontWeight.Bold), maxLines = 1)
+private fun ShiftChip(tag: ShiftTag) {
+    Box(modifier = GlanceModifier.background(Color(tag.color)).cornerRadius(5.dp)) {
+        Row(modifier = GlanceModifier.height(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            // 3.8 : bord gauche de la couleur de la personne
+            if (tag.person != null) Box(modifier = GlanceModifier.width(4.dp).fillMaxHeight().background(Color(tag.person))) {}
+            Text(tag.label, modifier = GlanceModifier.padding(start = if (tag.person != null) 4.dp else 6.dp, end = 6.dp),
+                style = TextStyle(color = ColorProvider(textOn(tag.color)), fontSize = 10.sp, fontWeight = FontWeight.Bold), maxLines = 1)
+        }
     }
 }
 
@@ -394,10 +401,12 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
     val base = GlanceModifier.fillMaxSize().background(BG).cornerRadius(22.dp)
         .padding(start = 4.dp, end = 12.dp, top = PAD.dp, bottom = PAD.dp)
     if (!logged || days == null) {
-        Column(modifier = base.clickable(actionStartActivity<MainActivity>()),
+        // 3.8 : connecté mais rien à afficher -> si la synchro a échoué, on le dit et on propose de réessayer
+        val click = if (!logged) actionStartActivity<MainActivity>() else actionRunCallback<RefreshAction>()
+        Column(modifier = base.clickable(click),
             verticalAlignment = Alignment.CenterVertically, horizontalAlignment = Alignment.CenterHorizontally) {
             Text("EarthShade", style = TextStyle(color = ColorProvider(INK), fontSize = 15.sp, fontWeight = FontWeight.Bold))
-            Text(if (!logged) "Touchez ici pour vous connecter" else "Chargement…",
+            Text(if (!logged) "Touchez ici pour vous connecter" else if (warn) "⚠ Synchro impossible · touchez pour réessayer" else "Chargement…",
                 style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
         }
         return
@@ -410,7 +419,9 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
             Spacer(GlanceModifier.width(6.dp))
             Text(today.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)),
                 style = TextStyle(color = ColorProvider(SOFT), fontSize = 11.5.sp), maxLines = 1)
-            for ((name, color) in today.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
+            Row(verticalAlignment = Alignment.CenterVertically) {   // 3.8 : 1 seul élément, même avec 3 shifts ou plus
+                for (tag in today.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(tag) }
+            }
             Spacer(GlanceModifier.defaultWeight())
             if (warn) Text("⚠ ", style = TextStyle(color = ColorProvider(SOFT), fontSize = 12.sp))
             Text("↻", modifier = GlanceModifier.padding(start = 6.dp).clickable(actionRunCallback<RefreshAction>()),
@@ -424,7 +435,9 @@ private fun Content(logged: Boolean, days: List<Day>?, warn: Boolean, elbows: Ma
                         verticalAlignment = Alignment.CenterVertically) {
                         Text(item.day.date.format(DateTimeFormatter.ofPattern("EEEE d", FR)).uppercase(FR),
                             style = TextStyle(color = ColorProvider(SOFT), fontSize = 10.5.sp, fontWeight = FontWeight.Bold), maxLines = 1)
-                        for ((name, color) in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(name, color) }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            for (tag in item.day.shifts) { Spacer(GlanceModifier.width(5.dp)); ShiftChip(tag) }
+                        }
                     }
                 }
                 is Item.Rail -> Gutter(item.rails) {
