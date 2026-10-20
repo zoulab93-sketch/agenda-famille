@@ -265,6 +265,18 @@
   body:not(.is-wide) .scrim.form-scrim { align-items:flex-end; padding:0; }
   body:not(.is-wide) .scrim.form-scrim .sheet { border-radius:20px 20px 0 0; max-height:90vh; }
   body.is-wide .scrim.form-scrim .sheet-handle { display:none; }
+  /* 3.9.1 : visite « Découvrir l'appli » */
+  .es-intro-ico { width:52px; height:52px; border-radius:16px; background:var(--surface-soft); color:var(--ink); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .es-intro .es-dlg-b { min-height:84px; }
+  .es-intro-dots { display:flex; gap:6px; justify-content:center; margin-top:16px; }
+  .es-intro-dots span { width:7px; height:7px; border-radius:50%; background:var(--line); }
+  .es-intro-dots span.on { background:var(--ink); width:18px; border-radius:4px; }
+  /* 3.9.1 : Réglages rangés en groupes */
+  .set-group { background:var(--surface-soft); border-radius:16px; padding:14px 12px 12px; margin-bottom:14px; }
+  .set-group .section-title { margin-bottom:10px; }
+  .set-group .ghost-btn { background:var(--surface); }
+  .set-group .push-row { background:var(--surface); }
+  .set-group .bulk-note { margin-top:8px; }
   /* 3.9 : fenêtre de confirmation maison */
   .sheet.es-dialog, body.is-wide .scrim.center .sheet.es-dialog { max-width:380px; padding:20px 18px 18px; }
   .es-dlg-t { font-size:18px; margin:0 0 8px; }
@@ -831,7 +843,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.9</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.9.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1682,7 +1694,7 @@
       // 3.2.2 : téléphone couché -> les boutons forment une 2e colonne à droite, construite comme celle de gauche
       // (même hauteur, même centrage, même pas) : ils tombent pile en face, sans calcul
       const pp = activeProfile();
-      const av = document.createElement('button'); av.className = 'avatar lh-avatar'; av.setAttribute('aria-label', 'Mon compte');
+      const av = document.createElement('button'); av.className = 'avatar lh-avatar'; av.setAttribute('aria-label', 'Réglages');
       av.style.background = pp.color; av.textContent = pp.name[0].toUpperCase();
       av.onclick = ()=>{ view.sheet='switch'; render(); };
       fabRow.appendChild(av);
@@ -2120,7 +2132,7 @@
         <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
         <button class="icon-btn case-toggle${view.caseMode?' on':''}" id="toggle-cases" aria-label="Afficher les horaires de travail" aria-pressed="${view.caseMode?'true':'false'}">${caseToggleIcon(view.caseMode)}</button>
         <button class="icon-btn fork-toggle${view.menuMode?' on':''}" id="toggle-menus" aria-label="Afficher les menus" aria-pressed="${view.menuMode?'true':'false'}">${forkIcon()}</button>
-        <button class="avatar" id="open-switch" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</button>
+        <button class="avatar" id="open-switch" aria-label="Réglages" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</button>
       </div>
     `;
     h.querySelector('#go-today').onclick=goToday;
@@ -3855,32 +3867,39 @@
     const sheet = document.createElement('div'); sheet.className='sheet';
     const code = state.household ? state.household.invite_code : '';
     sheet.innerHTML = `<div class="sheet-handle"></div>
-      <div class="sheet-header"><h2>Mon compte</h2><button class="sheet-close" id="close-sw">✕</button></div>
-      <div id="who-list"></div>
-      <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
-      <button class="ghost-btn" id="copy-code">Copier le code</button>
-
-      <hr class="section-sep">
-      <div class="section-title">Profils enfants</div>
-      <div class="field">
-        <label for="guest-name">Ajouter un profil enfant ou « Commun » (sans compte ni email)</label>
-        <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
-        <div class="swatches" id="guest-swatches"></div>
+      <div class="sheet-header"><h2>Réglages</h2><button class="sheet-close" id="close-sw">✕</button></div>
+      <!-- 3.9.1 : « Mon compte » devient « Réglages », rangé en trois groupes -->
+      <div class="set-group">
+        <div class="section-title">Cet appareil</div>
+        <div class="theme-row" style="margin-top:0"><div class="theme-lab">Thème</div><div class="theme-seg" role="group" aria-label="Thème">
+          <button type="button" data-theme-pick="auto">${autoThemeIcon(15)} Auto</button><button type="button" data-theme-pick="light">${sunIcon(15)} Clair</button><button type="button" data-theme-pick="dark">${moonIcon(15)} Sombre</button>
+        </div></div>
+        <div id="push-box"></div>
+        <button class="ghost-btn" id="left-hand-btn">${handIcon(16)} Mode gaucher : ${document.body.classList.contains('left-hand') ? 'activé' : 'désactivé'}</button>
+        ${isWide() ? `<button class="ghost-btn" id="kbd-btn">${lineIcon('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M8 14h8"/>', 16)} Raccourcis clavier (touche ?)</button>` : ''}
+        <button class="ghost-btn" id="intro-btn">${lineIcon('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5V14"/><path d="M12 17.2v.1"/>', 16)} Découvrir l'appli</button>
       </div>
-      <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
-      <button class="ghost-btn" id="add-guest-btn">${plusIcon(16)} Ajouter ce profil</button>
-      <hr class="section-sep">
-      <div id="google-box"></div>
 
-      <div style="height:22px"></div>
-      <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
-      <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
-      <div id="push-box"></div>
-      <button class="ghost-btn" id="left-hand-btn">${handIcon(16)} Mode gaucher : ${document.body.classList.contains('left-hand') ? 'activé' : 'désactivé'}</button>
-      ${isWide() ? `<button class="ghost-btn" id="kbd-btn">${lineIcon('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M8 14h8"/>', 16)} Raccourcis clavier (touche ?)</button>` : ''}
-      <div class="theme-row"><div class="theme-lab">Thème sur cet appareil</div><div class="theme-seg" role="group" aria-label="Thème">
-        <button type="button" data-theme-pick="auto">${autoThemeIcon(15)} Auto</button><button type="button" data-theme-pick="light">${sunIcon(15)} Clair</button><button type="button" data-theme-pick="dark">${moonIcon(15)} Sombre</button>
-      </div></div>
+      <div class="set-group">
+        <div class="section-title">Famille</div>
+        <div id="who-list"></div>
+        <div class="bulk-note">Code d'invitation du foyer : <b style="font-size:16px;letter-spacing:.05em;">${escapeHtml(code)}</b><br>Partage-le pour que l'autre parent rejoigne ce foyer.</div>
+        <button class="ghost-btn" id="copy-code">Copier le code</button>
+        <div class="field" style="max-width:none;margin-top:14px">
+          <label for="guest-name">Ajouter un profil enfant ou « Commun » (sans compte ni email)</label>
+          <input id="guest-name" type="text" placeholder="Prénom de l'enfant" maxlength="20">
+          <div class="swatches" id="guest-swatches"></div>
+        </div>
+        <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
+        <button class="ghost-btn" id="add-guest-btn" style="margin-top:2px">${plusIcon(16)} Ajouter ce profil</button>
+      </div>
+
+      <div class="set-group">
+        <div class="section-title">Données</div>
+        <div id="google-box"></div>
+        <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
+        <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
+      </div>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
     const list = sheet.querySelector('#who-list');
@@ -3944,6 +3963,7 @@
       b.onclick = ()=>{ setEsTheme(b.dataset.themePick); render(); };
     });
     { const kb = sheet.querySelector('#kbd-btn'); if (kb) kb.onclick = showShortcuts; }
+    sheet.querySelector('#intro-btn').onclick = ()=>{ view.sheet = null; render(); esIntro(); };   // 3.9.1
     sheet.querySelector('#left-hand-btn').onclick = ()=>{
       const on = !document.body.classList.contains('left-hand');
       document.body.classList.toggle('left-hand', on);
@@ -5578,6 +5598,7 @@
     }
     render();
     esOpenDayFromUrl();   // 3.3 : toucher une notification ouvre le bon jour
+    esMaybeIntro();       // 3.9.1 : première ouverture sur cet appareil -> petite visite
     sb.auth.onAuthStateChange((event, session)=>{
       const hadSession = !!auth.session, hasSession = !!session;
       auth.session = session;
@@ -5585,7 +5606,7 @@
       if (session) {
         // 3.7 : le jeton renouvelé (retour sur l'appli…) ne relance pas tout le chargement
         if (session.user && session.user.id === loggedUserId) return;
-        afterLogin().then(render).catch(()=>render());
+        afterLogin().then(()=>{ render(); esMaybeIntro(); }).catch(()=>render());
       } else {
         loggedUserId = null;
         state._undoStack = []; clipEvent = null; view.sheet = null; view.editingEvent = null;
@@ -5614,7 +5635,58 @@
   });
   document.addEventListener('mouseleave', ()=>{ hoverEventId = null; hoverDay = null; });
 
-  /* 3.9 : liste des raccourcis clavier (touche « ? », ou Mon compte sur PC) */
+  /* 3.9.1 : « Découvrir l'appli » — petite visite en 5 cartes, montrée une fois par appareil, et à revoir depuis les Réglages */
+  const INTRO_KEY = 'es-intro-vu';
+  function esIntroSteps(){
+    const pc = isWide();
+    return [
+      { ico: calendarIcon(26), t: 'Bienvenue !', b: "Un seul agenda pour toute la famille. Chaque personne a sa couleur : on voit d'un coup d'œil qui fait quoi. Touche un prénom dans la légende, en haut, pour masquer ou réafficher ses événements." },
+      { ico: plusIcon(26), t: 'Ajouter', b: pc
+          ? "« + » ajoute un événement. Un clic sur un jour ouvre sa fiche. Maj + clic sur des jours en sélectionne plusieurs d'un coup. Dans la fiche d'un événement, « Dupliquer » le recopie sur d'autres jours."
+          : "Le bouton + ajoute un événement. Touche un jour pour ouvrir sa fiche. Un appui long sur un jour (ou « Sélectionner plusieurs jours ») en choisit plusieurs d'un coup. Dans la fiche d'un événement, « Dupliquer » le recopie sur d'autres jours." },
+      { ico: lineIcon('<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>', 26), t: 'Travail, Menus, Listes', b: "En haut : le rond de couleurs affiche les horaires de travail en grand, la fourchette affiche les repas du midi et du soir, la liste ouvre les courses. Dans les menus, « ? » veut dire qu'on sait qui mange, mais pas encore quoi." },
+      { ico: handIcon(26), t: 'Les gestes', b: pc
+          ? "← et → changent de mois. Échap ferme la fenêtre ouverte. Ctrl + Z annule la dernière action. La touche ? affiche tous les raccourcis."
+          : "Glisse à gauche ou à droite pour changer de mois. Tire une fenêtre vers le bas pour la fermer. Glisse vers le haut, tout en bas de l'écran, pour faire apparaître + et ↺ (annuler)." },
+      { ico: lineIcon('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', 26), t: 'Réglages', b: "Touche ton rond de couleur, en haut à droite : thème clair ou sombre, rappels, profils des enfants, agendas liés… Tu y retrouveras aussi cette visite (« Découvrir l'appli »)." }
+    ];
+  }
+  function esIntro(){
+    if (document.querySelector('.es-intro')) return;
+    const steps = esIntroSteps();
+    let i = 0;
+    const scrim = document.createElement('div'); scrim.className = 'scrim center'; scrim.style.zIndex = '40';
+    const sheet = document.createElement('div'); sheet.className = 'sheet es-dialog es-intro';
+    sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true');
+    let closed = false;
+    const done = ()=>{ if (closed) return; closed = true; try { localStorage.setItem(INTRO_KEY, '1'); } catch(e){} document.removeEventListener('keydown', onKey, true); scrim.remove(); setTimeout(()=>{ if (typeof esBackSync === 'function') esBackSync(); }, 0); };
+    function draw(){
+      const st = steps[i], last = i === steps.length - 1;
+      sheet.innerHTML = `<div class="es-intro-ico">${st.ico}</div>
+        <h2 class="es-dlg-t"></h2><p class="es-dlg-b"></p>
+        <div class="es-intro-dots">${steps.map((_, k)=>`<span class="${k === i ? 'on' : ''}"></span>`).join('')}</div>
+        <div class="es-dlg-btns">${last ? '' : '<button type="button" class="ghost-btn" data-a="skip">Passer</button>'}<button type="button" class="save-btn" data-a="next">${last ? "C'est parti" : 'Suivant'}</button></div>`;
+      sheet.querySelector('.es-dlg-t').textContent = st.t;
+      sheet.querySelector('.es-dlg-b').textContent = st.b;
+      sheet.querySelector('[data-a="next"]').onclick = ()=>{ if (last) done(); else { i++; draw(); } };
+      const sk = sheet.querySelector('[data-a="skip"]'); if (sk) sk.onclick = done;
+    }
+    function onKey(e){
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(); }
+      else if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); if (i === steps.length - 1) done(); else { i++; draw(); } }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); if (i > 0) { i--; draw(); } }
+    }
+    document.addEventListener('keydown', onKey, true);
+    scrim._esClose = done;
+    draw();
+    scrim.appendChild(sheet);
+    document.body.appendChild(scrim);
+  }
+  function esMaybeIntro(){
+    let seen = false; try { seen = localStorage.getItem(INTRO_KEY) === '1'; } catch(e){ seen = true; }
+    if (!seen && auth.session && state.myProfile) setTimeout(()=>{ if (!view.sheet && !document.querySelector('body > .scrim')) esIntro(); }, 900);
+  }
+  /* 3.9 : liste des raccourcis clavier (touche « ? », ou Réglages sur PC) */
   function showShortcuts(){
     esDialog('Raccourcis clavier\n\n' + [
       '← →   mois (ou semaine, jour) précédent / suivant',
