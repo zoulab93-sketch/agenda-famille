@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#23262B">
+<script>
+/* 3.9 : thème choisi pour CET appareil (auto = comme le téléphone ; clair ; sombre) */
+(function(){ try { var t = localStorage.getItem('es-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch(e){} })();
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -255,6 +259,24 @@
   .ghost-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--ink); border:1.5px solid var(--line); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
   .danger-btn { width:100%; padding:12px; border-radius:12px; background:transparent; color:var(--palette-4); border:1.5px solid var(--palette-4); font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; cursor:pointer; margin-top:10px; }
   .danger-btn:disabled { opacity:.5; cursor:not-allowed; }
+  /* 3.9 : toutes les fenêtres du bas se tirent vers le bas ; le formulaire devient une fenêtre du bas sur téléphone */
+  .sheet { transition:transform .18s ease; }
+  .sheet.es-dragging { transition:none; }
+  body:not(.is-wide) .scrim.form-scrim { align-items:flex-end; padding:0; }
+  body:not(.is-wide) .scrim.form-scrim .sheet { border-radius:20px 20px 0 0; max-height:90vh; }
+  body.is-wide .scrim.form-scrim .sheet-handle { display:none; }
+  /* 3.9 : fenêtre de confirmation maison */
+  .sheet.es-dialog, body.is-wide .scrim.center .sheet.es-dialog { max-width:380px; padding:20px 18px 18px; }
+  .es-dlg-t { font-size:18px; margin:0 0 8px; }
+  .es-dlg-b { margin:0; color:var(--ink-soft); line-height:1.45; white-space:pre-line; font-size:14.5px; }
+  .es-dlg-btns { display:flex; gap:10px; margin-top:16px; }
+  .es-dlg-btns > button { margin-top:0; flex:1; }
+  /* 3.9 : sélecteur de thème Auto / Clair / Sombre */
+  .theme-row { margin-top:10px; }
+  .theme-row .theme-lab { font-size:13px; color:var(--ink-soft); font-weight:600; margin:0 0 6px 2px; }
+  .theme-seg { display:flex; gap:4px; padding:3px; border-radius:12px; background:var(--surface-soft); border:1.5px solid var(--line); }
+  .theme-seg button { flex:1; padding:9px 4px; border:none; border-radius:9px; background:transparent; color:var(--ink); font-family:'Quicksand',sans-serif; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+  .theme-seg button.on { background:var(--ink); color:var(--surface); }
 
   .time-field { width:100%; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-family:'Karla',sans-serif; font-size:16px; font-weight:700; text-align:left; cursor:pointer; }
   .wheel-frame { position:relative; margin: 4px 0 18px; }
@@ -809,7 +831,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.8.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 3.9</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1416,7 +1438,7 @@
     } catch(err){
       state._undoStack.push(keptUndo);
       await reloadHouseholdData();
-      alert("L'annulation n'a pas pu être enregistrée : " + ((err && err.message) || 'erreur inconnue') + "\nRéessaie dans un instant.");
+      showAlert("L'annulation n'a pas pu être enregistrée : " + ((err && err.message) || 'erreur inconnue') + "\nRéessaie dans un instant.");
     } finally { undoRunning = false; }
     render();
   }
@@ -1437,7 +1459,7 @@
       toast(`${list.length} événement${list.length>1?'s':''} supprimé${list.length>1?'s':''} — ↺ pour annuler`);
     } catch(err){
       await reloadHouseholdData().catch(()=>{});
-      alert('Suppression incomplète : ' + ((err && err.message) || 'erreur'));
+      showAlert('Suppression incomplète : ' + ((err && err.message) || 'erreur'));
     }
     render();
   }
@@ -1460,6 +1482,39 @@
     while ((x = same(addDays(d, 1)))) { list.push(x); d = x.date; }
     return list;
   }
+  /* 3.9 : confirmations et messages d'erreur dans une fenêtre aux couleurs de l'appli (plus les fenêtres grises du navigateur).
+     Le texte avant le premier saut de ligne double sert de titre, la suite d'explication. */
+  function esDialog(text, opts){
+    opts = opts || {};
+    return new Promise(resolve=>{
+      const parts = String(text).split('\n\n');
+      const title = parts.shift(), body = parts.join('\n\n');
+      const scrim = document.createElement('div'); scrim.className = 'scrim center'; scrim.style.zIndex = '40';
+      const sheet = document.createElement('div'); sheet.className = 'sheet es-dialog';
+      sheet.setAttribute('role', opts.alert ? 'alertdialog' : 'dialog'); sheet.setAttribute('aria-modal', 'true');
+      sheet.innerHTML = `<h2 class="es-dlg-t"></h2>${body ? '<p class="es-dlg-b"></p>' : ''}
+        <div class="es-dlg-btns">${opts.alert ? '' : '<button type="button" class="ghost-btn" data-v="0">Annuler</button>'}<button type="button" class="${opts.danger ? 'danger-btn' : 'save-btn'}" data-v="1"></button></div>`;
+      sheet.querySelector('.es-dlg-t').textContent = title;
+      if (body) sheet.querySelector('.es-dlg-b').textContent = body;
+      const okBtn = sheet.querySelector('[data-v="1"]');
+      okBtn.textContent = opts.ok || (opts.alert ? 'OK' : 'Confirmer');
+      let closed = false;
+      const done = v=>{ if (closed) return; closed = true; document.removeEventListener('keydown', onKey, true); scrim.remove(); resolve(v); setTimeout(()=>{ if (typeof esBackSync === 'function') esBackSync(); }, 0); };
+      function onKey(e){
+        if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(opts.alert ? true : false); }
+        else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); done(true); }
+      }
+      document.addEventListener('keydown', onKey, true);
+      sheet.querySelectorAll('[data-v]').forEach(b=>{ b.onclick = ()=>done(b.dataset.v === '1'); });
+      scrim.onclick = ev=>{ if (ev.target === scrim) done(opts.alert ? true : false); };
+      scrim._esClose = ()=>done(opts.alert ? true : false);   // bouton retour / Échap
+      scrim.appendChild(sheet);
+      document.body.appendChild(scrim);
+      setTimeout(()=>{ try { okBtn.focus(); } catch(e){} }, 30);
+    });
+  }
+  function askConfirm(text, opts){ return esDialog(text, opts); }
+  function showAlert(msg){ return esDialog('Un souci est survenu\n\n' + msg, { alert:true }); }
   function askSeriesDelete(e, list, verb){
     return new Promise(resolve=>{
       const scrim = document.createElement('div'); scrim.className='scrim center'; scrim.style.zIndex='30';
@@ -1480,6 +1535,7 @@
         </div>
         <button class="rc-cancel" id="sd-cancel">Annuler</button>`;
       const done = v=>{ scrim.remove(); resolve(v); };
+      scrim._esClose = ()=>done(null);   // 3.9 : retour / Échap = Annuler
       sheet.querySelector('#sd-close').onclick = ()=>done(null);
       sheet.querySelector('#sd-cancel').onclick = ()=>done(null);
       sheet.querySelector('#sd-one').onclick = ()=>done('one');
@@ -1502,7 +1558,7 @@
       await reloadHouseholdData();
       list.forEach(x=>{ if (x.googleId) syncToGoogle('remove', { google_event_id: x.googleId }); });
       toast(`« ${list[0].title} » supprimé sur ${list.length} jours — ↺ pour annuler`);
-    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); alert("La série n'a pas pu être supprimée : "+err.message); }
+    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("La série n'a pas pu être supprimée : "+err.message); }
     return 'series';
   }
   async function removeEvent(e){
@@ -1526,7 +1582,7 @@
         await logActivity(`a masqué « ${e.title} », ${quandLabel([e.date])}${pourQui(e.participants)}`);
         await reloadHouseholdData();
         toast('Événement masqué — ↺ pour annuler');
-      } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); alert('Erreur : '+err.message); }
+      } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert('Erreur : '+err.message); }
       return;
     }
     try {
@@ -1535,7 +1591,7 @@
       await reloadHouseholdData();
       if (googleId) syncToGoogle('remove', { google_event_id: googleId });
       fabsShown = !isWide(); if (fabsShown) { clearTimeout(fabsTimer); fabsTimer = setTimeout(hideFabs, 6000); }
-    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); alert("L'événement n'a pas pu être supprimé : "+err.message); }
+    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("L'événement n'a pas pu être supprimé : "+err.message); }
   }
   function fmtTime(ts){
     const d = new Date(ts);
@@ -1646,6 +1702,12 @@
     if (view.sheet==='links') root.appendChild(renderLinksSheet());
     if (view.sheet==='linkform') root.appendChild(renderLinkForm());
     lastRenderedSheet = view.sheet || null;
+    // 3.9 : toutes les fenêtres du bas se ferment en les tirant vers le bas (téléphone)
+    //      (même effet que toucher à côté : chaque fenêtre sait où revenir)
+    { const sc = root.querySelector(':scope > .scrim'); if (sc && view.sheet) attachSheetDrag(sc.querySelector('.sheet'), ()=>{
+        if (view.sheet === 'form') stashFormFields();
+        if (typeof sc.onclick === 'function') sc.onclick({ target: sc }); else { view.sheet = null; render(); }
+      }); }
     if (typeof esBackSync === 'function') setTimeout(esBackSync, 0);   // 3.2 : bouton retour
     if (lastRenderedSheet && lastRenderedSheet === prevSheetKey && prevSheetScroll) {
       const ns = root.querySelector('.sheet');
@@ -1655,6 +1717,39 @@
     fitDayView();
     restoreAgendaScroll();
     if (typeof mnConvBanner === 'function') mnConvBanner();   // 3.7.7 : proposer de convertir les « Caro seule »
+  }
+
+  /* 3.9 : tirer une fenêtre vers le bas pour la fermer (même geste que Listes et Repas) */
+  function attachSheetDrag(sheet, close){
+    if (!sheet || isWide()) return;
+    let d = null;
+    sheet.addEventListener('touchstart', e=>{
+      d = null;
+      if (e.touches.length !== 1 || sheet.scrollTop > 0) return;
+      if (e.target.closest('input, textarea, select, .icon-grid')) return;
+      d = { y:e.touches[0].clientY, x:e.touches[0].clientX, dy:0, live:false };
+    }, { passive:true });
+    sheet.addEventListener('touchmove', e=>{
+      if (!d) return;
+      const t = e.touches[0], dy = t.clientY - d.y, dx = Math.abs(t.clientX - d.x);
+      if (!d.live) {
+        if (dy > 8 && dy > dx * 1.2) { d.live = true; sheet.classList.add('es-dragging'); }
+        else if (dy < -4 || dx > 10) { d = null; return; }
+        else return;
+      }
+      d.dy = Math.max(0, dy);
+      sheet.style.transform = `translateY(${d.dy}px)`;
+      if (e.cancelable) e.preventDefault();   // pas de « tirer pour rafraîchir » de Chrome pendant ce geste
+    }, { passive:false });
+    const end = ()=>{
+      if (!d) return;
+      const x = d; d = null;
+      sheet.classList.remove('es-dragging');
+      if (x.live && x.dy > 90) { ignoreClickUntil = Date.now() + 400; close(); }
+      else sheet.style.transform = '';
+    };
+    sheet.addEventListener('touchend', end);
+    sheet.addEventListener('touchcancel', end);
   }
 
   function initMarquees(){
@@ -1797,6 +1892,21 @@
   function calendarIcon(size){ return lineIcon('<rect x="3.5" y="5" width="17" height="15" rx="3.2"/><line x1="3.5" y1="10.2" x2="20.5" y2="10.2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>', size); }
   function searchIcon(size){ return lineIcon('<circle cx="10.5" cy="10.5" r="6.5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>', size); }
   function logIcon(size){ return lineIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2.2"/>', size); }
+  /* 3.9 : icônes dessinées à la place des emojis en couleur dans l'interface (les icônes choisies pour les événements ne changent pas) */
+  function pinIcon(size){ return lineIcon('<path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.3"/>', size); }
+  function trashIcon(size){ return lineIcon('<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/>', size); }
+  function pencilIcon(size){ return lineIcon('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>', size); }
+  function alarmIcon(size){ return lineIcon('<circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.3 1.6"/><path d="M4 5.5 6.5 3M20 5.5 17.5 3"/>', size); }
+  function bellIcon(size){ return lineIcon('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>', size); }
+  function plusIcon(size){ return lineIcon('<path d="M12 5v14M5 12h14"/>', size); }
+  function handIcon(size){ return lineIcon('<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0V12M17 8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a7 7 0 0 1-5.6-2.8L4 15.5a1.6 1.6 0 0 1 2.5-2L8 15"/>', size); }
+  function cartIcon(size){ return lineIcon('<circle cx="9" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/><path d="M2.5 3.5h2.6l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L21 7.5H6"/>', size); }
+  function receiptIcon(size){ return lineIcon('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>', size); }
+  function copyIcon(size){ return lineIcon('<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>', size); }
+  function selectDaysIcon(size){ return lineIcon('<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M14.5 17.5l2 2 4-4"/>', size); }
+  function sunIcon(size){ return lineIcon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>', size); }
+  function moonIcon(size){ return lineIcon('<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>', size); }
+  function autoThemeIcon(size){ return lineIcon('<circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>', size); }
   function todayIcon(){ return `<span class="cal-ico"><span>${new Date().getDate()}</span></span>`; }
   function goToday(){
     const t = new Date();
@@ -1814,7 +1924,7 @@
       <div class="side-item active side-agenda"><div class="icon-btn" style="box-shadow:none;background:var(--ink);color:var(--surface);">${calendarIcon(18)}</div><span class="side-label">Agenda</span></div>
       <div class="side-item" id="side-today"><div class="icon-btn">${todayIcon()}</div><span class="side-label">Auj.</span></div>
       <div class="side-item" id="side-search"><div class="icon-btn">${searchIcon()}</div><span class="side-label">Recherche</span></div>
-      <div class="side-item" id="side-cases"><div class="icon-btn case-toggle${view.caseMode?' on':''}">${caseToggleIcon(view.caseMode)}</div><span class="side-label">Cas</span></div>
+      <div class="side-item" id="side-cases"><div class="icon-btn case-toggle${view.caseMode?' on':''}">${caseToggleIcon(view.caseMode)}</div><span class="side-label">Travail</span></div>
       <div class="side-item" id="side-menus"><div class="icon-btn fork-toggle${view.menuMode?' on':''}">${forkIcon(18)}</div><span class="side-label">Menus</span></div>
       <div class="side-item" id="side-lists"><div class="icon-btn lp-side-ico">${listIcon(19)}<span class="lp-badge"${lpOpenIn('courses').length?'':' hidden'}>${lpOpenIn('courses').length}</span></div><span class="side-label">Listes</span></div>
       <div class="side-item" id="side-profile"><div class="avatar" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</div><span class="side-label">${escapeHtml(p.name)}</span></div>
@@ -2008,7 +2118,7 @@
       <div class="header-actions">
         <button class="icon-btn" id="go-today" aria-label="Aujourd'hui">${todayIcon()}</button>
         <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
-        <button class="icon-btn case-toggle${view.caseMode?' on':''}" id="toggle-cases" aria-label="Afficher les cas en couleur" aria-pressed="${view.caseMode?'true':'false'}">${caseToggleIcon(view.caseMode)}</button>
+        <button class="icon-btn case-toggle${view.caseMode?' on':''}" id="toggle-cases" aria-label="Afficher les horaires de travail" aria-pressed="${view.caseMode?'true':'false'}">${caseToggleIcon(view.caseMode)}</button>
         <button class="icon-btn fork-toggle${view.menuMode?' on':''}" id="toggle-menus" aria-label="Afficher les menus" aria-pressed="${view.menuMode?'true':'false'}">${forkIcon()}</button>
         <button class="avatar" id="open-switch" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</button>
       </div>
@@ -2103,7 +2213,20 @@
   const pendingLongPresses = new Set();
   function cancelLongPresses(){ pendingLongPresses.forEach(f=>f()); pendingLongPresses.clear(); }
   let pendingNavFinish = null;
+  // 3.9 : sur PC, Maj+clic ou Ctrl+clic sur un jour lance la sélection de plusieurs jours (comme l'appui long)
+  function esMultiClick(ev){ return !!(ev && (ev.shiftKey || ev.ctrlKey || ev.metaKey)); }
+  // 3.9 : « Dupliquer vers d'autres jours » : l'événement à recopier, en attente du choix des jours
+  let dupClip = null;
+  function startDuplicate(e){
+    dupClip = { title: e.title, start: e.start, end: e.end, icon: e.icon, reminder: e.reminder, important: e.important, lieu: e.lieu, participants: [...e.participants] };
+    view.sheet = null;
+    view.selectMode = true; view.selectedDays = [];
+    ignoreClickUntil = Date.now() + 400;
+    render();
+    toast(`Touche les jours où recopier « ${e.title} », puis ✓`);
+  }
   function enterSelectMode(ds){
+    dupClip = null;
     view.selectMode = true;
     view.selectedDays = [ds];
     ignoreClickUntil = Date.now() + 700;
@@ -2262,6 +2385,7 @@
     cell.innerHTML = `<div class="day-num">${dnum}${shiftDots}${evs.some(x=>x.important)?'<span class="imp-day">★</span>':''}${extra?`<span class="more-badge" data-n="${extra}" title="${moreLabel(extra)}">+${extra}</span>`:''}</div>${linesHtml}${picked?'<div class="pick-mark">✓</div>':''}`;
     cell.onclick = (ev)=>{
       if (Date.now() < ignoreClickUntil) return;
+      if (!view.selectMode && esMultiClick(ev)) { enterSelectMode(ds); return; }   // 3.9 : Maj/Ctrl+clic (PC)
       if (view.selectMode) {
         if (picked) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
         else view.selectedDays.push(ds);
@@ -2614,7 +2738,7 @@
     const tall = !compact && (u2-u1) >= 1.25;
     card.innerHTML = `<div class="event-plate">
         <div class="event-title">${impHtml(e)}${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
-        ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' ⏰':''}</div>` : ''}
+        ${tall ? `<div class="event-meta">${e.start}${e.end?'–'+e.end:''} · ${escapeHtml(names)}${e.reminder?' '+alarmIcon(11):''}</div>` : ''}
       </div>`;
     card.onclick = (ev)=>{ ev.stopPropagation(); openEventForm(e, ds); };
     return card;
@@ -2710,8 +2834,9 @@
       const lab = document.createElement('div');
       lab.className = 'ag-lab' + (view.selectedDays.includes(ds) ? ' picked' : '');
       lab.innerHTML = `<span class="ag-dn">${AG_DAYNAMES[i%7]}</span><span class="ag-dd">${d.getDate()}</span>`;
-      lab.onclick = ()=>{
+      lab.onclick = (ev)=>{
         if (Date.now() < ignoreClickUntil) return;
+        if (!view.selectMode && esMultiClick(ev)) { enterSelectMode(ds); return; }   // 3.9
         if (view.selectMode) {
           if (view.selectedDays.includes(ds)) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
           else view.selectedDays.push(ds);
@@ -2782,8 +2907,9 @@
       `<button type="button" class="wk-h${ds===today?' today':''}${view.selectedDays.includes(ds)?' picked':''}" data-ds="${ds}"><span class="wk-dn">${WK_NAMES[i]}</span><span class="wk-dd">${Number(ds.slice(8,10))}</span></button>`).join('');
     head.querySelectorAll('.wk-h').forEach(b=>{
       const ds = b.dataset.ds;
-      b.onclick = ()=>{
+      b.onclick = (ev)=>{
         if (Date.now() < ignoreClickUntil) return;
+        if (!view.selectMode && esMultiClick(ev)) { enterSelectMode(ds); return; }   // 3.9
         if (view.selectMode) {
           if (view.selectedDays.includes(ds)) view.selectedDays = view.selectedDays.filter(x=>x!==ds);
           else view.selectedDays.push(ds);
@@ -2896,10 +3022,14 @@
       const applyWrap = document.createElement('div'); applyWrap.className='apply-wrap';
       const applyBtn = document.createElement('button');
       applyBtn.className='fab apply';
-      applyBtn.setAttribute('aria-label', n ? `Appliquer à ${n} jour${n>1?'s':''}` : 'Sélectionnez des jours');
+      applyBtn.setAttribute('aria-label', n ? (dupClip ? `Recopier « ${dupClip.title} » sur ${n} jour${n>1?'s':''}` : `Appliquer à ${n} jour${n>1?'s':''}`) : 'Sélectionnez des jours');
       applyBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
       applyBtn.disabled = !n;
-      applyBtn.onclick = ()=>{ if(n) openEventForm(null, view.selectedDays[0], [...view.selectedDays]); };
+      applyBtn.onclick = ()=>{
+        if (!n) return;
+        if (dupClip) { const c = dupClip; dupClip = null; pasteEvent(c, [...view.selectedDays]); return; }   // 3.9 : Dupliquer
+        openEventForm(null, view.selectedDays[0], [...view.selectedDays]);
+      };
       applyWrap.appendChild(applyBtn);
       if (n) { const badge = document.createElement('span'); badge.className='apply-badge'; badge.textContent = n; applyWrap.appendChild(badge); }
       // Corbeille : supprime les événements (visibles) des jours sélectionnés
@@ -2909,7 +3039,7 @@
       trashBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/></svg>';
       trashBtn.onclick = ()=>removeEventsOnDays([...view.selectedDays]);
       // La corbeille n'apparaît que s'il y a au moins un événement (visible) sur les jours sélectionnés
-      const hasEvents = view.selectedDays.some(ds=>eventsFor(ds).length > 0);
+      const hasEvents = !dupClip && view.selectedDays.some(ds=>eventsFor(ds).length > 0);   // 3.9 : pas de corbeille pendant « Dupliquer »
       row.appendChild(applyWrap);
       if (hasEvents) row.appendChild(trashBtn);
       return row;
@@ -3017,7 +3147,8 @@
     sheet.innerHTML = `<div class="sheet-handle"></div>
       <div class="sheet-header"><h2 style="text-transform:capitalize">${label}</h2><button class="sheet-close" id="close-day">✕</button></div>
       <div id="day-events"></div>
-      <button class="save-btn" id="add-day-event">+ Ajouter un événement</button>`;
+      <button class="save-btn" id="add-day-event">+ Ajouter un événement</button>
+      <button class="ghost-btn" id="select-days">${selectDaysIcon(16)} Sélectionner plusieurs jours</button>`;
     const list = sheet.querySelector('#day-events');
     if (!evs.length) {
       const p = document.createElement('div'); p.className='empty-note'; p.textContent='Aucun événement ce jour-là.';
@@ -3032,10 +3163,10 @@
       row.innerHTML = `${e.important?'<span class="imp-badge" aria-label="Important">★</span>':''}<div class="event-info"><div class="event-plate">
           <div class="event-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
           <div class="event-meta">${e.start?escapeHtml(e.start)+(e.end?'–'+escapeHtml(e.end):''):'Toute la journée'} · ${escapeHtml(names)}</div>
-          ${e.lieu ? `<div class="event-meta">📍 ${escapeHtml(e.lieu)}</div>` : ''}
+          ${e.lieu ? `<div class="event-meta">${pinIcon(12)} ${escapeHtml(e.lieu)}</div>` : ''}
         </div></div>
-        ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}
-        <button class="event-del" data-id="${e.id}" aria-label="Supprimer">🗑</button>`;
+        ${e.reminder ? `<span class="rem-badge">${alarmIcon(11)} ${reminderLabel(e.reminder)}</span>` : ''}
+        <button class="event-del" data-id="${e.id}" aria-label="Supprimer">${trashIcon(17)}</button>`;
       row.querySelector('.event-info').onclick = ()=>openEventForm(e, ds);
       row.querySelector('.event-del').onclick = async ()=>{
         await removeEvent(e);
@@ -3055,6 +3186,8 @@
     }
     sheet.querySelector('#close-day').onclick = ()=>{ view.sheet=null; render(); };
     sheet.querySelector('#add-day-event').onclick = ()=>openEventForm(null, ds);
+    // 3.9 : la sélection de plusieurs jours a enfin un bouton visible (en plus de l'appui long)
+    sheet.querySelector('#select-days').onclick = ()=>{ view.sheet = null; enterSelectMode(ds); toast('Touche d\'autres jours, puis ✓ pour ajouter, ou la corbeille'); };
     scrim.appendChild(sheet);
     return scrim;
   }
@@ -3074,7 +3207,7 @@
     render();
   }
   function renderEventForm(){
-    const scrim = document.createElement('div'); scrim.className='scrim center';
+    const scrim = document.createElement('div'); scrim.className='scrim center form-scrim';   // 3.9 : sur téléphone, fenêtre du bas comme les autres
     scrim.onclick = (e)=>{ if(e.target===scrim){ closeForm(); } };
     const sheet = document.createElement('div'); sheet.className='sheet';
     const ev = view.editingEvent;
@@ -3083,6 +3216,7 @@
     const linked = !bulk && !isNew && isLinked(ev);
     const srcLink = linked ? linkById(ev.sourceId) : null;
     sheet.innerHTML = `
+      <div class="sheet-handle"></div>
       <div class="sheet-header"><h2>${bulk?`Nouvel événement (${bulk.length} jours)`:(isNew?'Nouvel événement':'Modifier')}</h2><button class="sheet-close" id="close-form">✕</button></div>
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
       <div class="preset-row" id="presets"></div>
@@ -3093,7 +3227,7 @@
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
         <div style="flex:1"><label>Fin</label><button type="button" class="time-field" id="f-end-btn">${ev.end||'--:--'}</button></div>
       </div>
-      <div class="form-row"><label>⏰ Rappel</label><div class="chips" id="f-reminder"></div><div id="f-reminder-note" class="reminder-note"></div></div>
+      <div class="form-row"><label>Rappel</label><div class="chips" id="f-reminder"></div><div id="f-reminder-note" class="reminder-note"></div></div>
       <div class="form-row"><label>Qui participe ?</label><div class="chips" id="f-participants"></div></div>
       <button class="save-btn" id="f-save"${view._saving?' disabled':''}>${view._saving?'Enregistrement…':'Enregistrer'}</button>
     `;
@@ -3141,9 +3275,10 @@
     function drawLieu(){
       lieuWrap.innerHTML = '';
       const val = (ev.lieu || '').trim();
-      const b = chipBtn('📍 ' + (val || 'Lieu'), false, ()=>{
+      const b = chipBtn('', false, ()=>{
         openTextPrompt('Lieu', val, (txt)=>{ ev.lieu = txt; drawLieu(); });
       });
+      b.innerHTML = pinIcon(15) + ' ' + escapeHtml(val || 'Lieu');   // 3.9 : icône dessinée
       b.title = val || 'Ajouter un lieu';
       if (val) { b.style.fontWeight = '700'; }
       // Événement d'un agenda lié : le lieu suit la source
@@ -3206,7 +3341,7 @@
         REMINDER_CHOICES.forEach(r=>{
           remWrap.appendChild(chipBtn(r.label, cur === r.min, ()=>{ ev.reminder = r.min; remOpen = false; drawReminders(); }));
         });
-        remWrap.appendChild(chipBtn(isCustom ? '✏️ ' + reminderLabel(cur) : '✏️ Perso', isCustom, ()=>{
+        const perso = chipBtn('', isCustom, ()=>{
           const base = isCustom ? cur : 90;
           const startVal = String(Math.floor(base/60)).padStart(2,'0') + ':' + String(base%60).padStart(2,'0');
           openTimeWheel(startVal, (val)=>{
@@ -3215,7 +3350,9 @@
             if (!mins) { toast('Choisis une durée d\'au moins 5 minutes.'); return; }
             ev.reminder = mins; remOpen = false; drawReminders();
           }, { title: 'Rappel combien de temps avant ?', clearLabel: null, units: true });
-        }));
+        });
+        perso.innerHTML = pencilIcon(14) + ' ' + escapeHtml(isCustom ? reminderLabel(cur) : 'Perso');   // 3.9
+        remWrap.appendChild(perso);
       }
       remNote.textContent = (ev.reminder !== null && ev.reminder !== undefined && !ev.start)
         ? "Sans heure de début, le rappel arrive le jour même à 8 h (« 24 h » : la veille à 8 h)."
@@ -3312,7 +3449,7 @@
       try {
         const existed = !bulk && state.events.some(x=>x.id===ev.id);
         const pushedIds = await op;
-        if (replaced.length) await logActivity(`a remplacé ${replaced.length} cas par « ${title} », ${quandLabel(replaced.map(x=>x.date))}${pourQui(ev.participants)}`);
+        if (replaced.length) await logActivity(`a remplacé ${replaced.length} horaire${replaced.length>1?'s':''} de travail par « ${title} », ${quandLabel(replaced.map(x=>x.date))}${pourQui(ev.participants)}`);
         if (bulk) { await logActivity(`a ajouté « ${title} », ${quandLabel(bulk)}${pourQui(ev.participants)}`); view.selectMode = false; view.selectedDays = []; }
         else if (seriesOthers.length) await logActivity(`a modifié « ${title} », ${quandLabel([ev.date, ...seriesOthers.map(x=>x.date)])}${pourQui(ev.participants)}`);
         else await logActivity(`${existed ? 'a modifié' : 'a ajouté'} « ${title} », ${quandLabel([ev.date])}${pourQui(ev.participants)}`);
@@ -3322,7 +3459,7 @@
         view.sheet = null;
       } catch(err){
         await reloadHouseholdData();
-        alert("Erreur d'enregistrement : "+err.message);
+        showAlert("Erreur d'enregistrement : "+err.message);
       } finally { view._saving = false; }
       render();
     };
@@ -3341,7 +3478,7 @@
       detach.type = 'button'; detach.className = 'ghost-btn';
       detach.textContent = 'Détacher (copie modifiable)';
       detach.onclick = async ()=>{
-        if (!confirm(`Détacher « ${ev.title} » ?\n\nIl deviendra un événement normal, modifiable, et ne suivra plus les changements de « ${srcLink ? srcLink.nom : 'la source'} ».`)) return;
+        if (!await askConfirm(`Détacher « ${ev.title} » ?\n\nIl deviendra un événement normal, modifiable, et ne suivra plus les changements de « ${srcLink ? srcLink.nom : 'la source'} ».`, { ok:'Détacher' })) return;
         detach.disabled = true;
         try {
           const { error } = await sb.from('events').update({ detache:true }).eq('id', ev.id);
@@ -3351,21 +3488,30 @@
           toast('Événement détaché : tu peux maintenant le modifier librement.');
           const fresh = state.events.find(x=>x.id===ev.id);
           if (fresh) { view.editingEvent = {...fresh, participants:[...fresh.participants]}; render(); return; }
-        } catch(err){ alert('Erreur : ' + ((err && err.message) || 'inconnue')); }
+        } catch(err){ showAlert('Erreur : ' + ((err && err.message) || 'inconnue')); }
         view.sheet = null; render();
       };
       sheet.appendChild(detach);
-    } else if (!bulk && !isNew) {
+    }
+    if (!bulk && !isNew) {
+      // 3.9 : recopier cet événement sur d'autres jours (le copier-coller du PC, aussi sur téléphone)
+      const dup = document.createElement('button');
+      dup.type = 'button'; dup.className = 'ghost-btn';
+      dup.innerHTML = copyIcon(16) + ' Dupliquer vers d\'autres jours';
+      dup.onclick = ()=>{ const orig = state.events.find(x=>x.id===ev.id) || ev; startDuplicate(orig); };
+      sheet.appendChild(dup);
+    }
+    if (!linked && !bulk && !isNew) {
       const del = document.createElement('button');
       del.type = 'button'; del.className = 'danger-btn';
-      del.textContent = '🗑 Supprimer cet événement';
+      del.innerHTML = trashIcon(16) + ' Supprimer cet événement';   // 3.9
       del.onclick = async ()=>{
         // 3.8 : on part de l'événement ENREGISTRÉ (pas de la copie en cours de modification)
         const orig = state.events.find(x=>x.id===ev.id) || ev;
         const list = seriesOf(orig);
         let choice = 'one';
         if (list.length > 1) { choice = await askSeriesDelete(orig, list); if (!choice) return; }   // Annuler : la fiche reste ouverte
-        else if (!confirm(`Supprimer « ${orig.title} » ?`)) return;
+        else if (!await askConfirm(`Supprimer « ${orig.title} » ?`, { ok:'Supprimer', danger:true })) return;
         del.disabled = true;
         view.sheet = null;
         if (choice === 'all') await trackOp(removeSeriesNow(list));
@@ -3480,12 +3626,12 @@
       };
       card.querySelector('[data-act="refresh"]').onclick = ()=>run({ action:'actualiser', lien_id:l.id });
       // 1.4 : « Important » pour tout l'agenda (les déjà importés ET les futurs)
-      card.querySelector('[data-act="important"]').onclick = ()=>{
+      card.querySelector('[data-act="important"]').onclick = async ()=>{
         const next = !l.important;
         const ask = next
           ? `Mettre tous les événements de « ${l.nom} » en Important ?\n\nLes prochains qui arriveront auront aussi l'étoile. Ceux que tu as détachés ne changent pas.`
           : `Retirer Important sur tous les événements de « ${l.nom} » ?\n\nCela retire aussi les étoiles que tu aurais mises à la main sur certains d'entre eux. Ceux que tu as détachés ne changent pas.`;
-        if (!confirm(ask)) return;
+        if (!await askConfirm(ask, { ok: next ? 'Tout en Important' : 'Retirer' })) return;
         run({ action:'important', lien_id:l.id, important:next }, (d)=>{
           const r = (d.results || [])[0];
           const base = next ? `Tous les événements de « ${l.nom} » sont en Important.` : `Important retiré sur « ${l.nom} ».`;
@@ -3494,8 +3640,8 @@
       };
       const un = card.querySelector('[data-act="unhide"]');
       if (un) un.onclick = ()=>run({ action:'reafficher', lien_id:l.id }, ()=>`${masked} événement${masked>1?'s':''} réaffiché${masked>1?'s':''}.`);
-      card.querySelector('[data-act="delete"]').onclick = ()=>{
-        if (!confirm(`Supprimer l'agenda lié « ${l.nom} » ?\n\nSes événements disparaîtront d'EarthShade (et de Google Agenda). Ceux que tu as détachés restent.`)) return;
+      card.querySelector('[data-act="delete"]').onclick = async ()=>{
+        if (!await askConfirm(`Supprimer l'agenda lié « ${l.nom} » ?\n\nSes événements disparaîtront d'EarthShade (et de Google Agenda). Ceux que tu as détachés restent.`, { ok:'Supprimer', danger:true })) return;
         run({ action:'supprimer_lien', lien_id:l.id }, (d)=>`« ${l.nom} » supprimé (${d.removed||0} événement${(d.removed||0)>1?'s':''} retiré${(d.removed||0)>1?'s':''}).`);
       };
       list.appendChild(card);
@@ -3523,12 +3669,13 @@
   function renderLinkForm(){
     const d = view._linkDraft || (view._linkDraft = { url:'', nom:'', icone:'', google: false, pour: state.myProfile ? state.myProfile.id : null, checked:null, error:'', saving:false });
     if (!d.pour && state.myProfile) d.pour = state.myProfile.id;
-    const scrim = document.createElement('div'); scrim.className='scrim center';
+    const scrim = document.createElement('div'); scrim.className='scrim center form-scrim';   // 3.9
     const back = ()=>{ view.sheet='links'; render(); };
     scrim.onclick = (e)=>{ if(e.target===scrim && !d.saving) back(); };
     const sheet = document.createElement('div'); sheet.className='sheet';
     const ok = d.checked && d.checked.url === d.url.trim();
     sheet.innerHTML = `
+      <div class="sheet-handle"></div>
       <div class="sheet-header"><h2>Ajouter un agenda</h2><button class="sheet-close" id="lk-close">✕</button></div>
       <div class="form-row"><label>Lien reçu</label>
         <input type="text" id="lk-url" placeholder="https://… ou webcal://…" value="${escapeAttr(d.url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
@@ -3690,7 +3837,7 @@
             <div class="event-title">${lnk(e)}${iconHtml(e)}${escapeHtml(e.title)}</div>
             <div class="event-meta" style="text-transform:capitalize">${dateLabel}${e.start?' · '+e.start:''}</div>
           </div></div>
-          ${e.reminder ? `<span class="rem-badge">⏰ ${reminderLabel(e.reminder)}</span>` : ''}`;
+          ${e.reminder ? `<span class="rem-badge">${alarmIcon(11)} ${reminderLabel(e.reminder)}</span>` : ''}`;
         row.onclick = ()=>{ view.openDay = e.date; view.sheet='day'; render(); };
         resultsWrap.appendChild(row);
       });
@@ -3721,7 +3868,7 @@
         <div class="swatches" id="guest-swatches"></div>
       </div>
       <div id="guest-error" style="color:var(--palette-4);font-size:13px;min-height:16px;"></div>
-      <button class="ghost-btn" id="add-guest-btn">➕ Ajouter ce profil</button>
+      <button class="ghost-btn" id="add-guest-btn">${plusIcon(16)} Ajouter ce profil</button>
       <hr class="section-sep">
       <div id="google-box"></div>
 
@@ -3729,7 +3876,11 @@
       <button class="ghost-btn" id="open-links-btn">${lineIcon(LINK_PATHS, 16)} Mes agendas liés${myLinks().length ? ' (' + myLinks().length + ')' : ''}</button>
       <button class="ghost-btn" id="open-log-btn">${logIcon(16)} Voir le journal</button>
       <div id="push-box"></div>
-      <button class="ghost-btn" id="left-hand-btn">✋ Mode gaucher : ${document.body.classList.contains('left-hand') ? 'activé' : 'désactivé'}</button>
+      <button class="ghost-btn" id="left-hand-btn">${handIcon(16)} Mode gaucher : ${document.body.classList.contains('left-hand') ? 'activé' : 'désactivé'}</button>
+      ${isWide() ? `<button class="ghost-btn" id="kbd-btn">${lineIcon('<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M8 14h8"/>', 16)} Raccourcis clavier (touche ?)</button>` : ''}
+      <div class="theme-row"><div class="theme-lab">Thème sur cet appareil</div><div class="theme-seg" role="group" aria-label="Thème">
+        <button type="button" data-theme-pick="auto">${autoThemeIcon(15)} Auto</button><button type="button" data-theme-pick="light">${sunIcon(15)} Clair</button><button type="button" data-theme-pick="dark">${moonIcon(15)} Sombre</button>
+      </div></div>
       <button class="ghost-btn" id="sign-out-btn">Se déconnecter</button>`;
     renderGoogleBox(sheet.querySelector('#google-box'));
     const list = sheet.querySelector('#who-list');
@@ -3747,9 +3898,9 @@
         del.style.cssText='margin-left:8px;background:none;border:none;color:var(--palette-4);font-size:14px;cursor:pointer;padding:2px 4px;';
         del.onclick = async (e)=>{
           e.stopPropagation();
-          if (!confirm(`Supprimer le profil « ${p.name} » ? Il sera retiré des événements où il apparaît.`)) return;
+          if (!await askConfirm(`Supprimer le profil « ${p.name} » ?\n\nIl sera retiré des événements où il apparaît.`, { ok:'Supprimer', danger:true })) return;
           try { await deleteGuestProfile(p); render(); }
-          catch(err){ alert('Erreur : '+err.message); }
+          catch(err){ showAlert('Erreur : '+err.message); }
         };
         row.appendChild(del);
       }
@@ -3785,6 +3936,14 @@
     sheet.querySelector('#sign-out-btn').onclick = async ()=>{ await sb.auth.signOut(); };
     // 3.2 : mode gaucher, réglé pour CET appareil (bouton de vue à gauche, bouton liste à droite)
     renderPushBox(sheet.querySelector('#push-box'));
+    // 3.9 : thème Auto / Clair / Sombre, réglé pour CET appareil
+    const curTheme = esTheme();
+    sheet.querySelectorAll('[data-theme-pick]').forEach(b=>{
+      const on = b.dataset.themePick === curTheme;
+      b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.onclick = ()=>{ setEsTheme(b.dataset.themePick); render(); };
+    });
+    { const kb = sheet.querySelector('#kbd-btn'); if (kb) kb.onclick = showShortcuts; }
     sheet.querySelector('#left-hand-btn').onclick = ()=>{
       const on = !document.body.classList.contains('left-hand');
       document.body.classList.toggle('left-hand', on);
@@ -3811,7 +3970,7 @@
       note.innerHTML = `<b>Sauvegarde Google Agenda</b><br>Non connectée. Une fois reliée, chaque événement du foyer est recopié dans un agenda Google « Agenda Famille », qui te restera même s'il arrivait malheur à la base.`;
       box.appendChild(note);
       const btn = document.createElement('button');
-      btn.className = 'ghost-btn'; btn.textContent = '🔗 Connecter Google Agenda';
+      btn.className = 'ghost-btn'; btn.innerHTML = lineIcon(LINK_PATHS, 16) + ' Connecter Google Agenda';   // 3.9
       btn.onclick = startGoogleConnect;
       box.appendChild(btn);
       return;
@@ -3838,7 +3997,7 @@
     off.className = 'ghost-btn';
     off.textContent = 'Déconnecter Google Agenda';
     off.onclick = async ()=>{
-      if (!confirm("Déconnecter Google Agenda ?\n\nLes événements déjà recopiés restent dans ton agenda Google, mais l'app cessera de l'alimenter.")) return;
+      if (!await askConfirm("Déconnecter Google Agenda ?\n\nLes événements déjà recopiés restent dans ton agenda Google, mais l'app cessera de l'alimenter.", { ok:'Déconnecter', danger:true })) return;
       try {
         const { data, error } = await sb.functions.invoke('google-calendar', { body:{ action:'disconnect' } });
         if (error) throw error;
@@ -3970,7 +4129,7 @@
         return `<div class="rc-row"><span class="rc-d">${escapeHtml(lab.charAt(0).toUpperCase()+lab.slice(1))}</span>${chip(c.e.title, true)}<span class="rc-arr">→</span>${chip(newTitle, false)}</div>`;
       }).join('');
       sheet.innerHTML = `
-        <div class="sheet-header"><h2>${daysN>1 ? daysN+' jours ont déjà un cas' : 'Déjà un cas ce jour-là'}</h2><button class="sheet-close" id="rc-close">✕</button></div>
+        <div class="sheet-header"><h2>${daysN>1 ? daysN+' jours ont déjà un horaire de travail' : 'Déjà un horaire de travail ce jour-là'}</h2><button class="sheet-close" id="rc-close">✕</button></div>
         <div class="rc-list">${rows}</div>
         ${nDays > daysN ? `<p class="rc-note">Les autres jours reçoivent ${escapeHtml(newTitle)} normalement.</p>` : ''}
         <div style="display:flex; gap:10px;">
@@ -3979,6 +4138,7 @@
         </div>
         <button class="rc-cancel" id="rc-cancel">Annuler</button>`;
       const done = v=>{ scrim.remove(); resolve(v); };
+      scrim._esClose = ()=>done(null);   // 3.9 : retour / Échap = Annuler
       sheet.querySelector('#rc-close').onclick = ()=>done(null);
       sheet.querySelector('#rc-cancel').onclick = ()=>done(null);
       sheet.querySelector('#rc-keep').onclick = ()=>done('keep');
@@ -4187,7 +4347,7 @@
   function listTabs(){
     const me = state.myProfile ? state.myProfile.id : null;
     const people = state.profiles.filter(p=>p.user_id).sort((a,b)=> (a.id===me ? -1 : b.id===me ? 1 : String(a.name).localeCompare(String(b.name), 'fr')));
-    return [{ key:'courses', label:'Courses', icon:'🛒' }].concat(people.map(p=>({ key:p.id, label:p.name, color:p.color })));
+    return [{ key:'courses', label:'Courses', icon: cartIcon(16) }].concat(people.map(p=>({ key:p.id, label:p.name, color:p.color })));
   }
   const lpOpenIn = key => (state.articles || []).filter(a=>a.liste===key && !a.coche);
   const lpById = id => (state.articles || []).find(a=>a.id===id);
@@ -4620,11 +4780,12 @@
   }
   document.addEventListener('focusin', e=>{ if (lpEl.panel && lpEl.panel.contains(e.target)) setTimeout(lpFitKeyboard, 350); });
 
-  // Échap (PC) : ferme la modification en cours, sinon les listes
+  // 3.9 : Échap (PC) ferme TOUTES les fenêtres, une à la fois, dans le même ordre que le bouton retour du téléphone
+  // (dans les listes : d'abord la modification en cours)
   document.addEventListener('keydown', e=>{
-    if (e.key !== 'Escape' || !listsOpen()) return;
-    if (lpEditing) { lpEditing = null; lpDirty = true; lpFlush(); return; }
-    if (!document.querySelector('.scrim')) closeLists();
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    if (listsOpen() && lpEditing && !document.querySelector('body > .scrim')) { lpEditing = null; lpDirty = true; lpFlush(); return; }
+    if (esCloseTop()) { e.preventDefault(); setTimeout(esBackSync, 0); }
   });
   // Au retour sur l'appli (téléphone rallumé, onglet revenu) : on relit les listes
   document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState === 'visible' && state.household) reloadArticles(); });
@@ -4774,7 +4935,7 @@
       <div class="mn-head"><h2>Menu</h2><span class="mn-date"></span><button type="button" class="mn-x" aria-label="Fermer">✕</button></div>
       <div class="mn-tabs"><button type="button" class="mn-tab" data-m="midi">☀ Midi</button><button type="button" class="mn-tab" data-m="soir">☾ Soir</button></div>
       <div class="mn-dishes"></div>
-      <div class="mn-ingbar" hidden><div class="mn-ingrow"></div><button type="button" class="mn-cart">🛒 Ajouter aux courses</button></div>
+      <div class="mn-ingbar" hidden><div class="mn-ingrow"></div><button type="button" class="mn-cart">${cartIcon(16)} Ajouter aux courses</button></div>
       <div class="mn-field"><input class="mn-search" type="text" placeholder="Ajouter un plat ou chercher…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Ajouter un plat"><button type="button" class="mn-erase" aria-label="Effacer le texte">✕</button></div>
       <div class="mn-lab mn-lab-rc">Mes recettes</div>
       <div class="mn-recipes"></div>
@@ -4900,7 +5061,7 @@
     if (plats.length) {
       mnEl.ingbar.querySelector('.mn-ingrow').innerHTML = plats.map(p=>{
         const n = mnIngOf(p).length;
-        return `<button type="button" class="mn-ingbtn${n ? '' : ' empty'}" data-ing="${escapeAttr(p)}">🧾 ${escapeHtml(p)} · ${n ? n + ' ingrédient' + (n > 1 ? 's' : '') : '+ ingrédients'}</button>`;
+        return `<button type="button" class="mn-ingbtn${n ? '' : ' empty'}" data-ing="${escapeAttr(p)}">${receiptIcon(14)} ${escapeHtml(p)} · ${n ? n + ' ingrédient' + (n > 1 ? 's' : '') : '+ ingrédients'}</button>`;
       }).join('');
       mnEl.ingbar.querySelector('.mn-cart').disabled = !plats.some(p=>mnIngOf(p).length);
     }
@@ -5234,11 +5395,14 @@
     mnToast(n ? `${n} repas repris de la semaine d'avant` : "Rien à reprendre : cette semaine est déjà remplie, ou celle d'avant est vide");
     if (n) setTimeout(()=>{ mnFlash.clear(); if (menuModeOn()) render(); }, 2500);
   }
-  document.addEventListener('keydown', e=>{
-    if (e.key !== 'Escape') return;
-    if (document.body.classList.contains('mn-open')) mnClose();
-    else if (mnCopy) mnStopCopy(false);
-  });
+
+  /* ---------- 3.9 : thème (par appareil) ---------- */
+  function esTheme(){ try { const t = localStorage.getItem('es-theme'); return (t === 'light' || t === 'dark') ? t : 'auto'; } catch(e){ return 'auto'; } }
+  function setEsTheme(t){
+    try { if (t === 'auto') localStorage.removeItem('es-theme'); else localStorage.setItem('es-theme', t); } catch(e){}
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    else document.documentElement.removeAttribute('data-theme');
+  }
 
   /* ---------- 3.2 : mode gaucher (par appareil) ---------- */
   try { if (localStorage.getItem('es-left-hand') === '1') document.body.classList.add('left-hand'); } catch(e){}
@@ -5246,7 +5410,7 @@
   /* ---------- 3.2 : bouton « retour » (Android, et flèche retour du navigateur) ---------- */
   // Tant qu'une fenêtre est ouverte, on garde une étape dans l'historique : « retour » ferme la fenêtre du dessus
   // au lieu de quitter EarthShade. Quand plus rien n'est ouvert, « retour » fait son travail habituel.
-  let esBackIgnore = 0;
+  let esBackIgnore = 0, esBackPending = false;
   function esLayerOpen(){
     return !!(view.sheet || view.selectMode || document.querySelector('body > .scrim') ||
               document.body.classList.contains('lists-open') || document.body.classList.contains('mn-open') ||
@@ -5256,13 +5420,14 @@
     try {
       const marked = !!(history.state && history.state.es);
       if (esLayerOpen() && !marked) history.pushState({ es:1 }, '');
-      else if (!esLayerOpen() && marked) { esBackIgnore++; history.back(); }
+      // 3.9 : un seul « retour » à la fois (deux appels rapprochés faisaient quitter l'appli)
+      else if (!esLayerOpen() && marked && !esBackPending) { esBackPending = true; esBackIgnore++; history.back(); }
     } catch(e){}
   }
-  window.addEventListener('popstate', ()=>{
-    if (esBackIgnore > 0) { esBackIgnore--; return; }
-    const small = document.querySelector('body > .scrim');          // petite fenêtre (heure, lieu…)
-    if (small) small.remove();
+  // 3.9 : « fermer ce qui est au-dessus », partagé par le bouton retour (téléphone) et Échap (PC)
+  function esCloseTop(){
+    const small = document.querySelector('body > .scrim');          // petite fenêtre (heure, lieu, confirmation…)
+    if (small) { if (small._esClose) small._esClose(); else small.remove(); }
     else if (document.body.classList.contains('mn-open') && typeof mnSub !== 'undefined' && mnSub) { mnSub = null; mnFillSub(); mnFill(); }
     else if (document.body.classList.contains('mn-open')) mnClose();
     else if (typeof mnCopy !== 'undefined' && mnCopy) mnStopCopy(false);
@@ -5270,7 +5435,14 @@
     else if (view.sheet === 'form') { stashFormFields(); closeForm(); }
     else if (view.sheet === 'linkform') { view.sheet = 'links'; render(); }
     else if (view.sheet) { view.sheet = null; render(); }
-    else if (view.selectMode) { view.selectMode = false; view.selectedDays = []; render(); }
+    else if (view.selectMode) { view.selectMode = false; view.selectedDays = []; dupClip = null; render(); }
+    else return false;
+    return true;
+  }
+  window.addEventListener('popstate', ()=>{
+    esBackPending = false;
+    if (esBackIgnore > 0) { esBackIgnore--; return; }
+    esCloseTop();
     setTimeout(esBackSync, 0);   // s'il reste quelque chose d'ouvert, on remet une étape
   });
   setInterval(esBackSync, 400);   // filet de sécurité : fenêtres ouvertes en dehors du dessin principal
@@ -5334,7 +5506,7 @@
     if (!box) return;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if (!pushSupported()) {
-      box.innerHTML = `<div class="push-row"><span>🔔 Rappels sur ce téléphone<small>${isIOS
+      box.innerHTML = `<div class="push-row"><span>${bellIcon(15)} Rappels sur ce téléphone<small>${isIOS
         ? "Sur iPhone : installe d'abord EarthShade sur l'écran d'accueil (Partager → Sur l'écran d'accueil), puis ouvre-le depuis son icône."
         : "Ce navigateur ne peut pas recevoir de rappels."}</small></span></div>`;
       return;
@@ -5345,7 +5517,7 @@
     const denied = Notification.permission === 'denied';
     const note = denied ? "Bloqués dans les réglages du téléphone : autorise les notifications pour EarthShade, puis réessaie."
       : on ? 'Activés : tes rappels arrivent sur ce téléphone.' : 'Désactivés';
-    box.innerHTML = `<div class="push-row"><span>🔔 Rappels sur ce téléphone<small>${note}</small></span>`
+    box.innerHTML = `<div class="push-row"><span>${bellIcon(15)} Rappels sur ce téléphone<small>${note}</small></span>`
       + `<button type="button" class="push-switch" id="push-switch" role="switch" aria-checked="${on}" aria-label="Rappels sur ce téléphone"${pushBusy ? ' disabled' : ''}></button></div>`
       + (on ? '<button class="ghost-btn" id="push-test-btn">Envoyer un rappel de test</button>' : '');
     box.querySelector('#push-switch').onclick = async ()=>{
@@ -5442,7 +5614,22 @@
   });
   document.addEventListener('mouseleave', ()=>{ hoverEventId = null; hoverDay = null; });
 
+  /* 3.9 : liste des raccourcis clavier (touche « ? », ou Mon compte sur PC) */
+  function showShortcuts(){
+    esDialog('Raccourcis clavier\n\n' + [
+      '← →   mois (ou semaine, jour) précédent / suivant',
+      'Maj + clic sur un jour   sélectionner plusieurs jours',
+      'Ctrl + C   copier l\'événement survolé',
+      'Ctrl + V   le coller sur le jour survolé (ou les jours sélectionnés)',
+      'Suppr   supprimer l\'événement survolé (↺ pour annuler)',
+      'Ctrl + Z   annuler la dernière action',
+      'Échap   fermer la fenêtre ouverte',
+      'Entrée   valider',
+      '?   cette liste'
+    ].join('\n'), { alert:true, ok:'Fermer' });
+  }
   async function pasteEvent(src, days){
+    dupClip = null;
     const list = [...new Set(days)];
     snapshot();
     try {
@@ -5460,7 +5647,7 @@
       toast(`« ${src.title} » collé : ${lab} — ↺ pour annuler`);
     } catch(err){
       await reloadHouseholdData().catch(()=>{});
-      alert('Collage impossible : ' + ((err && err.message) || 'erreur inconnue'));
+      showAlert('Collage impossible : ' + ((err && err.message) || 'erreur inconnue'));
     }
     render();
   }
@@ -5473,6 +5660,11 @@
     const sheetOpen = !!document.querySelector('.scrim');
     const mod = e.ctrlKey || e.metaKey;
     const k = (e.key || '').toLowerCase();
+    // 3.9 : « ? » affiche la liste des raccourcis
+    if (e.key === '?' && !mod && !e.altKey) {
+      if (sheetOpen) return;
+      e.preventDefault(); showShortcuts(); return;
+    }
 
     if (!mod && !e.altKey && !e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       if (sheetOpen) return;
@@ -5488,6 +5680,7 @@
       e.preventDefault();
       if (e.repeat || delBusy) return;
       if (!sheetOpen && view.selectMode) {
+        if (dupClip) return;   // 3.9 : pendant « Dupliquer », Suppr ne supprime rien
         if (!view.selectedDays.length) { toast('Sélectionne des jours, ou survole un événement, puis Suppr.'); return; }
         delBusy = true;
         removeEventsOnDays([...view.selectedDays]).finally(()=>{ delBusy = false; });
