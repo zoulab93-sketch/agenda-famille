@@ -888,9 +888,26 @@
   header.hd4 .avatar { width:36px; height:36px; font-size:14px; border:2px solid var(--surface); box-shadow:var(--shadow); }
   .today-pill { height:34px; padding:0 12px; border-radius:17px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; }
 
+  /* 4.0.1 : titre un peu plus petit, flèches plus serrées : le bouton « aujourd'hui » ne mange plus le mois */
+  header.hd4 .month-title { font-size:20px; }
+  header.hd4 .month-nav button { min-width:28px; padding:6px 4px; }
+  header.hd4 { padding:10px 10px 6px 16px; }
+  /* 4.0.1 : formulaire d'événement plus compact sur téléphone (tient sur un écran) ; date, début et fin sur une ligne */
+  .tr-date { flex:1.55; min-width:0; }
+  .tr-date input { padding-left:9px; padding-right:6px; }
+  body:not(.is-wide) .form-scrim .sheet { max-height:94vh; padding:12px 16px 18px; }
+  body:not(.is-wide) .form-scrim .sheet-handle { margin-bottom:8px; }
+  body:not(.is-wide) .form-scrim .sheet-header { margin-bottom:8px; }
+  body:not(.is-wide) .form-scrim .form-row { margin-bottom:9px; }
+  body:not(.is-wide) .form-scrim .form-row label { margin-bottom:4px; font-size:12px; }
+  body:not(.is-wide) .form-scrim .form-row input, body:not(.is-wide) .form-scrim .time-field { padding-top:9px; padding-bottom:9px; }
+  body:not(.is-wide) .form-scrim .time-row { gap:8px; }
+  body:not(.is-wide) .form-scrim .chip { padding:7px 12px; }
+  body:not(.is-wide) .form-scrim .chips { gap:6px; }
+  body:not(.is-wide) .form-scrim .preset-row { margin-bottom:6px; }
   /* barre Agenda · Travail · Menus · Listes */
-  .mode-bar { margin:0 14px 10px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:2px; padding:3px; background:var(--surface); border-radius:20px; box-shadow:var(--shadow); flex-shrink:0; }
-  .mb-btn { position:relative; height:36px; border-radius:17px; border:none; background:transparent; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:5px; font:600 12.5px 'Plus Jakarta Sans',sans-serif; padding:0; cursor:pointer; min-width:0; }
+  .mode-bar { margin:0 14px 8px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:2px; padding:3px; background:var(--surface); border-radius:20px; box-shadow:var(--shadow); flex-shrink:0; }
+  .mb-btn { position:relative; height:33px; border-radius:16px; border:none; background:transparent; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:5px; font:600 12.5px 'Plus Jakarta Sans',sans-serif; padding:0; cursor:pointer; min-width:0; }
   .mb-btn span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .mb-btn.on, body.lists-open .mb-btn.mb-listes { background:var(--accent); color:var(--on-accent); font-weight:700; }
   .mb-btn .lp-badge.mb-badge { position:absolute; top:1px; right:3px; min-width:16px; height:16px; font-size:9.5px; padding:0 4px; border-radius:8px; }
@@ -900,20 +917,20 @@
   .legend { gap:4px; padding:0 12px 8px; }
 
   /* vue mois (téléphone) : une seule grande carte blanche, lignes fines, aujourd'hui = rond plein */
-  body.month-fit .cal-viewport > .cal-wrap { background:var(--surface); border-radius:22px; margin:0 10px 26px; padding:8px 3px 3px; box-shadow:var(--shadow); height:auto; flex:1; }
+  body.month-fit .cal-viewport > .cal-wrap { background:var(--surface); border-radius:22px; margin:0 8px 24px; padding:6px 2px 2px; box-shadow:var(--shadow); height:auto; flex:1; }
   body.month-fit .weekdays { padding:0 0 4px; }
   body.month-fit .grid { padding:0; gap:0; --cg:0px; --cpx:2px; }
-  body.month-fit .day-cell { background:transparent; border-radius:0; box-shadow:inset 0 1px 0 var(--line); padding:3px 2px; border-color:transparent; }
+  body.month-fit .day-cell { background:transparent; border-radius:0; box-shadow:inset 0 1px 0 var(--line); padding:2px 2px; gap:1px; border-color:transparent; }
   body.month-fit .day-cell.other-month { background:transparent; box-shadow:inset 0 1px 0 var(--line); }
   body.month-fit .day-cell.picked { border-radius:10px; }
-  .day-num { display:flex; align-items:center; justify-content:center; gap:2px; padding-left:0; min-height:20px; }
-  .day-num .dn { min-width:20px; height:20px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; padding:0 3px; box-sizing:border-box; }
+  .day-num { display:flex; align-items:center; justify-content:center; gap:2px; padding-left:0; min-height:17px; line-height:17px; }
+  .day-num .dn { min-width:18px; height:18px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; padding:0 3px; box-sizing:border-box; }
   .day-cell.today { border-color:transparent; }
   .day-cell.today .day-num .dn { background:var(--accent); color:var(--on-accent); font-weight:800; }
   body.is-wide .day-cell { box-shadow:none; border-radius:14px; }
   body.is-wide .day-num { justify-content:flex-start; padding-left:2px; }
   /* événements : pastilles teintées, sans contour */
-  .ev-line { border-width:0; border-radius:6px; height:16px; line-height:16px; font-size:9.5px; padding:0 4px; }
+  .ev-line { border-width:0; border-radius:5px; height:15px; line-height:15px; font-size:9.5px; padding:0 3px; }
   .ev-line.imp { border:1.5px solid var(--ink); line-height:13px; }
   .ev-line.span-piece { border-width:0; }
 
@@ -942,7 +959,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2261,7 +2278,7 @@
           <button id="next-m" aria-label="Suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
         <div class="header-actions">
-          ${isCurrentPeriod() ? '' : `<button class="today-pill" id="go-today">Aujourd'hui</button>`}
+          ${isCurrentPeriod() ? '' : `<button class="icon-btn" id="go-today" aria-label="Revenir à aujourd'hui" title="Aujourd'hui">${todayIcon()}</button>`}
           <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
           <button class="avatar" id="open-switch" aria-label="Réglages" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</button>
         </div>`;
@@ -2640,13 +2657,17 @@
         if (!viewport || !curEl) { tracking = false; dragging = false; return; }
         width = viewport.offsetWidth || 1;
         const vpH = viewport.offsetHeight;
+        // 4.0.1 : en vue mois, la carte a des marges : on garde sa vraie taille pendant le glissement
+        // (sinon elle s'agrandissait d'un coup et l'agenda avait l'air de « dézoomer »)
+        const cardMode = document.body.classList.contains('month-fit');
+        const cw = cardMode ? curEl.offsetWidth + 'px' : '100%', ch = (cardMode ? curEl.offsetHeight : vpH) + 'px';
         viewport.style.minHeight = vpH + 'px';
-        curEl.style.position = 'absolute'; curEl.style.top = '0'; curEl.style.left = '0'; curEl.style.width = '100%'; curEl.style.height = vpH + 'px';
+        curEl.style.position = 'absolute'; curEl.style.top = '0'; curEl.style.left = '0'; curEl.style.width = cw; curEl.style.height = ch;
         curEl.style.transition = 'none'; curEl.style.willChange = 'transform';
         prevCard = buildNeighborCard(-1);
         nextCard = buildNeighborCard(1);
         [prevCard, nextCard].forEach(c=>{
-          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = '100%'; c.style.height = vpH + 'px';
+          c.style.position = 'absolute'; c.style.top = '0'; c.style.left = '0'; c.style.width = cw; c.style.height = ch;
           c.style.transition = 'none'; c.style.willChange = 'transform';
         });
         prevCard.style.transform = `translate3d(${-width}px,0,0)`;
@@ -3385,8 +3406,8 @@
       <div class="preset-row" id="presets"></div>
       <div class="form-row"><label>Titre</label><input type="text" id="f-title" value="${escapeAttr(ev.title)}"></div>
       <div class="form-row"><label>Icône</label><div style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-lieu" style="min-width:0;"></div><div id="f-imp"></div></div></div>
-      ${bulk?'':`<div class="form-row"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
       <div class="form-row time-row">
+        ${bulk?'':`<div class="tr-date"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
         <div style="flex:1"><label>Fin</label><button type="button" class="time-field" id="f-end-btn">${ev.end||'--:--'}</button></div>
       </div>
