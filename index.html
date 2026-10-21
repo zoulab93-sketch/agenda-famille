@@ -905,6 +905,22 @@
   body:not(.is-wide) .form-scrim .chip { padding:7px 12px; }
   body:not(.is-wide) .form-scrim .chips { gap:6px; }
   body:not(.is-wide) .form-scrim .preset-row { margin-bottom:6px; }
+  /* 4.0.2 : fiche d'un événement — Détails (icône, lieu, important) : trois bulles identiques */
+  .f-details #f-icons > .chip:not(.icon-chip), .f-details #f-lieu > .chip, .f-details #f-imp > .chip {
+    height:38px; padding:0 13px; font-size:14px !important; font-weight:600; border:1.5px solid var(--line) !important; background:var(--surface-soft) !important; color:var(--ink) !important; white-space:nowrap; }
+  .f-details #f-imp > .chip.on { background:color-mix(in srgb, #F2C14E 26%, var(--surface)) !important; border-color:#E2B33F !important; }
+  .f-details { flex-wrap:nowrap; }
+  .f-details #f-lieu { flex:0 1 auto; min-width:0; }
+  .f-details #f-lieu > .chip { max-width:100%; overflow:hidden; text-overflow:ellipsis; display:flex; }
+  /* Qui participe : une seule ligne qu'on fait glisser, comme les postes */
+  #f-participants { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+    -webkit-mask-image:linear-gradient(90deg, #000 calc(100% - 26px), transparent); mask-image:linear-gradient(90deg, #000 calc(100% - 26px), transparent); }
+  #f-participants::-webkit-scrollbar { display:none; }
+  #f-participants > .chip { flex-shrink:0; }
+  #f-participants::after { content:''; flex:0 0 14px; }
+  /* 4.0.2 : roue de l'heure maison (élan + infinie) */
+  .wheel-col.wheel-js { position:relative; overflow:hidden; padding:0; scroll-snap-type:none; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none; }
+  .wheel-col.wheel-js .wheel-item { position:absolute; left:0; right:0; top:0; will-change:transform, opacity; }
   /* barre Agenda · Travail · Menus · Listes */
   .mode-bar { margin:0 14px 8px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:2px; padding:3px; background:var(--surface); border-radius:20px; box-shadow:var(--shadow); flex-shrink:0; }
   .mb-btn { position:relative; height:33px; border-radius:16px; border:none; background:transparent; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:5px; font:600 12.5px 'Plus Jakarta Sans',sans-serif; padding:0; cursor:pointer; min-width:0; }
@@ -959,7 +975,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.2</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1600,10 +1616,12 @@
   /* 3.7.1 : une « Journée » répétée les jours qui se suivent (même titre, mêmes personnes) forme une série,
      comme le fil du widget. À la suppression, on propose ce jour seulement ou toute la série. */
   function seriesOf(e){
-    if (!e || e.start || isLinked(e) || caseColorOf(e)) return [e];
-    const key = x => (x.title||'').trim().toLowerCase() + '|' + [...new Set(x.participants||[])].sort().join(',');
+    if (!e || e.start || caseColorOf(e)) return [e];
+    // 4.0.2 : aussi pour les événements d'un agenda lié (ex. « Vacances de la Toussaint ») : même source
+    const lk = isLinked(e);
+    const key = x => (x.title||'').trim().toLowerCase() + '|' + [...new Set(x.participants||[])].sort().join(',') + '|' + (isLinked(x) ? 'L' + x.sourceId : '');
     const k = key(e);
-    const same = d => state.events.find(x=>x.date===d && !x.start && !isLinked(x) && !caseColorOf(x) && key(x)===k);
+    const same = d => state.events.find(x=>x.date===d && !x.start && isLinked(x) === lk && !caseColorOf(x) && key(x)===k);
     const list = [e]; let d = e.date, x;
     while ((x = same(addDays(d, -1)))) { list.unshift(x); d = x.date; }
     d = e.date;
@@ -1680,19 +1698,21 @@
     render();
     try {
       list.forEach(x=>touchUndo(x.id));
-      const { error } = await sb.from('events').delete().in('id', [...ids]);
-      if (error) throw error;
-      await logActivity(`a supprimé « ${list[0].title} », ${quandLabel(list.map(x=>x.date))}${pourQui(idsOf(list))}`);
+      // 4.0.2 : les jours venant d'un agenda lié sont masqués (sinon ils reviendraient à la prochaine actualisation)
+      const linkedOnes = list.filter(isLinked), own = list.filter(x=>!isLinked(x));
+      for (const x of linkedOnes) await hideImportedDb(x);
+      if (own.length) { const { error } = await sb.from('events').delete().in('id', own.map(x=>x.id)); if (error) throw error; }
+      await logActivity(`a ${linkedOnes.length && !own.length ? 'masqué' : 'supprimé'} « ${list[0].title} », ${quandLabel(list.map(x=>x.date))}${pourQui(idsOf(list))}`);
       await reloadHouseholdData();
       list.forEach(x=>{ if (x.googleId) syncToGoogle('remove', { google_event_id: x.googleId }); });
-      toast(`« ${list[0].title} » supprimé sur ${list.length} jours — ↺ pour annuler`);
+      toast(`« ${list[0].title} » ${linkedOnes.length && !own.length ? 'masqué' : 'supprimé'} sur ${list.length} jours — ↺ pour annuler`);
     } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("La série n'a pas pu être supprimée : "+err.message); }
     return 'series';
   }
   async function removeEvent(e){
     const list = seriesOf(e);
     if (list.length > 1) {
-      const choice = await askSeriesDelete(e, list);
+      const choice = await askSeriesDelete(e, list, isLinked(e) ? 'Masquer' : undefined);
       if (!choice) return 'cancel';
       if (choice === 'all') return trackOp(removeSeriesNow(list));
     }
@@ -3405,7 +3425,7 @@
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
       <div class="preset-row" id="presets"></div>
       <div class="form-row"><label>Titre</label><input type="text" id="f-title" value="${escapeAttr(ev.title)}"></div>
-      <div class="form-row"><label>Icône</label><div style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-lieu" style="min-width:0;"></div><div id="f-imp"></div></div></div>
+      <div class="form-row"><label>Détails</label><div class="f-details" style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-lieu" style="min-width:0;"></div><div id="f-imp"></div></div></div>
       <div class="form-row time-row">
         ${bulk?'':`<div class="tr-date"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
         <div style="flex:1"><label>Début</label><button type="button" class="time-field" id="f-start-btn">${ev.start||'--:--'}</button></div>
@@ -3543,6 +3563,11 @@
         : '';
     }
     drawReminders();
+    // 4.0.2 : menu Rappel (ou grille d'icônes) ouvert -> toucher ailleurs dans la fiche le referme
+    sheet.addEventListener('click', (e)=>{
+      if (remOpen && !e.target.closest('#f-reminder')) { remOpen = false; drawReminders(); }
+      if (iconsOpen && !e.target.closest('#f-icons')) { iconsOpen = false; drawIcons(); }
+    }, true);
 
     const partWrap = sheet.querySelector('#f-participants');
     function drawChips(){
@@ -4236,64 +4261,124 @@
   const WHEEL_ITEM_H = 44;
 
   const WHEEL_REPEAT = 9;
-  function wheelOpacity(col, idx){
-    [...col.children].forEach((el,i)=>{ el.style.opacity = i===idx?'1':'.35'; });
-  }
+  /* 4.0.2 : roue maison, sans défilement natif : elle tourne avec élan et ralentit doucement comme une toupie,
+     elle est vraiment infinie (après 55 vient 00, après 23 vient 00) et se cale toujours sur une valeur. */
   function fillWheelCol(col, values, selIdx, onSettle){
-    const n = values.length;
-    const mid = Math.floor(WHEEL_REPEAT/2);
-    let html = '';
-    for (let r=0; r<WHEEL_REPEAT; r++){
-      values.forEach(v=>{ html += `<div class="wheel-item">${String(v).padStart(2,'0')}</div>`; });
+    const n = values.length, H = WHEEL_ITEM_H;
+    const SLOTS = 9;                        // cases dessinées autour du centre
+    const FRICTION = 0.94;                  // par image de 16 ms : plus c'est proche de 1, plus ça roule longtemps
+    const VMAX = 0.045;                     // vitesse maximale (valeurs par ms) : un coup sec fait tourner, sans sauter
+    const mod = k => ((k % n) + n) % n;
+    col.innerHTML = '';
+    col.classList.add('wheel-js');
+    const items = [];
+    for (let i = 0; i < SLOTS; i++) { const d = document.createElement('div'); d.className = 'wheel-item'; col.appendChild(d); items.push(d); }
+    let pos = selIdx, raf = 0, anim = null, last = mod(selIdx);
+    function draw(){
+      const centerY = (col.clientHeight || 176) / 2 - H / 2;
+      const base = Math.floor(pos) - Math.floor(SLOTS / 2);
+      for (let i = 0; i < SLOTS; i++) {
+        const k = base + i, dist = k - pos, it = items[i];
+        it.textContent = String(values[mod(k)]).padStart(2, '0');
+        it.style.transform = `translate3d(0,${(centerY + dist * H).toFixed(2)}px,0) scale(${(1 - Math.min(Math.abs(dist), 3) * 0.06).toFixed(3)})`;
+        const a = Math.abs(dist);
+        it.style.opacity = a < 0.5 ? '1' : a < 1.5 ? '.55' : a < 2.5 ? '.28' : '.12';
+      }
     }
-    col.innerHTML = html;
-    const total = n*WHEEL_REPEAT;
-    let curIdx = mid*n + selIdx;
-    col.scrollTop = curIdx * WHEEL_ITEM_H;
-    wheelOpacity(col, curIdx);
-    // 3.7.9 : molette de souris -> un cran = une valeur (au lieu de ~3 heures d'un coup)
-    let target = curIdx, lastWheel = 0, acc = 0;
-    const goTo = (idx)=>{
-      idx = Math.max(0, Math.min(total-1, idx));
-      target = idx;
-      col.scrollTo({ top: idx*WHEEL_ITEM_H, behavior:'smooth' });
-      wheelOpacity(col, idx);
-      onSettle(values[((idx % n)+n)%n]);
+    function stop(){ if (raf) cancelAnimationFrame(raf); raf = 0; anim = null; }
+    function settle(){
+      const v = values[mod(Math.round(pos))];
+      if (v !== last) { last = v; try { if (navigator.vibrate) navigator.vibrate(4); } catch(e){} }
+      onSettle(v);
+    }
+    // va doucement jusqu'à la valeur « target » (nombre entier de crans)
+    let tgt = selIdx;
+    function snapTo(target, ms){
+      stop();
+      tgt = target;
+      const from = pos, d = target - from, t0 = performance.now(), dur = ms || Math.min(320, 140 + Math.abs(d) * 40);
+      anim = 'snap';
+      const step = (now)=>{
+        const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+        pos = from + d * e; draw();
+        if (t < 1) raf = requestAnimationFrame(step); else { raf = 0; anim = null; pos = target; draw(); settle(); }
+      };
+      raf = requestAnimationFrame(step);
+    }
+    // élan : la roue continue sur sa lancée et ralentit, puis se cale
+    function fling(v){
+      stop();
+      v = Math.max(-VMAX, Math.min(VMAX, v));
+      let t0 = performance.now();
+      anim = 'fling';
+      const step = (now)=>{
+        const dt = Math.min(40, now - t0); t0 = now;
+        pos += v * dt;
+        v *= Math.pow(FRICTION, dt / 16);
+        draw();
+        if (Math.abs(v) > 0.0025) raf = requestAnimationFrame(step);
+        else { raf = 0; snapTo(Math.round(pos)); }
+      };
+      raf = requestAnimationFrame(step);
+    }
+    // doigt ou souris
+    let drag = null;
+    col.addEventListener('pointerdown', (e)=>{
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      stop();
+      drag = { id:e.pointerId, y:e.clientY, p:pos, samples:[{ t:performance.now(), p:pos }], moved:false };
+      try { col.setPointerCapture(e.pointerId); } catch(_e){}
+      e.preventDefault();
+    });
+    col.addEventListener('pointermove', (e)=>{
+      if (!drag || e.pointerId !== drag.id) return;
+      const dy = e.clientY - drag.y;
+      if (Math.abs(dy) > 3) drag.moved = true;
+      pos = drag.p - dy / H;
+      const now = performance.now();
+      drag.samples.push({ t:now, p:pos });
+      while (drag.samples.length > 2 && now - drag.samples[0].t > 90) drag.samples.shift();
+      draw();
+    });
+    const up = (e)=>{
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null;
+      if (!d.moved) {
+        // simple toucher au-dessus ou au-dessous du centre : une valeur de plus ou de moins
+        const r = col.getBoundingClientRect(), off = (e.clientY - (r.top + r.height / 2)) / H;
+        if (Math.abs(off) > 0.5) snapTo(Math.round(pos) + Math.round(off)); else snapTo(Math.round(pos));
+        return;
+      }
+      const a = d.samples[0], b = d.samples[d.samples.length - 1];
+      const v = (b.t - a.t) > 8 ? (b.p - a.p) / (b.t - a.t) : 0;
+      if (Math.abs(v) > 0.004) fling(v); else snapTo(Math.round(pos));
     };
+    col.addEventListener('pointerup', up);
+    col.addEventListener('pointercancel', up);
+    // molette de souris : un cran = une valeur (3.7.9)
+    let acc = 0, lastWheel = 0;
     col.addEventListener('wheel', (e)=>{
       e.preventDefault();
       const now = Date.now();
-      if (now - lastWheel > 350) { target = Math.round(col.scrollTop / WHEEL_ITEM_H); acc = 0; }
+      if (now - lastWheel > 350) acc = 0;
       lastWheel = now;
       const dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
       acc += dy;
-      // souris : un cran ≈ 100 px -> 1 valeur ; pavé tactile : petits mouvements cumulés
       let steps = 0;
       if (Math.abs(dy) >= 40) { steps = Math.sign(dy); acc = 0; }
       else while (Math.abs(acc) >= 40) { steps += Math.sign(acc); acc -= Math.sign(acc) * 40; }
-      if (steps) goTo(target + steps);
+      if (steps) snapTo((anim === 'snap' ? tgt : Math.round(pos)) + steps, 160);
     }, { passive:false });
-    col._wheelStep = (d)=>{ const base = (Date.now() - lastWheel < 350) ? target : Math.round(col.scrollTop / WHEEL_ITEM_H); lastWheel = Date.now(); goTo(base + d); };
-    col._wheelSet = (v)=>{ const i = values.indexOf(v); if (i < 0) return; lastWheel = Date.now(); goTo(mid*n + i); };
-    let t=null;
-    col.addEventListener('scroll', ()=>{
-      if (t) clearTimeout(t);
-      t = setTimeout(()=>{
-        let idx = Math.round(col.scrollTop / WHEEL_ITEM_H);
-        idx = Math.max(0, Math.min(total-1, idx));
-        if (col.scrollTop !== idx*WHEEL_ITEM_H) col.scrollTo({top: idx*WHEEL_ITEM_H, behavior:'smooth'});
-        wheelOpacity(col, idx);
-        const realVal = values[((idx % n)+n)%n];
-        onSettle(realVal);
-        if (idx < n*1.5 || idx > total - n*1.5) {
-          setTimeout(()=>{
-            const newIdx = mid*n + (((idx % n)+n)%n);
-            col.scrollTop = newIdx * WHEEL_ITEM_H;
-            wheelOpacity(col, newIdx);
-          }, 260);
-        }
-      }, 130);
-    });
+    col._wheelStep = (dlt)=>{ snapTo((anim === 'snap' ? tgt : Math.round(pos)) + dlt, 160); };
+    col._wheelSet = (v)=>{
+      const i = values.indexOf(v); if (i < 0) return;
+      const cur = Math.round(pos), c = mod(cur);
+      let dlt = i - c; if (dlt > n / 2) dlt -= n; if (dlt < -n / 2) dlt += n;
+      snapTo(cur + dlt, 200);
+    };
+    col._wheelDraw = draw;
+    draw();
+    requestAnimationFrame(draw);   // une fois la fenêtre affichée (hauteur connue)
   }
 
   /* 3.4.1 : cas déjà posés pour la même personne sur ces jours */
@@ -4435,11 +4520,7 @@
     scrim.onclick = (e)=>{ if(e.target===scrim) close(); };
     scrim.appendChild(sheet);
     document.body.appendChild(scrim);
-    const midRep = Math.floor(WHEEL_REPEAT/2);
-    hourCol.scrollTop = (midRep*WHEEL_HOURS.length + hIdx) * WHEEL_ITEM_H;
-    minCol.scrollTop = (midRep*WHEEL_MINUTES.length + mIdx) * WHEEL_ITEM_H;
-    wheelOpacity(hourCol, midRep*WHEEL_HOURS.length + hIdx);
-    wheelOpacity(minCol, midRep*WHEEL_MINUTES.length + mIdx);
+    hourCol._wheelDraw(); minCol._wheelDraw();   // 4.0.2 : roue maison (voir fillWheelCol)
   }
 
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
