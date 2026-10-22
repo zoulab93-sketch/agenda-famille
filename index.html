@@ -880,7 +880,7 @@
   /* en-tête compact (téléphone) */
   header.hd4 { padding:12px 12px 8px 16px; gap:6px; }
   header.hd4 .month-nav { gap:2px; }
-  header.hd4 .month-title { flex:0 1 auto; text-align:left; font-size:21px; font-weight:800; letter-spacing:-0.01em; }
+  header.hd4 .month-title { flex:1 1 auto; text-align:left; font-size:21px; font-weight:800; letter-spacing:-0.01em; }
   header.hd4 .month-title.sliding { flex:1 1 auto; }
   header.hd4 .month-nav button { padding:6px; display:flex; align-items:center; justify-content:center; min-width:32px; min-height:36px; }
   header.hd4 .header-actions { gap:6px; }
@@ -889,8 +889,10 @@
   .today-pill { height:34px; padding:0 12px; border-radius:17px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:700 12.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; white-space:nowrap; }
 
   /* 4.0.1 : titre un peu plus petit, flèches plus serrées : le bouton « aujourd'hui » ne mange plus le mois */
-  header.hd4 .month-title { font-size:20px; }
-  header.hd4 .month-nav button { min-width:28px; padding:6px 4px; }
+  header.hd4 .month-title { font-size:19.5px; }
+  /* 4.0.3 : les flèches ne bougent plus (ni d'un mois à l'autre, ni pendant le glissement) : le titre prend toute la place libre */
+  header.hd4 .month-nav button { min-width:30px; padding:6px 3px; flex:0 0 auto; }
+  header.hd4 .month-nav { min-width:0; }
   header.hd4 { padding:10px 10px 6px 16px; }
   /* 4.0.1 : formulaire d'événement plus compact sur téléphone (tient sur un écran) ; date, début et fin sur une ligne */
   .tr-date { flex:1.55; min-width:0; }
@@ -975,7 +977,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.2</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.3</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2095,7 +2097,7 @@
     const ICO = {
       agenda: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
       travail: '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
-      menus: '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 2-3 4-3 7h3v11"/>',
+      menus: '<path d="M5 3v6.5a2.5 2.5 0 0 0 5 0V3"/><path d="M7.5 3v18"/><path d="M18.5 21V3c-2.4.9-3.8 3.6-3.8 7v3.2c0 .9.7 1.6 1.6 1.6h2.2"/>',
       listes: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2"/><circle cx="5" cy="18" r="1"/>'
     };
     const btn = (k, label, on, fn, extra)=>{
@@ -2298,7 +2300,7 @@
           <button id="next-m" aria-label="Suivant"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
         </div>
         <div class="header-actions">
-          ${isCurrentPeriod() ? '' : `<button class="icon-btn" id="go-today" aria-label="Revenir à aujourd'hui" title="Aujourd'hui">${todayIcon()}</button>`}
+          <button class="icon-btn" id="go-today" aria-label="Revenir à aujourd'hui" title="Aujourd'hui"${isCurrentPeriod() ? ' style="visibility:hidden" tabindex="-1" aria-hidden="true"' : ''}>${todayIcon()}</button>
           <button class="icon-btn" id="open-search" aria-label="Rechercher">${searchIcon()}</button>
           <button class="avatar" id="open-switch" aria-label="Réglages" style="background:${p.color}">${escapeHtml((p.name||'?')[0].toUpperCase())}</button>
         </div>`;
@@ -5074,7 +5076,7 @@
   // Toucher une case ouvre la fenêtre du repas sur la ligne la plus proche du doigt. Fourchette et Cas s'excluent.
   // 3.1 : un repas peut avoir plusieurs plats (« Quiche lorraine » + « Salade »), chacun gardé à part dans la banque.
   // La fenêtre vit en dehors de #app : une mise à jour de l'agenda ne ferme ni le clavier ni la fenêtre.
-  const FORK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3"/><line x1="9" y1="3" x2="9" y2="21"/><path d="M17 21V3c-2.2 1.2-3.2 3.6-3.2 6.5 0 2.2 1.3 3.5 3.2 3.5"/></svg>';
+  const FORK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v6.5a2.5 2.5 0 0 0 5 0V3"/><path d="M7.5 3v18"/><path d="M18.5 21V3c-2.4.9-3.8 3.6-3.8 7v3.2c0 .9.7 1.6 1.6 1.6h2.2"/></svg>';   // 4.0.3 : couverts redessinés (fourchette à 2 dents + couteau), nets même en petit
   function forkIcon(size){ return size ? FORK_SVG.replace(/width="17" height="17"/, `width="${size}" height="${size}"`) : FORK_SVG; }
   const mnEl = {};
   let mnCur = null;        // { ds, moment }
