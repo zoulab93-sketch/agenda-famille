@@ -554,6 +554,13 @@
   .lp-add { display:flex; gap:8px; margin:12px 0 4px; }
   .lp-add input { flex:1; min-width:0; padding:11px 12px; border-radius:10px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif; font-size:16px; }
   .lp-add input:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
+  .lp-top { position:relative; z-index:5; }
+  .lp-sugg { position:absolute; left:16px; right:16px; top:100%; margin-top:-2px; z-index:30; background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:4px; display:flex; flex-direction:column; }
+  .lp-sugg[hidden] { display:none; }
+  .lp-sug { display:flex; align-items:center; gap:10px; width:100%; text-align:left; padding:10px 12px; border:none; background:none; border-radius:9px; color:var(--ink); font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
+  .lp-sug:hover, .lp-sug.on { background:var(--surface-soft); }
+  .lp-sug-t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lp-sug-s { font-size:12px; font-weight:600; color:var(--ink-soft); }
   .lp-add button { padding:0 14px; border-radius:10px; border:none; background:var(--ink); color:var(--surface); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer; }
   .lp-list { flex:1; min-height:0; overflow-y:auto; padding:4px 16px 24px; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
   .lp-wrap { position:relative; overflow:hidden; border-bottom:1px solid var(--line); background:var(--surface); }
@@ -568,6 +575,7 @@
   .lp-row.swiping { transition:none; }
   .lp-box { width:24px; height:24px; border-radius:7px; border:2px solid color-mix(in srgb, var(--ink) 45%, transparent); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; transition:background .15s, border-color .15s; }
   .lp-row.checked .lp-box { background:var(--palette-3); border-color:var(--palette-3); }
+  .lp-row.checked.recent { background:color-mix(in srgb, var(--accent) 5%, transparent); }
   .lp-txt { flex:1; min-width:0; font-size:16px; font-weight:500; overflow-wrap:anywhere; }
   .lp-row.checked .lp-txt { text-decoration:line-through; color:var(--ink-soft); }
   .lp-fmt { font-size:13px; font-weight:600; color:var(--ink-soft); flex-shrink:0; }
@@ -1001,7 +1009,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.7</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.9</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -4668,6 +4676,12 @@
   // 2.1 : « Déjà pris » des courses trié du plus acheté au moins acheté. On compte les coches ;
   // celles du jour ne comptent pour le tri qu'à partir de minuit : rien ne bouge pendant les courses.
   function lpToday(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  // 4.0.8 : « banane », « Bananes », « bananes » = le même article (accents, majuscules, pluriel en s/x ignorés)
+  function lpKey(t){
+    return String(t||'').toLocaleLowerCase('fr').replace(/œ/g,'oe').replace(/æ/g,'ae').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9 ]+/g,' ').trim().split(/\s+/).map(w=> w.length > 3 && /[sx]$/.test(w) ? w.slice(0,-1) : w).join(' ');
+  }
+  const LP_RECENT_MS = 10 * 60 * 1000;   // un article coché il y a moins de 10 min reste en tête de « Déjà pris »
   function lpRank(a){ return a.nb - (a.jour === lpToday() ? a.nbJour : 0); }
   // Coche : +1 (et +1 pour aujourd'hui). Décoche le jour même (erreur, ou article repris) : on retire cette coche.
   function lpCountCheck(a, checked){
@@ -4693,12 +4707,13 @@
         <div class="lp-head"><h2>Listes</h2><button type="button" class="lp-close" aria-label="Fermer les listes">✕</button></div>
         <div class="lp-tabs"></div>
         <form class="lp-add" autocomplete="off"><input type="text" placeholder="Ajouter un article…" enterkeyhint="done" maxlength="200" aria-label="Ajouter un article"><button type="submit">Ajouter</button></form>
+        <div class="lp-sugg" role="listbox" hidden></div>
       </div>
       <div class="lp-list"></div>
       <div class="lp-toast" role="status"><span></span><button type="button">Annuler</button></div>`;
     document.body.appendChild(scrim); document.body.appendChild(panel);
     Object.assign(lpEl, { scrim, panel, tabs:panel.querySelector('.lp-tabs'), list:panel.querySelector('.lp-list'),
-                          form:panel.querySelector('.lp-add'), input:panel.querySelector('.lp-add input'), toast:panel.querySelector('.lp-toast') });
+                          form:panel.querySelector('.lp-add'), input:panel.querySelector('.lp-add input'), sugg:panel.querySelector('.lp-sugg'), toast:panel.querySelector('.lp-toast') });
     scrim.addEventListener('click', closeLists);
     panel.querySelector('.lp-close').addEventListener('click', closeLists);
     lpEl.tabs.addEventListener('click', e=>{
@@ -4708,6 +4723,7 @@
       renderLists(); lpEl.list.scrollTop = 0;
     });
     lpEl.form.addEventListener('submit', lpAdd);
+    lpBindSuggest();
     lpBindListEvents();
     lpBindPanelDrag();
   }
@@ -4746,7 +4762,7 @@
     }
     const by = lpTab === 'courses' && a.ajoutePar ? profileById(a.ajoutePar) : null;
     const fmt = lpFmt(a);
-    return `<div class="lp-wrap" data-wrap="${a.id}"><div class="lp-bg"></div><div class="lp-row${a.coche?' checked':''}${a.id===lpFreshId?' fresh':''}" data-id="${a.id}">`
+    return `<div class="lp-wrap" data-wrap="${a.id}"><div class="lp-bg"></div><div class="lp-row${a.coche?' checked':''}${a.coche && lpRecentIds.has(a.id)?' recent':''}${a.id===lpFreshId?' fresh':''}" data-id="${a.id}">`
       + `<span class="lp-box">${a.coche?LP_CHECK:''}</span><span class="lp-txt">${escapeHtml(a.texte)}</span>`
       + (fmt ? `<span class="lp-fmt">${escapeHtml(fmt)}</span>` : '')
       + (a.qte > 1 ? `<span class="lp-qty">x${a.qte}</span>` : '')
@@ -4754,6 +4770,7 @@
       + (a.coche ? '' : `<span class="lp-grip" data-grip="${a.id}" aria-label="Déplacer">${LP_GRIP}</span>`)
       + '</div></div>';
   }
+  let lpRecentIds = new Set();
   function renderLists(){
     if (!lpEl.panel) return;
     if (lpEditing || lpMove || (lpSwipe && lpSwipe.live)) { lpDirty = true; return; }   // pas sous le doigt : ce sera fait juste après
@@ -4768,9 +4785,13 @@
     const courses = lpTab === 'courses';
     const mine = (state.articles || []).filter(a=>a.liste===lpTab);
     const open = mine.filter(a=>!a.coche).sort((a,b)=>a.pos - b.pos);
-    const done = mine.filter(a=>a.coche).sort(courses
-      ? (a,b)=>(lpRank(b) - lpRank(a)) || a.texte.localeCompare(b.texte, 'fr', { sensitivity:'base' })
-      : (a,b)=>b.cocheLe - a.cocheLe);
+    const nowMs = Date.now(), isRecent = a=>a.cocheLe && nowMs - a.cocheLe < LP_RECENT_MS;
+    const done = mine.filter(a=>a.coche).sort((a,b)=>{
+      const ra = isRecent(a), rb = isRecent(b);
+      if (ra || rb) return (rb - ra) || (b.cocheLe - a.cocheLe);     // 4.0.8 : ce qu'on vient de cocher reste visible en haut
+      return courses ? ((lpRank(b) - lpRank(a)) || a.texte.localeCompare(b.texte, 'fr', { sensitivity:'base' })) : (b.cocheLe - a.cocheLe);
+    });
+    lpRecentIds = new Set(done.filter(isRecent).map(a=>a.id));
     let h = '';
     if (state.articlesReady === false && !mine.length) h = `<div class="lp-empty">Les listes ne sont pas encore prêtes (base de données).<br>Réessayez dans un instant.</div>`;
     else if (!open.length && !done.length) h = `<div class="lp-empty">${courses ? 'Liste de courses vide.<br>Ajoutez le premier article ci-dessus.' : "Rien à faire pour l'instant."}</div>`;
@@ -4842,8 +4863,9 @@
     if (!state.household || !state.myProfile) return;
     const text = lpEl.input.value.trim().replace(/\s+/g, ' ').slice(0, 200);
     if (!text) { lpEl.input.focus(); return; }
-    const low = text.toLocaleLowerCase('fr');
-    const same = (state.articles || []).find(a=>a.liste===lpTab && a.texte.toLocaleLowerCase('fr') === low);
+    const key = lpKey(text);
+    const cands = (state.articles || []).filter(a=>a.liste===lpTab && lpKey(a.texte) === key);
+    const same = cands.find(a=>!a.coche) || cands[0];
     if (same && same.coche) {
       same.coche = false; same.pos = lpNextPos(lpTab); lpFreshId = same.id;
       lpUpdate(same, Object.assign({ coche:false, coche_le:null, coche_par:null, position:same.pos }, lpCountCheck(same, false)));
@@ -4859,8 +4881,55 @@
       state.articles.push(a); lpFreshId = a.id;
       lpInsert([a]);
     }
-    lpEl.input.value = ''; lpEl.input.focus();
+    lpEl.input.value = ''; lpEl.input.focus(); lpHideSuggest();
     renderLists(); updateListBadges();
+  }
+
+  /* ---------- 4.0.8 : suggestions pendant la frappe (« ba » -> Banane, Baguette…) ---------- */
+  let lpSugIdx = -1, lpSugList = [];
+  function lpSuggest(){
+    const box = lpEl.sugg; if (!box) return;
+    const q = lpKey(lpEl.input.value);
+    if (!q) { lpHideSuggest(); return; }
+    const hits = (state.articles || []).filter(a=>a.liste===lpTab).map(a=>{
+      const k = lpKey(a.texte);
+      const score = k.startsWith(q) ? 2 : k.split(' ').some(w=>w.startsWith(q)) ? 1 : 0;
+      return { a, score };
+    }).filter(h=>h.score).sort((x,y)=>(y.score - x.score) || (x.a.coche - y.a.coche) || (lpRank(y.a) - lpRank(x.a)) || x.a.texte.localeCompare(y.a.texte, 'fr'));
+    lpSugList = hits.slice(0, 6).map(h=>h.a);
+    if (!lpSugList.length) { lpHideSuggest(); return; }
+    if (lpSugIdx >= lpSugList.length) lpSugIdx = -1;
+    box.innerHTML = lpSugList.map((a, i)=>`<button type="button" role="option" class="lp-sug${i===lpSugIdx?' on':''}" data-sug="${a.id}">`
+      + `<span class="lp-sug-t">${escapeHtml(a.texte)}</span>`
+      + `<span class="lp-sug-s">${a.coche ? 'Remettre' : 'Déjà à prendre'}</span></button>`).join('');
+    box.hidden = false;
+  }
+  function lpHideSuggest(){ if (lpEl.sugg) { lpEl.sugg.hidden = true; lpEl.sugg.innerHTML = ''; } lpSugList = []; lpSugIdx = -1; }
+  function lpPickSuggest(id){
+    const a = lpById(id); if (!a) return;
+    lpEl.input.value = a.texte; lpHideSuggest();
+    lpAdd({ preventDefault(){} });      // même chemin que « Ajouter » : il remonte, ou on propose x2
+  }
+  function lpBindSuggest(){
+    const inp = lpEl.input, box = lpEl.sugg;
+    inp.addEventListener('input', ()=>{ lpSugIdx = -1; lpSuggest(); });
+    inp.addEventListener('focus', lpSuggest);
+    inp.addEventListener('blur', ()=>setTimeout(lpHideSuggest, 150));
+    inp.addEventListener('keydown', e=>{
+      if (box.hidden || !lpSugList.length) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const n = lpSugList.length;
+        lpSugIdx = e.key === 'ArrowDown' ? (lpSugIdx + 1) % n : (lpSugIdx <= 0 ? n - 1 : lpSugIdx - 1);
+        lpSuggest();
+      } else if (e.key === 'Enter' && lpSugIdx >= 0) {
+        e.preventDefault(); lpPickSuggest(lpSugList[lpSugIdx].id);
+      } else if (e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation(); lpHideSuggest();
+      }
+    });
+    box.addEventListener('pointerdown', e=>e.preventDefault());   // le champ garde le focus (le clavier reste ouvert)
+    box.addEventListener('click', e=>{ const b = e.target.closest('[data-sug]'); if (b) lpPickSuggest(b.dataset.sug); });
   }
 
   /* ---------- Modifier ---------- */
@@ -4950,6 +5019,11 @@
       updateListBadges();
       lpUpdate(a, Object.assign({ coche:a.coche, coche_le: a.coche ? new Date(a.cocheLe).toISOString() : null, coche_par: a.coche ? state.myProfile.id : null }, lpCountCheck(a, a.coche)));
       setTimeout(()=>{ if (!lpEditing && !lpMove) renderLists(); }, 450);   // on voit la coche, puis l'article descend
+      if (a.coche) lpToast(`« ${a.texte} » coché`, ()=>{
+        if (!a.coche) return;
+        a.coche = false; a.cocheLe = 0; lpFreshId = a.id; renderLists(); updateListBadges();
+        lpUpdate(a, Object.assign({ coche:false, coche_le:null, coche_par:null }, lpCountCheck(a, false)));
+      });
     });
     // Clic droit (PC) = modifier
     list.addEventListener('contextmenu', e=>{
