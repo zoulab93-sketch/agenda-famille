@@ -155,6 +155,9 @@
   body.is-wide .ev-line.span-piece { font-size:11px; line-height:15px; }
   body.is-wide .ev-line.span-piece::after { height:4px; bottom:2px; }
   .ev-line.marquee { text-overflow:clip; }
+  /* 4.0.10 : téléphone — un titre trop long passe sur 2-3 lignes quand la case a la place (sinon il défile comme avant) */
+  body:not(.is-wide):not(.compact-h) .ev-line.wrap { height:auto; white-space:normal; padding-top:1px; padding-bottom:1px; line-height:1.05; }
+  body:not(.is-wide):not(.compact-h) .ev-line.wrap .ev-line-text { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; white-space:normal; overflow:hidden; hyphens:auto; -webkit-hyphens:auto; overflow-wrap:anywhere; line-height:1.08; font-size:8.5px; letter-spacing:-.15px; }
   .ev-line.marquee .ev-line-text { animation: evMarquee var(--marquee-dur,6s) ease-in-out infinite; }
   /* 1.3.8 : défilement dans un seul sens — le texte glisse jusqu'à la fin, pause,
      s'efface, puis réapparaît au début (plus de retour en arrière) */
@@ -1009,7 +1012,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.10</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.12</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1935,17 +1938,45 @@
     sheet.addEventListener('touchcancel', end);
   }
 
+  /* 4.0.12 : téléphone — un mois long (« Décembre 2026 ») ne finit plus en « Décembre 20… » :
+     le titre rapetisse un peu, et s'il ne tient toujours pas, le mois s'abrège (« Déc. 2026 »). */
+  const ES_MONTH_SHORT = { janvier:'janv.', février:'févr.', avril:'avr.', juillet:'juil.', septembre:'sept.', octobre:'oct.', novembre:'nov.', décembre:'déc.' };
+  function fitHeaderTitle(){
+    document.querySelectorAll('header.hd4 .month-title').forEach(t=>{
+      if (t.classList.contains('sliding')) return;
+      if (!t.dataset.full) t.dataset.full = t.textContent;
+      t.textContent = t.dataset.full; t.style.fontSize = '';
+      const fits = ()=>t.scrollWidth <= t.clientWidth;
+      if (!t.clientWidth || fits()) return;
+      let fs = parseFloat(getComputedStyle(t).fontSize) || 19.5;
+      while (!fits() && fs > 16.5) { fs -= 0.5; t.style.fontSize = fs + 'px'; }
+      if (fits()) return;
+      const short = t.dataset.full.replace(/[a-zéû]+/gi, w=>ES_MONTH_SHORT[w.toLowerCase()] || w);
+      if (short !== t.dataset.full) { t.textContent = short; t.style.fontSize = ''; fs = parseFloat(getComputedStyle(t).fontSize) || 19.5; while (!fits() && fs > 15) { fs -= 0.5; t.style.fontSize = fs + 'px'; } }
+    });
+  }
   function initMarquees(){
+    fitHeaderTitle();
     // 1.3.5 : rangement des cases tout de suite (avant l'affichage), sinon le téléphone
     // pouvait montrer une image avec les événements en trop (les « fantômes »).
     // Appelé juste après chaque dessin : affichage normal, glissement, flèches.
     fitDayCells();
     requestAnimationFrame(()=>{
       fitDayCells(); // second passage de sécurité (polices chargées entre-temps…)
+      const canWrap = !document.body.classList.contains('is-wide') && !document.body.classList.contains('compact-h');
       document.querySelectorAll('.ev-line:not(.span-piece):not(.ev-gap)').forEach(line=>{
         const text = line.querySelector('.ev-line-text');
         if (!text) return;
-        const overflow = text.scrollWidth - line.clientWidth;
+        line.classList.remove('wrap');
+        let overflow = text.scrollWidth - line.clientWidth;
+        // 4.0.10 : d'abord essayer d'écrire le titre sur plusieurs lignes, si la case garde assez de hauteur
+        if (overflow > 2 && canWrap) {
+          const cell = line.closest('.day-cell');
+          line.classList.add('wrap'); line.classList.remove('marquee');
+          if (cell && cell.scrollHeight <= cell.clientHeight + 1) return;
+          line.classList.remove('wrap');
+          overflow = text.scrollWidth - line.clientWidth;
+        }
         if (overflow > 2) {
           const dist = -(overflow + 4);
           line.style.setProperty('--marquee-dist', dist + 'px');
@@ -2251,7 +2282,7 @@
       nw.style.transform = 'translate3d(0,0,0)'; nw.style.opacity = '1';
       old.style.transform = `translate3d(${-from}px,0,0)`; old.style.opacity = '0';
     });
-    setTimeout(()=>{ if (el.isConnected) { el.classList.remove('sliding'); el.innerHTML = newHtml; } }, 320);
+    setTimeout(()=>{ if (el.isConnected) { el.classList.remove('sliding'); el.innerHTML = newHtml; fitHeaderTitle(); } }, 320);
   }
   function navPrev(){ agendaScrollTop = null; stepPrev(); renderWithTransition('prev'); }
   function navNext(){ agendaScrollTop = null; stepNext(); renderWithTransition('next'); }
