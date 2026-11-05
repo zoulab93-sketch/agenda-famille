@@ -1009,10 +1009,31 @@
   body:not(.is-wide):not(.compact-h) .fab-row.hideable { padding:0 14px; gap:10px; }
   body.month-fit .day-cell.case-cell.today { border-color:transparent; box-shadow:inset 0 0 0 0.5px var(--surface); }
   body:not(.is-wide):not(.compact-h) .view-toggle-wrap { display:flex; align-items:center; }
+  /* 4.0.13 : dicter un rendez-vous */
+  .f-title-row { display:flex; gap:8px; align-items:stretch; }
+  .f-title-row input { flex:1; min-width:0; }
+  .vx-btn { flex:0 0 auto; width:46px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--accent); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .vx-hint { font-size:13px; color:var(--ink-soft); line-height:1.4; margin:-2px 0 12px; }
+  .vx-box { position:relative; }
+  .vx-box textarea { width:100%; box-sizing:border-box; padding:12px 58px 12px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface-soft); color:var(--ink); font:600 16px 'Plus Jakarta Sans',sans-serif; resize:none; }
+  .vx-mic { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:none; background:var(--accent); color:var(--on-accent); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .vx-mic.on { animation:vxPulse 1.2s ease-in-out infinite; }
+  .vx-mic.off { background:var(--surface); color:var(--ink-soft); box-shadow:inset 0 0 0 1.5px var(--line); }
+  @keyframes vxPulse { 0%,100% { box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 50% { box-shadow:0 0 0 9px transparent; } }
+  .vx-state { min-height:20px; font-size:13px; font-weight:600; color:var(--ink-soft); margin:8px 2px 4px; }
+  /* 4.0.13 : repérer « aujourd'hui » d'un coup d'œil (proposition B) :
+     les « +N » deviennent discrets (ils ressemblaient au rond du jour), la case du jour est encadrée et teintée, la lettre du jour en couleur */
+  .more-badge, .day-cell.case-cell .more-badge { background:transparent; color:var(--ink-soft); box-shadow:inset 0 0 0 1px var(--line); font-weight:700; }
+  .day-cell.case-cell .more-badge { color:inherit; box-shadow:inset 0 0 0 1px currentColor; opacity:.8; }
+  .day-cell.today:not(.case-cell) { background:color-mix(in srgb, var(--accent) 9%, var(--surface)) !important; }
+  .day-cell.today { box-shadow:inset 0 0 0 2px var(--accent) !important; border-radius:10px !important; }
+  body.month-fit .day-cell.case-cell.today { box-shadow:inset 0 0 0 2px var(--accent), inset 0 0 0 3.5px var(--surface) !important; }
+  body.is-wide .day-cell.today { border-color:transparent !important; box-shadow:inset 0 0 0 2.5px var(--accent) !important; border-radius:14px !important; }
+  .weekdays .wd-today { color:var(--accent) !important; font-weight:900; }
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.12</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.0.13</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2821,7 +2842,8 @@
     const wrap = document.createElement('div');
     wrap.className='cal-wrap';
     const wd = document.createElement('div'); wd.className='weekdays';
-    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    const nowD = new Date(), todayCol = (view.year === nowD.getFullYear() && view.month === nowD.getMonth()) ? (nowD.getDay()+6)%7 : -1;
+    WEEKDAYS.forEach((w,i)=>{ const s=document.createElement('span'); s.textContent=w; if (i === todayCol) s.className='wd-today'; wd.appendChild(s); });
     wrap.appendChild(wd);
 
     const grid = document.createElement('div'); grid.className='grid';
@@ -2863,7 +2885,8 @@
     const wrap = document.createElement('div');
     wrap.className='cal-wrap';
     const wd = document.createElement('div'); wd.className='weekdays';
-    WEEKDAYS.forEach(w=>{ const s=document.createElement('span'); s.textContent=w; wd.appendChild(s); });
+    const wkTodayCol = isCurrentPeriod() ? (new Date().getDay()+6)%7 : -1;
+    WEEKDAYS.forEach((w,i)=>{ const s=document.createElement('span'); s.textContent=w; if (i === wkTodayCol) s.className='wd-today'; wd.appendChild(s); });
     wrap.appendChild(wd);
 
     const grid = document.createElement('div'); grid.className='grid';
@@ -3475,6 +3498,140 @@
     view.sheet = (view._formFrom === 'day') ? 'day' : null;
     render();
   }
+
+  /* ---------- 4.0.13 : dicter un rendez-vous (« Dentiste mardi 14 h 30 pour Emma ») ----------
+     Même chose sur Android et iPhone : on dicte (micro de l'appli, ou micro du clavier si le téléphone
+     ne le permet pas), puis l'appli remplit titre, date, heures et participants. On vérifie, on enregistre. */
+  function micIcon(size){ return lineIcon('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21"/>', size); }
+  const VX_DAYS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const VX_MONTHS = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+  const VX_NUM = { un:1, une:1, deux:2, trois:3, quatre:4, cinq:5, six:6, sept:7, huit:8, neuf:9, dix:10, onze:11, douze:12, treize:13, quatorze:14, quinze:15, seize:16, 'dix-sept':17, 'dix-huit':18, 'dix-neuf':19, vingt:20, 'vingt et une':21, 'vingt-et-une':21, 'vingt-deux':22, 'vingt-trois':23, trente:30, quarante:40, 'quarante-cinq':45, cinquante:50 };
+  function vxFold(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’']/g,"'"); }
+  // Renvoie { title, date, start, end, participants:[ids] | null, heard }
+  function esParseVoice(text, baseDate, profiles, todayDs){
+    const out = { title:'', date:null, start:null, end:null, participants:null };
+    // texte replié (minuscules, sans accents) de même longueur que l'original -> on peut « effacer » des morceaux dans les deux
+    let orig = String(text||'').replace(/\s+/g,' ').trim();
+    let f = vxFold(orig);
+    if (f.length !== orig.length) { orig = f; }      // sécurité : si la longueur change, on travaille sur le texte replié
+    const used = new Array(f.length).fill(false);
+    const eat = (m, idx)=>{ for (let i = idx; i < idx + m.length; i++) used[i] = true; };
+    const find = (re, cb)=>{ re.lastIndex = 0; let m; const hits = []; while ((m = re.exec(f))) { hits.push(m); if (!re.global) break; } hits.forEach(m=>{ if (cb(m) !== false) eat(m[0], m.index); }); };
+    // nombres en lettres -> chiffres (« neuf heures », « le douze »)
+    f = f.replace(/\b(vingt-et-une|vingt et une|dix-sept|dix-huit|dix-neuf|vingt-deux|vingt-trois|quarante-cinq|une?|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante)\b(?=\s*(h\b|heures?\b|$|\s(?:et|novembre|decembre|janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|minutes?)))/g,
+      (w)=>{ const n = String(VX_NUM[w] ?? w); return n.padEnd(w.length, '\u0000'); });
+    const base = todayDs || todayStr();
+    const bd = new Date(base + 'T12:00:00');
+    // --- date ---
+    find(/\b(apres-demain|apres demain)\b/, ()=>{ out.date = addDays(base, 2); });
+    if (!out.date) find(/\bdemain\b/, ()=>{ out.date = addDays(base, 1); });
+    if (!out.date) find(/\baujourd'hui\b|\bce soir\b|\bce matin\b|\bcet apres-midi\b/, (m)=>{ out.date = base; if (/soir/.test(m[0])) out._pm = true; return !/matin|apres|soir/.test(m[0]) || true; });
+    if (!out.date) find(/\bdans (\d+)\u0000* (jours?|semaines?)\b/, (m)=>{ out.date = addDays(base, Number(m[1]) * (m[2][0]==='s' ? 7 : 1)); });
+    if (!out.date) find(/\b(?:le |du )?(\d{1,2})\u0000*(?:er)?\s*(?:\/\s*(\d{1,2})|\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre))\b/, (m)=>{
+      const d = Number(m[1]), mo = m[2] ? Number(m[2]) - 1 : VX_MONTHS.indexOf(m[3]);
+      if (d < 1 || d > 31 || mo < 0 || mo > 11) return false;
+      let y = bd.getFullYear(); let ds = dstr(y, mo, d); if (ds < base) ds = dstr(y + 1, mo, d);
+      out.date = ds;
+    });
+    if (!out.date) find(/\b(?:ce |le )?(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)( prochain| d'apres)?\b/, (m)=>{
+      const target = VX_DAYS.indexOf(m[1]); let diff = (target - bd.getDay() + 7) % 7; if (diff === 0) diff = 7; if (m[2] && m[2].includes('apres')) diff += 7;
+      out.date = addDays(base, diff);
+    });
+    if (!out.date) find(/\ble (\d{1,2})\u0000*(?:er)?\b(?!\s*h|\s*heure|:)/, (m)=>{
+      const d = Number(m[1]); if (d < 1 || d > 31) return false;
+      let y = bd.getFullYear(), mo = bd.getMonth(); if (d < bd.getDate()) { mo++; if (mo > 11) { mo = 0; y++; } }
+      out.date = dstr(y, mo, d);
+    });
+    // --- heures ---
+    const T = '(\\d{1,2})\\u0000*\\s*(?:heures?|h|:)\\s*(\\d{2}|et demie|et quart|moins le quart)?\\u0000*(?:\\s*minutes?)?|(midi|minuit)(?: et demi| et quart)?';
+    const hm = (m, o)=>{ // m[o], m[o+1], m[o+2]
+      if (m[o+2]) { const w = m[o+2]; return [w === 'midi' ? 12 : 0, /demi/.test(m[0]) ? 30 : /quart/.test(m[0]) ? 15 : 0]; }
+      let h = Number(m[o]), mi = 0; const x = m[o+1] || '';
+      if (/^\d+$/.test(x)) mi = Number(x); else if (x === 'et demie') mi = 30; else if (x === 'et quart') mi = 15; else if (x === 'moins le quart') { h -= 1; mi = 45; }
+      return [h, mi];
+    };
+    const fmt = ([h, mi])=> (h >= 0 && h < 24 && mi >= 0 && mi < 60) ? String(h).padStart(2,'0') + ':' + String(mi).padStart(2,'0') : null;
+    find(new RegExp('\\b(?:de |entre )(?:' + T + ')\\s*(?:a|-|et|jusqu\'a)\\s*(?:' + T + ')', 'g'), (m)=>{
+      if (out.start) return false;
+      out.start = fmt(hm(m, 1)); out.end = fmt(hm(m, 4)); if (!out.start) return false;
+    });
+    if (!out.start) find(new RegExp('\\b(?:a |vers |des )?(?:' + T + ')', 'g'), (m)=>{ if (out.start) return false; const v = fmt(hm(m, 1)); if (!v) return false; out.start = v; });
+    // « du soir », « de l'apres-midi » -> +12 h ; « du matin » : rien
+    find(/\b(du soir|de l'apres-midi|de l'aprem|du matin)\b/, (m)=>{ if (!/matin/.test(m[0])) out._pm = true; });
+    if (out._pm) ['start','end'].forEach(k=>{ if (out[k] && Number(out[k].slice(0,2)) < 12) out[k] = String(Number(out[k].slice(0,2)) + 12).padStart(2,'0') + out[k].slice(2); });
+    // durée : « pendant 2 h », « pour 1 h 30 », « 45 minutes »
+    find(/\b(?:pendant|pour|durant)\s+(\d{1,2})\u0000*\s*(h|heures?|minutes?|min)\s*(\d{2})?\b/, (m)=>{
+      if (!out.start || out.end) return false;
+      const mins = /^m/.test(m[2]) ? Number(m[1]) : Number(m[1]) * 60 + Number(m[3] || 0);
+      const e = toMin(out.start) + mins; if (e > 23 * 60 + 55) return false;
+      out.end = String(Math.floor(e/60)).padStart(2,'0') + ':' + String(e%60).padStart(2,'0');
+    });
+    // --- participants ---
+    const people = [];
+    if (/\b(toute la famille|tout le monde|tous ensemble)\b/.test(f)) { find(/\b(toute la famille|tout le monde|tous ensemble)\b/, ()=>{
+      const commun = profiles.find(p=>/^(commun|famille)$/.test(vxFold(p.name).trim()));      // le profil « Commun » sert déjà à ça
+      (commun ? [commun] : profiles).forEach(p=>people.push(p.id)); }); }
+    profiles.forEach(p=>{
+      const n = vxFold(p.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); if (!n) return;
+      find(new RegExp('\\b' + n + '\\b', 'g'), ()=>{ if (!people.includes(p.id)) people.push(p.id); });
+    });
+    if (people.length) out.participants = people;
+    // --- titre : ce qui reste, sans les petits mots qui reliaient les morceaux ---
+    let rest = ''; for (let i = 0; i < orig.length; i++) rest += used[i] ? ' ' : orig[i];
+    rest = rest.replace(/\u0000/g, '').replace(/\s+/g, ' ').trim();
+    const glue = /^(?:(?:ajoute(?:r)?|note(?:r)?|mets|mettre|programme(?:r)?|planifie(?:r)?|cree(?:r)?|crée(?:r)?|nouveau|nouvel|un|une|le|la|les|l'|à|a|au|de|du|des|d'|pour|avec|et|vers|entre|ce|cet|cette)\s+)+/i;
+    const glueEnd = /(?:\s+(?:à|a|au|de|du|des|pour|avec|et|le|la|les|vers|entre|ce|cet|cette|,))+$/i;
+    let prev; do { prev = rest; rest = rest.replace(glue, '').replace(glueEnd, '').replace(/^[,.;:-]+|[,.;:-]+$/g, '').trim(); } while (rest !== prev);
+    rest = rest.replace(/\s+(?:pour|avec|et)\s*$/i, '').replace(/\s+,/g, ',');
+    out.title = rest ? rest.charAt(0).toLocaleUpperCase('fr') + rest.slice(1) : '';
+    delete out._pm;
+    return out;
+  }
+  function openVoiceSheet(onResult){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const scrim = document.createElement('div'); scrim.className = 'scrim center'; scrim.style.zIndex = '30';
+    const sheet = document.createElement('div'); sheet.className = 'sheet vx-sheet';
+    sheet.innerHTML = `
+      <div class="sheet-header"><h2>Dicter le rendez-vous</h2><button class="sheet-close" id="vx-close" aria-label="Fermer">✕</button></div>
+      <div class="vx-hint">Par exemple : « Dentiste mardi 14 h 30 pour Emma », « Piscine demain de 18 h à 19 h avec Colin ».</div>
+      <div class="vx-box"><textarea id="vx-text" rows="2" maxlength="240" placeholder="Parle, ou écris ici…"></textarea>
+        <button type="button" class="vx-mic" id="vx-mic" aria-label="Parler">${micIcon(22)}</button></div>
+      <div class="vx-state" id="vx-state"></div>
+      <button class="save-btn" id="vx-ok">Remplir la fiche</button>`;
+    scrim.appendChild(sheet); document.body.appendChild(scrim);
+    const ta = sheet.querySelector('#vx-text'), st = sheet.querySelector('#vx-state'), mic = sheet.querySelector('#vx-mic');
+    let rec = null, listening = false;
+    const stop = ()=>{ if (rec) { try { rec.stop(); } catch(e){} } listening = false; mic.classList.remove('on'); };
+    const close = ()=>{ stop(); scrim.remove(); };
+    const keyboardMode = (why)=>{
+      stop(); mic.classList.add('off');
+      st.textContent = (why ? why + ' ' : '') + 'Touche le micro de ton clavier pour dicter, ou écris.';
+      ta.focus();
+    };
+    const listen = ()=>{
+      if (!SR) { keyboardMode(''); return; }
+      if (listening) { stop(); st.textContent = ''; return; }
+      try {
+        rec = new SR(); rec.lang = 'fr-FR'; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+        const before = ta.value.trim();
+        rec.onresult = (e)=>{ let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; ta.value = (before ? before + ' ' : '') + t.trim(); };
+        rec.onerror = (e)=>{ listening = false; mic.classList.remove('on');
+          if (e.error === 'not-allowed' || e.error === 'service-not-allowed') keyboardMode("Le micro de l'appli n'est pas autorisé sur ce téléphone.");
+          else if (e.error === 'no-speech') st.textContent = "Je n'ai rien entendu. Touche le micro pour réessayer.";
+          else keyboardMode('');
+        };
+        rec.onend = ()=>{ listening = false; mic.classList.remove('on'); if (ta.value.trim() && st.textContent === "J'écoute…") st.textContent = 'Vérifie le texte, puis « Remplir la fiche ».'; };
+        rec.start(); listening = true; mic.classList.add('on'); st.textContent = "J'écoute…";
+      } catch(e){ keyboardMode(''); }
+    };
+    mic.onclick = listen;
+    sheet.querySelector('#vx-close').onclick = close;
+    scrim.onclick = (e)=>{ if (e.target === scrim) close(); };
+    sheet.querySelector('#vx-ok').onclick = ()=>{ const t = ta.value.trim(); if (!t) { ta.focus(); return; } close(); onResult(t); };
+    ta.addEventListener('keydown', (e)=>{ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sheet.querySelector('#vx-ok').click(); } });
+    if (SR) setTimeout(listen, 120); else keyboardMode('');
+  }
+
   function renderEventForm(){
     const scrim = document.createElement('div'); scrim.className='scrim center form-scrim';   // 3.9 : sur téléphone, fenêtre du bas comme les autres
     scrim.onclick = (e)=>{ if(e.target===scrim){ closeForm(); } };
@@ -3489,7 +3646,7 @@
       <div class="sheet-header"><h2>${bulk?`Nouvel événement (${bulk.length} jours)`:(isNew?'Nouvel événement':'Modifier')}</h2><button class="sheet-close" id="close-form">✕</button></div>
       ${bulk?`<div class="bulk-note">Cet événement sera appliqué aux ${bulk.length} jours sélectionnés.</div>`:''}
       <div class="preset-row" id="presets"></div>
-      <div class="form-row"><label>Titre</label><input type="text" id="f-title" value="${escapeAttr(ev.title)}"></div>
+      <div class="form-row"><label>Titre</label><div class="f-title-row"><input type="text" id="f-title" value="${escapeAttr(ev.title)}"><button type="button" class="vx-btn" id="f-voice" aria-label="Dicter le rendez-vous" title="Dicter">${micIcon(20)}</button></div></div>
       <div class="form-row"><label>Détails</label><div class="f-details" style="display:flex; gap:8px; align-items:flex-start;"><div class="chips" id="f-icons" style="flex:1; min-width:0;"></div><div id="f-lieu" style="min-width:0;"></div><div id="f-imp"></div></div></div>
       <div class="form-row time-row">
         ${bulk?'':`<div class="tr-date"><label>Date</label><input type="date" id="f-date" value="${ev.date}"></div>`}
@@ -3677,6 +3834,22 @@
         ev.end = val; sheet.querySelector('#f-end-btn').textContent = val || '--:--';
       });
     };
+    // 4.0.13 : dicter -> la fiche se remplit (on vérifie avant d'enregistrer)
+    const vb = sheet.querySelector('#f-voice');
+    if (linked) vb.remove();
+    else vb.onclick = ()=>openVoiceSheet((text)=>{
+      const r = esParseVoice(text, ev.date, state.profiles, todayStr());
+      const filled = [];
+      if (r.title) { sheet.querySelector('#f-title').value = r.title; filled.push('titre'); }
+      if (r.date && !bulk) { ev.date = r.date; const di = sheet.querySelector('#f-date'); if (di) di.value = r.date; filled.push('date'); }
+      if (r.start) { ev.start = r.start; ev.end = r.end || (ev.end && toMin(ev.end) > toMin(r.start) ? ev.end : ''); filled.push('heure'); }
+      sheet.querySelector('#f-start-btn').textContent = ev.start || '--:--';
+      sheet.querySelector('#f-end-btn').textContent = ev.end || '--:--';
+      if (r.participants) { ev.participants = r.participants.slice(); drawChips(); filled.push('participants'); }
+      drawIcons(); drawReminders();
+      toast(filled.length ? 'Fiche remplie : vérifie, puis Enregistrer.' : "Je n'ai rien compris de sûr : le texte est dans le titre.");
+      if (!filled.length) sheet.querySelector('#f-title').value = text;
+    });
     sheet.querySelector('#close-form').onclick = closeForm;
     sheet.querySelector('#f-save').onclick = async ()=>{
       const title = sheet.querySelector('#f-title').value.trim();
