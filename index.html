@@ -778,6 +778,24 @@
   .mn-search:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
   .mn-lab { font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px; }
   .mn-field { position:relative; }
+  /* 4.1.1 : ménage en liste */
+  .mn-sugg { position:absolute; left:0; right:0; top:100%; margin-top:4px; z-index:5; background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:4px; }
+  .mn-sugg[hidden], .mn-todo[hidden], .mn-dishes[hidden], .mn-recipes[hidden], .mn-lab-rc[hidden] { display:none !important; }
+  .mn-sg { display:flex; align-items:center; border-radius:9px; }
+  .mn-sg.on, .mn-sg:hover { background:var(--surface-soft); }
+  .mn-sg-t { flex:1; text-align:left; padding:10px 12px; border:none; background:none; color:var(--ink); font:600 15px 'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+  .mn-sg-x { width:36px; height:36px; border:none; background:none; color:var(--ink-soft); font-size:13px; cursor:pointer; opacity:.6; }
+  .mn-todo { display:flex; flex-direction:column; margin:10px 0 6px; border:1.5px solid var(--line); border-radius:12px; overflow:hidden; }
+  .mn-todo .mn-nodish { padding:14px; }
+  .mn-td { display:flex; align-items:center; min-height:48px; border-bottom:1px solid var(--line); background:var(--surface); }
+  .mn-td:last-child { border-bottom:none; }
+  .mn-td-x { width:38px; align-self:stretch; border:none; background:none; color:var(--ink-soft); font-size:13px; cursor:pointer; opacity:.55; flex:0 0 auto; }
+  .mn-td-t { flex:1; min-width:0; text-align:left; border:none; background:none; padding:10px 4px; color:var(--ink); font:600 15.5px 'Plus Jakarta Sans',sans-serif; cursor:pointer; overflow-wrap:anywhere; }
+  .mn-td-ck { flex:0 0 auto; width:28px; height:28px; margin:0 12px 0 8px; border-radius:8px; border:2px solid color-mix(in srgb, var(--ink) 35%, transparent); background:var(--surface); color:var(--on-accent); font:900 15px/1 'Plus Jakarta Sans',sans-serif; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .mn-td.done { background:var(--surface-soft); }
+  .mn-td.done .mn-td-t { color:var(--ink-soft); text-decoration:line-through; font-weight:500; }
+  .mn-td.done .mn-td-ck { background:#3FA796; border-color:#3FA796; color:#fff; }
+  .mn-dish.done { text-decoration:line-through; opacity:.5; font-weight:500; }
   .mn-field .mn-search { padding-right:38px; }
   .mn-erase { position:absolute; right:4px; top:50%; transform:translateY(-50%); width:32px; height:32px; border:none; background:none; color:var(--ink-soft); font-size:15px; cursor:pointer; }
   /* 3.0.1 : liste qui défile au lieu des pastilles */
@@ -1053,7 +1071,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.1.1</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5513,7 +5531,7 @@
       (rp || []).forEach(r=>{
         const plats = Array.isArray(r.plats) && r.plats.length ? r.plats
           : (String(r.plat || '').trim() === '?' ? [] : String(r.plat || '').split(/\s+\+\s+/).filter(Boolean));   // « ? » = repas sans plat (3.7.8)
-        state.repas[mnKey(r.jour, r.moment)] = { id:r.id, jour:r.jour, moment:r.moment, plats, mangeurs:r.mangeurs || [] };
+        state.repas[mnKey(r.jour, r.moment)] = { id:r.id, jour:r.jour, moment:r.moment, plats, mangeurs:r.mangeurs || [], faites: Array.isArray(r.faites) ? r.faites : [] };
       });
       state.recettes = (rc || []).map(r=>({ id:r.id, nom:r.nom, nb:Number(r.nb_fois)||0, ing: Array.isArray(r.ingredients) ? r.ingredients : [] }));
       state.menusReady = true;
@@ -5539,7 +5557,10 @@
       const all = K().meal ? eaters.every(p=>who.includes(p.id)) : !who.length;   // ménage : les points montrent qui fait
       const dots = all ? '' : `<span class="mn-dots">${who.length ? eaters.filter(p=>who.includes(p.id)).map(p=>`<b style="background:${p.color}"></b>`).join('') : '<em>personne</em>'}</span>`;
       const start = m.plats.length === 1 ? 3 : 2;   // un plat : jusqu'à 3 lignes ; plusieurs : 2 chacun (réduit ensuite si ça déborde)
-      const dishes = m.plats.length ? m.plats.map(p=>`<span class="mn-dish" style="-webkit-line-clamp:${start}" data-c="${start}">${escapeHtml(p)}</span>`).join('')
+      const chores = !K().meal, done = new Set((m.faites || []).map(mnLow));
+      const order = chores ? m.plats.filter(p=>!done.has(mnLow(p))).concat(m.plats.filter(p=>done.has(mnLow(p)))) : m.plats;   // 4.1.1 : faites en dessous
+      const dishes = m.plats.length ? order.map(p=>{ const dn = chores && done.has(mnLow(p)), c = dn ? 1 : start;   // une tâche faite : une seule ligne, la place va à ce qui reste à faire
+        return `<span class="mn-dish${dn ? ' done' : ''}"${chores ? ` data-task="${escapeAttr(p)}"` : ''} style="-webkit-line-clamp:${c}" data-c="${c}">${escapeHtml(p)}</span>`; }).join('')
         : `<span class="mn-dish mn-q" data-c="1">?</span>`;   // 3.7.7 : on sait qui mange, pas encore quoi
       return `<div class="mn-meal${all ? '' : ' has-dots'}" data-k="${moment}" lang="fr">${dishes}${dots}</div>`;
     };
@@ -5587,6 +5608,9 @@
   function mnCellClick(ds, target, cell, y){
     if (mnCopy && mnCopy.swap) { mnDoSwap(ds); return; }
     if (mnCopy) { mnToggleCopyDay(ds); return; }
+    // 4.1.1 : ménage — toucher le nom d'une tâche dans la case la coche / décoche
+    const task = !K().meal && target && target.closest ? target.closest('.mn-dish[data-task]') : null;
+    if (task) { mnToggleDone(ds, K().moments[0], task.dataset.task); render(); return; }
     let hit = target && target.closest ? target.closest('.mn-meal[data-k]') : null;
     // 3.0.1 : si le doigt n'est pas pile sur une ligne, on prend la ligne (midi / soir) la plus proche du doigt
     if (!hit && cell && typeof y === 'number') {
@@ -5612,7 +5636,8 @@
       <div class="mn-tabs"><button type="button" class="mn-tab" data-m="midi">☀ Midi</button><button type="button" class="mn-tab" data-m="soir">☾ Soir</button></div>
       <div class="mn-dishes"></div>
       <div class="mn-ingbar" hidden><div class="mn-ingrow"></div><button type="button" class="mn-cart">${cartIcon(16)} Ajouter aux courses</button></div>
-      <div class="mn-field"><input class="mn-search" type="text" placeholder="Ajouter un plat ou chercher…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Ajouter un plat"><button type="button" class="mn-erase" aria-label="Effacer le texte">✕</button></div>
+      <div class="mn-field"><input class="mn-search" type="text" placeholder="Ajouter un plat ou chercher…" autocomplete="off" enterkeyhint="done" maxlength="120" aria-label="Ajouter un plat"><button type="button" class="mn-erase" aria-label="Effacer le texte">✕</button><div class="mn-sugg" role="listbox" hidden></div></div>
+      <div class="mn-todo" hidden></div>
       <div class="mn-lab mn-lab-rc">Mes recettes</div>
       <div class="mn-recipes"></div>
       <div class="mn-lab mn-lab-who">Qui mange ?</div>
@@ -5627,7 +5652,26 @@
     document.body.append(scrim, sheet, bar, toastEl);
     Object.assign(mnEl, { scrim, sheet, bar, toast:toastEl, search:sheet.querySelector('.mn-search'), recipes:sheet.querySelector('.mn-recipes'),
                           who:sheet.querySelector('.mn-who'), dishes:sheet.querySelector('.mn-dishes'),
-                          ingbar:sheet.querySelector('.mn-ingbar'), sub:sheet.querySelector('.mn-sub') });
+                          ingbar:sheet.querySelector('.mn-ingbar'), sub:sheet.querySelector('.mn-sub'),
+                          todo:sheet.querySelector('.mn-todo'), sugg:sheet.querySelector('.mn-sugg') });
+    // 4.1.1 : ménage en liste — ✕ retire, toucher le nom le corrige, la case au bout coche
+    mnEl.todo.addEventListener('click', e=>{
+      const ck = e.target.closest('[data-ck]');
+      if (ck) { mnToggleDone(mnCur.ds, mnCur.moment, ck.dataset.ck); mnFill(); return; }
+      const rm = e.target.closest('[data-rmt]');
+      if (rm) { const m = mnMeal(mnCur.ds, mnCur.moment); if (!m) return; const i = m.plats.findIndex(p=>p === rm.dataset.rmt); if (i >= 0) mnRemoveDish(i); return; }
+      const ed = e.target.closest('[data-edt]');
+      if (ed) { const m = mnMeal(mnCur.ds, mnCur.moment); if (!m) return; const nom = ed.dataset.edt, i = m.plats.indexOf(nom);
+        if (i >= 0) { mnRemoveDish(i); mnEl.search.value = nom; mnTyped = true; mnFill(); mnEl.search.focus(); } }
+    });
+    mnEl.sugg.addEventListener('pointerdown', e=>e.preventDefault());   // le clavier reste ouvert
+    mnEl.sugg.addEventListener('click', e=>{
+      const del = e.target.closest('[data-sdel]');
+      if (del) { mnDeleteRecipe(del.dataset.sdel); return; }
+      const b = e.target.closest('[data-sug]'); if (b) mnAddDish(b.dataset.sug);
+    });
+    mnEl.search.addEventListener('blur', ()=>setTimeout(()=>{ if (mnEl.sugg) mnEl.sugg.hidden = true; }, 150));
+    mnEl.search.addEventListener('focus', ()=>{ if (!K().meal) mnFill(); });
     // 3.4 : ingrédients et courses
     mnEl.ingbar.addEventListener('click', e=>{
       const b = e.target.closest('[data-ing]');
@@ -5646,7 +5690,16 @@
     sheet.querySelector('.mn-clear').addEventListener('click', mnClear);
     sheet.querySelectorAll('.mn-tab').forEach(t=>t.addEventListener('click', ()=>{ mnCur.moment = t.dataset.m; mnResetField(); mnFill(); }));
     mnEl.search.addEventListener('input', ()=>{ mnTyped = !!mnEl.search.value.trim(); mnFill(); });
-    mnEl.search.addEventListener('keydown', e=>{ if (e.key === 'Enter') { e.preventDefault(); const v = mnEl.search.value.trim(); if (v) mnAddDish(v); } });
+    mnEl.search.addEventListener('keydown', e=>{
+      if (!K().meal && !mnEl.sugg.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+        e.preventDefault(); const n = mnEl.sugg.querySelectorAll('[data-sug]').length; if (!n) return;
+        mnSugIdx = e.key === 'ArrowDown' ? (mnSugIdx + 1) % n : (mnSugIdx <= 0 ? n - 1 : mnSugIdx - 1); mnFill(); return;
+      }
+      if (e.key === 'Enter') { e.preventDefault();
+        const hl = !K().meal && mnSugIdx >= 0 ? mnEl.sugg.querySelectorAll('[data-sug]')[mnSugIdx] : null;
+        const v = hl ? hl.dataset.sug : mnEl.search.value.trim(); if (v) mnAddDish(v); }
+    });
+    mnEl.search.addEventListener('input', ()=>{ mnSugIdx = -1; });
     // Les plats du repas : ✕ retire, toucher le nom le remet dans le champ pour le corriger
     mnEl.dishes.addEventListener('click', e=>{
       const rm = e.target.closest('[data-rm]');
@@ -5714,6 +5767,35 @@
     sh.querySelector('.mn-lab-who').textContent = meal ? 'Qui mange ?' : 'Qui fait ?';
     sh.querySelector('[data-act="days"]').textContent = meal ? "Ce repas sur d'autres jours…" : "Ces tâches sur d'autres jours…";
     sh.querySelector('.mn-clear').textContent = meal ? 'Pas de repas' : 'Rien ce jour-là';
+    // 4.1.1 : ménage = champ en haut, puis la liste du jour (une tâche par ligne, case au bout)
+    mnEl.dishes.hidden = !meal; mnEl.todo.hidden = meal;
+    sh.querySelector('.mn-lab-rc').hidden = !meal; mnEl.recipes.hidden = !meal;
+    if (meal && mnEl.sugg) mnEl.sugg.hidden = true;
+  }
+  let mnSugIdx = -1;
+  // 4.1.1 : cocher / décocher une tâche faite (ménage)
+  function mnToggleDone(ds, moment, nom){
+    const m = mnMeal(ds, moment); if (!m) return;
+    const low = mnLow(nom), f = (m.faites || []).filter(x=>m.plats.some(p=>mnLow(p) === mnLow(x)));
+    const faites = f.some(x=>mnLow(x) === low) ? f.filter(x=>mnLow(x) !== low) : f.concat(nom);
+    mnSave(ds, moment, m.plats.slice(), m.mangeurs.slice(), faites);
+  }
+  function mnFillTodo(m){
+    const plats = m ? m.plats : [], done = new Set(((m && m.faites) || []).map(mnLow));
+    const todo = plats.filter(p=>!done.has(mnLow(p))), fait = plats.filter(p=>done.has(mnLow(p)));
+    const row = (p, d)=>`<div class="mn-td${d ? ' done' : ''}"><button type="button" class="mn-td-x" data-rmt="${escapeAttr(p)}" aria-label="Retirer ${escapeAttr(p)}">✕</button>`
+      + `<button type="button" class="mn-td-t" data-edt="${escapeAttr(p)}" aria-label="Corriger ${escapeAttr(p)}">${escapeHtml(p)}</button>`
+      + `<button type="button" class="mn-td-ck" data-ck="${escapeAttr(p)}" aria-pressed="${d}" aria-label="${d ? 'Décocher' : 'Cocher'} ${escapeAttr(p)}">${d ? '✓' : ''}</button></div>`;
+    mnEl.todo.innerHTML = plats.length ? todo.map(p=>row(p, false)).join('') + fait.map(p=>row(p, true)).join('')
+      : `<span class="mn-nodish">Pas encore de tâche ce jour-là</span>`;
+    // suggestions pendant la frappe : les tâches déjà connues (les plus programmées d'abord)
+    const q = mnEl.search.value.trim(), ql = mnLow(q);
+    const inDay = new Set(plats.map(mnLow));
+    const hits = ql ? (state.recettes || []).filter(r=>!inDay.has(mnLow(r.nom)) && mnLow(r.nom).split(/\s+/).concat(mnLow(r.nom)).some(w=>w.startsWith(ql)))
+      .sort((a,b)=>(b.nb - a.nb) || a.nom.localeCompare(b.nom, 'fr')).slice(0, 6) : [];
+    if (mnSugIdx >= hits.length) mnSugIdx = -1;
+    mnEl.sugg.innerHTML = hits.map((r, i)=>`<div class="mn-sg${i === mnSugIdx ? ' on' : ''}"><button type="button" class="mn-sg-t" data-sug="${escapeAttr(r.nom)}">${escapeHtml(r.nom)}</button><button type="button" class="mn-sg-x" data-sdel="${r.id}" aria-label="Oublier ${escapeAttr(r.nom)}" title="Ne plus proposer">✕</button></div>`).join('');
+    mnEl.sugg.hidden = !hits.length || document.activeElement !== mnEl.search;
   }
   function mnResetField(){ if (mnEl.search) mnEl.search.value = ''; mnTyped = false; mnAskDelete = null; }
   // OK : un plat écrit dans le champ (et pas encore ajouté) est ajouté au repas
@@ -5741,6 +5823,7 @@
   function mnFill(){
     if (!mnEl.sheet || !mnCur) return;
     const m = mnMeal(mnCur.ds, mnCur.moment);
+    if (!K().meal) mnFillTodo(m);
     mnEl.sheet.querySelectorAll('.mn-tab').forEach(t=>t.classList.toggle('on', t.dataset.m === mnCur.moment));
     // Les plats du repas, en étiquettes
     mnEl.dishes.innerHTML = m && m.plats.length
@@ -5923,14 +6006,24 @@
   // repas : tout le monde mange par défaut ; ménage : personne n'est désigné par défaut
   function mnDefaultWho(){ return K().meal ? mnEaters().map(p=>p.id) : []; }
   function mnIsDefaultWho(w){ return K().meal ? mnAllEat(w) : !(w || []).some(id=>mnEaters().some(p=>p.id===id)); }
-  async function mnSave(ds, moment, plats, mangeurs){
+  async function mnSave(ds, moment, plats, mangeurs, faites){
     if (!plats.length && mnIsDefaultWho(mangeurs)) return mnDelete(ds, moment);
-    const k = mnKey(ds, moment);
-    state.repas[k] = { id:(state.repas[k] && state.repas[k].id) || null, jour:ds, moment, plats, mangeurs };
+    const k = mnKey(ds, moment), old = state.repas[k];
+    // 4.1.1 : tâches faites (ménage) — on ne garde que celles encore prévues ce jour-là
+    if (faites === undefined) faites = old && old.faites ? old.faites : [];
+    faites = faites.filter(x=>plats.some(p=>mnLow(p) === mnLow(x)));
+    state.repas[k] = { id:(old && old.id) || null, jour:ds, moment, plats, mangeurs, faites };
     mnRecount();
     // ancienne colonne, gardée lisible ; la base exige au moins 1 caractère -> « ? » pour un repas sans plat (3.7.8)
     const plat = plats.length ? plats.join(' + ').slice(0, 120) : '?';
-    const { error } = await sb.from(K().t).upsert({ household_id:state.household.id, jour:ds, moment, plat, plats, mangeurs, updated_at:new Date().toISOString() }, { onConflict:'household_id,jour,moment' });
+    const row = { household_id:state.household.id, jour:ds, moment, plat, plats, mangeurs, updated_at:new Date().toISOString() };
+    if (!K().meal) row.faites = faites;
+    let { error } = await sb.from(K().t).upsert(row, { onConflict:'household_id,jour,moment' });
+    // colonne « faites » pas encore créée dans Supabase : on enregistre quand même le reste
+    if (error && row.faites && /faites/.test(String(error.message || ''))) {
+      delete row.faites; ({ error } = await sb.from(K().t).upsert(row, { onConflict:'household_id,jour,moment' }));
+      if (!error) mnToast("Coche non enregistrée : il manque la ligne SQL « faites » dans Supabase.");
+    }
     if (error) mnFail(error);
   }
   async function mnDelete(ds, moment){
@@ -5968,7 +6061,7 @@
     const nom = mnNice(raw); if (!nom) return;
     const old = mnMeal(mnCur.ds, mnCur.moment);
     const plats = old ? old.plats.slice() : [];
-    if (!plats.some(p=>mnLow(p) === mnLow(nom))) { plats.push(nom); mnCountRecipe(nom); }
+    if (!plats.some(p=>mnLow(p) === mnLow(nom))) { if (K().meal) plats.push(nom); else plats.unshift(nom); mnCountRecipe(nom); }   // ménage : la nouvelle tâche en haut
     mnSave(mnCur.ds, mnCur.moment, plats, old ? old.mangeurs : mnDefaultWho());
     mnEl.search.value = ''; mnTyped = false;
     mnFill();
@@ -6084,14 +6177,14 @@
     mnClose(); render();
   }
   function mnPut(ds, k, meal){
-    if (meal) mnSave(ds, k, meal.plats.slice(), meal.mangeurs.slice());
+    if (meal) mnSave(ds, k, meal.plats.slice(), meal.mangeurs.slice(), (meal.faites || []).slice());
     else mnDelete(ds, k);
   }
   function mnDoSwap(ds){
     const c = mnCopy, k = c.moment;
     if (ds === c.src) { mnStopCopy(true); render(); return; }       // toucher le même jour = annuler
     const a = mnMeal(c.src, k), b = mnMeal(ds, k);
-    const ca = a && { plats:a.plats.slice(), mangeurs:a.mangeurs.slice() }, cb = b && { plats:b.plats.slice(), mangeurs:b.mangeurs.slice() };
+    const ca = a && { plats:a.plats.slice(), mangeurs:a.mangeurs.slice(), faites:(a.faites || []).slice() }, cb = b && { plats:b.plats.slice(), mangeurs:b.mangeurs.slice(), faites:(b.faites || []).slice() };
     mnPut(c.src, k, cb); mnPut(ds, k, ca);
     mnFlash.add(c.src); mnFlash.add(ds);
     mnStopCopy(true); render();
@@ -6103,7 +6196,7 @@
   function mnToggleCopyDay(ds){
     const c = mnCopy;
     if (c.days.has(ds)) { c.days.delete(ds); mnDelete(ds, c.moment); }
-    else { c.days.add(ds); mnSave(ds, c.moment, c.plats.slice(), c.mangeurs.slice()); c.plats.forEach(mnCountRecipe); }
+    else { c.days.add(ds); mnSave(ds, c.moment, c.plats.slice(), c.mangeurs.slice(), []); c.plats.forEach(mnCountRecipe); }
     render();
   }
   function mnStopCopy(silent){
@@ -6121,7 +6214,7 @@
       const ds = addDays(mon, i), src = addDays(ds, -7);
       K().moments.forEach(k=>{
         const s = mnMeal(src, k);
-        if (s && !mnMeal(ds, k)) { mnSave(ds, k, s.plats.slice(), s.mangeurs.slice()); s.plats.forEach(mnCountRecipe); mnFlash.add(ds); n++; }
+        if (s && !mnMeal(ds, k)) { mnSave(ds, k, s.plats.slice(), s.mangeurs.slice(), []); s.plats.forEach(mnCountRecipe); mnFlash.add(ds); n++; }
       });
     }
     mnClose();
