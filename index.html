@@ -778,6 +778,11 @@
   .mn-search:focus { outline:2px solid var(--palette-1); outline-offset:1px; }
   .mn-lab { font-size:12.5px; font-weight:700; color:var(--ink-soft); margin:14px 0 6px; }
   .mn-field { position:relative; }
+  /* 4.1.3 : envois en attente (hors ligne) */
+  .ob-off { max-width:420px; margin:auto; padding:0 24px; text-align:center; }
+  .ob-off h1 { margin:0 0 10px; } .ob-off p { color:var(--ink-soft); line-height:1.5; margin:0 0 24px; }
+  body.mn-open .ob-badge, body.lists-open .ob-badge, body:has(.scrim) .ob-badge { display:none; }
+  .ob-badge { position:fixed; left:14px; bottom:calc(22px + env(safe-area-inset-bottom)); z-index:40; border:none; border-radius:999px; padding:8px 13px; white-space:nowrap; background:#B4572E; color:#fff; font:700 13px 'Plus Jakarta Sans',sans-serif; box-shadow:var(--shadow); cursor:pointer; }
   /* 4.1.1 : ménage en liste */
   .mn-sugg { position:absolute; left:0; right:0; top:100%; margin-top:4px; z-index:5; background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:4px; }
   .mn-sugg[hidden], .mn-todo[hidden], .mn-dishes[hidden], .mn-recipes[hidden], .mn-lab-rc[hidden] { display:none !important; }
@@ -1071,7 +1076,7 @@
 </style>
 </head>
 <body>
-<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.1.1</div></div>
+<div id="boot-splash" aria-hidden="true"><svg class="splash-scene" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#F1E3C4"><circle class="tw" cx="132" cy="93" r="0.9"/><circle class="tw" cx="30" cy="289" r="0.9"/><circle cx="169" cy="142" r="2.0"/><circle cx="326" cy="78" r="1.1"/><circle cx="232" cy="44" r="2.0"/><circle class="tw" cx="383" cy="36" r="1.1"/><circle cx="63" cy="75" r="1.3"/><circle cx="270" cy="67" r="2.0"/><circle cx="151" cy="311" r="0.9"/><circle cx="212" cy="437" r="1.6"/><circle cx="182" cy="175" r="1.1"/><circle cx="102" cy="326" r="2.0"/><circle cx="242" cy="50" r="2.0"/><circle cx="299" cy="94" r="1.6"/><circle cx="377" cy="53" r="2.0"/><circle cx="344" cy="183" r="1.3"/><circle cx="331" cy="530" r="1.6"/><circle cx="33" cy="412" r="1.3"/><circle cx="389" cy="462" r="1.3"/><circle cx="349" cy="201" r="1.6"/><circle cx="92" cy="168" r="1.1"/><circle cx="360" cy="283" r="1.1"/><circle cx="219" cy="496" r="1.6"/><circle class="tw" cx="146" cy="496" r="1.1"/><circle class="tw" cx="76" cy="138" r="1.1"/><circle class="tw" cx="327" cy="110" r="1.3"/><circle cx="225" cy="534" r="2.0"/><circle cx="260" cy="417" r="1.6"/><circle cx="308" cy="491" r="2.0"/><circle class="tw" cx="161" cy="67" r="1.6"/><circle class="tw" cx="34" cy="125" r="1.1"/><circle class="tw" cx="239" cy="66" r="2.0"/><circle class="tw" cx="47" cy="210" r="0.9"/><circle cx="252" cy="536" r="2.0"/><circle cx="55" cy="477" r="1.6"/><circle cx="128" cy="89" r="1.3"/><circle class="tw" cx="192" cy="391" r="2.0"/><circle cx="373" cy="301" r="1.1"/><circle cx="359" cy="427" r="1.3"/><circle cx="340" cy="393" r="1.3"/><circle cx="357" cy="206" r="1.1"/><circle cx="307" cy="191" r="1.1"/><circle cx="311" cy="427" r="1.1"/><circle class="tw" cx="322" cy="417" r="1.1"/><circle cx="197" cy="412" r="0.9"/><circle cx="189" cy="117" r="2.0"/><path d="M330 64 L333 77 L346 80 L333 83 L330 96 L327 83 L314 80 L327 77 Z"/></g><defs><linearGradient id="shadeBoot" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="220" y2="0"><stop offset="0" stop-color="#2E4566" stop-opacity=".95"/><stop offset=".45" stop-color="#3E5C86" stop-opacity=".6"/><stop offset="1" stop-color="#3E5C86" stop-opacity="0"/></linearGradient></defs><circle cx="200" cy="1010" r="446" fill="#F1E3C4" opacity=".14"/><circle cx="200" cy="1010" r="432" fill="#F1E3C4" opacity=".32"/><circle cx="200" cy="1010" r="420" fill="#F1E3C4"/><circle cx="200" cy="1010" r="420" fill="url(#shadeBoot)"/></svg><div class="splash-word">EarthShade</div><div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div><!-- Numéro de version : à augmenter à chaque mise à jour --><div class="splash-version">Version 4.1.3</div></div>
 <div id="app"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1230,6 +1235,9 @@
   async function afterLogin(){
     loggedUserId = auth.session && auth.session.user ? auth.session.user.id : null;
     const { data: prof, error } = await sb.from('profiles').select('*').eq('user_id', auth.session.user.id).maybeSingle();
+    // 4.1.3 : appli ouverte sans réseau -> écran « Pas de réseau » (avant : « Créer votre foyer », trompeur)
+    if (error && isNetErr(error)) { state.offlineStart = true; state.myProfile = null; state.household = null; return; }
+    state.offlineStart = false;
     if (error || !prof) { state.myProfile = null; state.household = null; return; }
     state.myProfile = { ...prof, color: safeColor(prof.color) };
     const { data: hh } = await sb.from('households').select('*').eq('id', prof.household_id).single();
@@ -1255,6 +1263,7 @@
   let reloadSeq = 0, lastReloadAt = 0, offlineToastAt = 0;
   async function reloadHouseholdData(){
     if (!state.household) return false;
+    if (obPending() && !(await obFlush())) return false;   // 4.1.3 : envois en attente -> on garde ce qui est à l'écran
     const hid = state.household.id;
     const seq = ++reloadSeq;
     let profiles, events, log;
@@ -1414,7 +1423,9 @@
   const idsOf = list => (list || []).flatMap(x=>x.participants || []);
   async function logActivity(action){
     if (!state.household || !state.myProfile) return;
-    try { await sb.from('activity_log').insert({ household_id: state.household.id, who: state.myProfile.name, action }); } catch(e){}
+    const row = { household_id: state.household.id, who: state.myProfile.name, action };
+    if (obPending()) { obEnqueue({ k:'log', row }); return; }
+    try { const { error } = await sb.from('activity_log').insert(row); if (error && isNetErr(error)) obEnqueue({ k:'log', row }); } catch(e){ if (isNetErr(e)) obEnqueue({ k:'log', row }); }
   }
   function eventRow(ev){
     return {
@@ -1426,12 +1437,26 @@
       created_by: state.myProfile.id
     };
   }
+  // 4.1.3 : hors ligne, l'événement est mis à jour sur l'écran tout de suite et envoyé plus tard
+  function obLocalEvent(ev, del){
+    const list = state.events || [];
+    const i = list.findIndex(e=>e.id === (del ? ev : ev.id));
+    if (del) { if (i >= 0) list.splice(i, 1); return; }
+    const copy = Object.assign({}, i >= 0 ? list[i] : {}, ev, { participants:[...new Set(ev.participants || [])] });
+    if (i >= 0) list[i] = copy; else list.push(copy);
+  }
   async function upsertEventDb(ev){
     touchUndo(ev.id);
-    const { error } = await sb.from('events').upsert(eventRow(ev));
+    const row = eventRow(ev), parts = [...new Set(ev.participants)];
+    if (obPending()) { obEnqueue({ k:'ev', row, parts }); obLocalEvent(ev); return; }
+    try { await upsertEventRaw(row, parts); }
+    catch(e){ if (!isNetErr(e)) throw e; obEnqueue({ k:'ev', row, parts }); obLocalEvent(ev); }
+  }
+  async function upsertEventRaw(row, want){
+    const ev = { id: row.id };
+    const { error } = await sb.from('events').upsert(row);
     if (error) throw error;
     // 3.7 : on ajoute les nouveaux participants AVANT de retirer les anciens (jamais d'événement sans personne)
-    const want = [...new Set(ev.participants)];
     const { data: have, error: herr } = await sb.from('event_participants').select('profile_id').eq('event_id', ev.id);
     if (herr) throw herr;
     const haveSet = new Set((have || []).map(r=>r.profile_id));
@@ -1450,7 +1475,10 @@
   async function insertEventsDb(list){
     if (!list.length) return;
     list.forEach(ev=>touchUndo(ev.id));
+    const queueAll = ()=>list.forEach(ev=>{ obEnqueue({ k:'ev', row:eventRow(ev), parts:[...new Set(ev.participants)] }); obLocalEvent(ev); });
+    if (obPending()) { queueAll(); return; }
     const { error } = await sb.from('events').insert(list.map(eventRow));
+    if (error && isNetErr(error)) { queueAll(); return; }
     if (error) throw error;
     const parts = list.flatMap(ev=>[...new Set(ev.participants)].map(pid=>({ event_id: ev.id, profile_id: pid })));
     if (parts.length) {
@@ -1460,7 +1488,9 @@
   }
   async function deleteEventDb(id){
     touchUndo(id);
+    if (obPending()) { obEnqueue({ k:'evdel', id }); obLocalEvent(id, true); return; }
     const { error } = await sb.from('events').delete().eq('id', id);
+    if (error && isNetErr(error)) { obEnqueue({ k:'evdel', id }); obLocalEvent(id, true); return; }
     if (error) throw error;
   }
   async function createHousehold(name, color){
@@ -1545,18 +1575,127 @@
       toast('Google Agenda connecté' + (data && data.email ? ' (' + data.email + ')' : '') + '.');
       return true;
     } catch(err){
-      toast('Connexion Google impossible : ' + ((err && err.message) || 'erreur inconnue'));
+      toast('Connexion Google impossible : ' + esErrText(err));
       return false;
     }
   }
 
+  /* ================================================================== */
+  /* 4.1.3 : HORS LIGNE — rien n'est perdu sans réseau.                  */
+  /* Une écriture qui échoue faute de connexion est gardée sur le         */
+  /* téléphone (dans l'ordre) et renvoyée toute seule au retour du réseau.*/
+  /* Tant qu'il reste des envois en attente, tout nouveau changement      */
+  /* passe aussi par la file, pour garder le bon ordre.                    */
+  /* ================================================================== */
+  const ES_OUTBOX = 'es-outbox';
+  function isNetErr(e){
+    const m = String((e && (e.message || e.details || e.name)) || e || '');
+    return (typeof navigator !== 'undefined' && navigator.onLine === false)
+      || /failed to fetch|networkerror|network request failed|load failed|fetch failed|failed to send a request|err_internet|err_network|timed? ?out|connexion/i.test(m);
+  }
+  function obRead(){ try { return JSON.parse(localStorage.getItem(ES_OUTBOX) || '[]') || []; } catch(e){ return []; } }
+  function obWrite(list){ try { localStorage.setItem(ES_OUTBOX, JSON.stringify(list)); } catch(e){} obBadge(); }
+  function obPending(){ return obRead().length > 0; }
+  let obToastAt = 0;
+  function obEnqueue(job){
+    const list = obRead(); list.push(Object.assign({ at:Date.now() }, job)); obWrite(list);
+    if (Date.now() - obToastAt > 8000) { obToastAt = Date.now(); toast("Pas de réseau : c'est gardé sur le téléphone, envoi dès que la connexion revient."); }
+    obSchedule();
+  }
+  // une écriture « simple » décrite en données (pour pouvoir la rejouer plus tard)
+  function dbQuery(j){
+    let q = sb.from(j.t);
+    if (j.op === 'upsert') q = j.opts ? q.upsert(j.data, j.opts) : q.upsert(j.data);
+    else if (j.op === 'insert') q = q.insert(j.data);
+    else if (j.op === 'update') q = q.update(j.data);
+    else q = q.delete();
+    (j.eq || []).forEach(([k, v])=>{ q = q.eq(k, v); });
+    (j.inq || []).forEach(([k, a])=>{ q = q.in(k, a); });
+    return q;
+  }
+  async function esDb(j){
+    if (obPending()) { obEnqueue({ k:'db', j }); return { error:null, queued:true }; }
+    let res;
+    try { res = await dbQuery(j); } catch(e){ res = { error:e }; }
+    if (res && res.error && isNetErr(res.error)) { obEnqueue({ k:'db', j }); return { error:null, queued:true }; }
+    return res || { error:null };
+  }
+  async function obRun(job){
+    if (job.k === 'db') {
+      const res = await dbQuery(job.j);
+      if (res.error && job.j.op === 'insert' && (res.error.code === '23505' || /duplicate key/i.test(res.error.message || ''))) return;   // déjà passé
+      if (res.error) throw res.error;
+    } else if (job.k === 'ev') {
+      await upsertEventRaw(job.row, job.parts);
+    } else if (job.k === 'evdel') {
+      const { error } = await sb.from('events').delete().eq('id', job.id); if (error) throw error;
+    } else if (job.k === 'g') {
+      const { data, error } = await sb.functions.invoke('google-calendar', { body: { action:job.action, ...job.payload } });
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
+    } else if (job.k === 'log') {
+      await sb.from('activity_log').insert(job.row);
+    }
+  }
+  let obBusy = false, obTimer = null;
+  async function obFlush(){
+    if (obBusy || !state.household) return !obPending();
+    obBusy = true;
+    let sent = 0, dropped = 0;
+    try {
+      for (;;) {
+        const list = obRead(); if (!list.length) break;
+        const job = list[0];
+        try { await obRun(job); sent++; }
+        catch(e){
+          if (isNetErr(e)) break;                   // toujours pas de réseau : on réessaiera
+          console.warn('Envoi abandonné :', job, e);
+          if (job.k === 'g') {} else dropped++;     // Google refuse : sans gravité, l'événement est bien dans EarthShade
+        }
+        const rest = obRead(); rest.shift(); obWrite(rest);
+      }
+    } finally { obBusy = false; }
+    const left = obPending();
+    if (sent && !left) {
+      toast(dropped ? `Connexion revenue : envoyé, sauf ${dropped} changement${dropped > 1 ? 's' : ''} refusé${dropped > 1 ? 's' : ''} par le serveur.` : 'Connexion revenue : tout est envoyé.');
+      try { await reloadHouseholdData(); renderFromRemote(); } catch(e){}
+      try { reloadArticles(); } catch(e){}
+      try { if (view.menuMode) reloadMenus(); } catch(e){}
+    }
+    if (left) obSchedule();
+    return !left;
+  }
+  function obSchedule(){ clearTimeout(obTimer); if (obPending()) obTimer = setTimeout(()=>obOnline(), 20000); }
+  function obBadge(){
+    let el = document.getElementById('ob-badge');
+    const n = obRead().length;
+    if (!n) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('button'); el.id = 'ob-badge'; el.type = 'button'; el.className = 'ob-badge'; el.onclick = ()=>{ el.textContent = 'Envoi…'; obOnline().then(()=>!obPending()).then(ok=>{ obBadge(); if (!ok) toast('Toujours pas de réseau : nouvel essai automatique.'); }); }; document.body.appendChild(el); }
+    el.textContent = 'Hors ligne · à envoyer';   // (un changement peut compter plusieurs envois : on n'affiche pas de nombre)
+  }
+  // retour du réseau : si l'appli avait démarré sans réseau, on charge d'abord la famille, puis on vide la file
+  async function obOnline(){
+    try { if (auth.session && !state.household) { await afterLogin(); render(); } } catch(e){}
+    return obFlush();
+  }
+  window.addEventListener('online', ()=>setTimeout(obOnline, 800));
+  setTimeout(obBadge, 2500);
+  // 4.1.3 : un message lisible plutôt que « TypeError: Failed to fetch »
+  function esErrText(err){
+    if (isNetErr(err)) return "pas de réseau pour l'instant. Réessaie quand la connexion revient.";
+    return (err && err.message) || 'erreur inconnue';
+  }
+  document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && obPending()) setTimeout(obOnline, 500); });
+
   async function syncToGoogle(action, payload){
     if (!state.googleLinked) return;
+    if (obPending()) { obEnqueue({ k:'g', action, payload }); return; }   // 4.1.3 : garder l'ordre (l'événement d'abord)
     try {
       const { data, error } = await sb.functions.invoke('google-calendar', { body: { action, ...payload } });
       if (error) throw error;
       if (data && data.error) throw new Error(data.error);
     } catch(err){
+      if (isNetErr(err)) { obEnqueue({ k:'g', action, payload }); return; }   // 4.1.3 : renvoyé au retour du réseau
       toast("L'événement est enregistré, mais Google Agenda n'a pas suivi.");
       console.warn('Synchronisation Google :', err);
     }
@@ -1683,7 +1822,7 @@
       for (const e of toDelete) await deleteEventDb(e.id);
       for (const e of toRestore) await upsertEventDb(e);
       // Un événement importé qu'on avait masqué redevient visible
-      for (const e of toRestore) if (e.sourceId) await sb.from('events').update({ masque:false }).eq('id', e.id);
+      for (const e of toRestore) if (e.sourceId) await esDb({ t:'events', op:'update', data:{ masque:false }, eq:[['id', e.id]] });
       await logActivity('a annulé la dernière action');
       await reloadHouseholdData();
       googleIdsToDrop.forEach(gid=>syncToGoogle('remove', { google_event_id: gid }));
@@ -1691,7 +1830,7 @@
     } catch(err){
       state._undoStack.push(keptUndo);
       await reloadHouseholdData();
-      showAlert("L'annulation n'a pas pu être enregistrée : " + ((err && err.message) || 'erreur inconnue') + "\nRéessaie dans un instant.");
+      showAlert("L'annulation n'a pas pu être enregistrée : " + esErrText(err) + "\nRéessaie dans un instant.");
     } finally { undoRunning = false; }
     render();
   }
@@ -1712,14 +1851,15 @@
       toast(`${list.length} événement${list.length>1?'s':''} supprimé${list.length>1?'s':''} — ↺ pour annuler`);
     } catch(err){
       await reloadHouseholdData().catch(()=>{});
-      showAlert('Suppression incomplète : ' + ((err && err.message) || 'erreur'));
+      showAlert('Suppression incomplète : ' + esErrText(err));
     }
     render();
   }
   async function hideImportedDb(e){
     touchUndo(e.id);
-    const { error } = await sb.from('events').update({ masque:true, google_event_id:null }).eq('id', e.id);
+    const { error, queued } = await esDb({ t:'events', op:'update', data:{ masque:true, google_event_id:null }, eq:[['id', e.id]] });
     if (error) throw error;
+    if (queued) obLocalEvent(e.id, true);
     if (e.googleId) syncToGoogle('remove', { google_event_id: e.googleId });
   }
   /* 3.7.1 : une « Journée » répétée les jours qui se suivent (même titre, mêmes personnes) forme une série,
@@ -1810,12 +1950,12 @@
       // 4.0.2 : les jours venant d'un agenda lié sont masqués (sinon ils reviendraient à la prochaine actualisation)
       const linkedOnes = list.filter(isLinked), own = list.filter(x=>!isLinked(x));
       for (const x of linkedOnes) await hideImportedDb(x);
-      if (own.length) { const { error } = await sb.from('events').delete().in('id', own.map(x=>x.id)); if (error) throw error; }
+      if (own.length) { const { error, queued } = await esDb({ t:'events', op:'delete', inq:[['id', own.map(x=>x.id)]] }); if (error) throw error; if (queued) own.forEach(x=>obLocalEvent(x.id, true)); }
       await logActivity(`a ${linkedOnes.length && !own.length ? 'masqué' : 'supprimé'} « ${list[0].title} », ${quandLabel(list.map(x=>x.date))}${pourQui(idsOf(list))}`);
       await reloadHouseholdData();
       list.forEach(x=>{ if (x.googleId) syncToGoogle('remove', { google_event_id: x.googleId }); });
       toast(`« ${list[0].title} » ${linkedOnes.length && !own.length ? 'masqué' : 'supprimé'} sur ${list.length} jours — ↺ pour annuler`);
-    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("La série n'a pas pu être supprimée : "+err.message); }
+    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("La série n'a pas pu être supprimée : "+ esErrText(err)); }
     return 'series';
   }
   async function removeEvent(e){
@@ -1839,7 +1979,7 @@
         await logActivity(`a masqué « ${e.title} », ${quandLabel([e.date])}${pourQui(e.participants)}`);
         await reloadHouseholdData();
         toast('Événement masqué — ↺ pour annuler');
-      } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert('Erreur : '+err.message); }
+      } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert('Erreur : '+ esErrText(err)); }
       return;
     }
     try {
@@ -1848,7 +1988,7 @@
       await reloadHouseholdData();
       if (googleId) syncToGoogle('remove', { google_event_id: googleId });
       fabsShown = !isWide(); if (fabsShown) { clearTimeout(fabsTimer); fabsTimer = setTimeout(hideFabs, 6000); }
-    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("L'événement n'a pas pu être supprimé : "+err.message); }
+    } catch(err){ await reloadHouseholdData().catch(()=>{}); render(); showAlert("L'événement n'a pas pu être supprimé : "+ esErrText(err)); }
   }
   function fmtTime(ts){
     const d = new Date(ts);
@@ -1920,6 +2060,7 @@
     document.body.classList.remove('month-fit');
     if (auth.loading) { root.appendChild(renderLoading()); return; }
     if (!auth.session) { root.appendChild(renderAuthScreen()); return; }
+    if (!state.myProfile && state.offlineStart) { root.appendChild(renderOfflineStart()); return; }
     if (!state.myProfile) { root.appendChild(renderHouseholdSetup()); return; }
     document.body.classList.toggle('day-mode', usesTimeline() || (view.mode==='week' && !landscapePhone && !isWide()));
     document.body.classList.toggle('month-fit', view.mode==='month' && !isWide());
@@ -2069,6 +2210,14 @@
     return wrap;
   }
 
+  function renderOfflineStart(){
+    const wrap = document.createElement('div'); wrap.id = 'onboarding';
+    wrap.innerHTML = `<div class="ob-off"><h1>Pas de réseau</h1>
+      <p>L'agenda s'affichera dès que la connexion reviendra.${obPending() ? '<br>Tes derniers changements sont gardés sur le téléphone et partiront à ce moment-là.' : ''}</p>
+      <button type="button" class="save-btn" id="ob-retry">Réessayer</button></div>`;
+    wrap.querySelector('#ob-retry').onclick = async (e)=>{ e.target.textContent = 'Connexion…'; await obOnline(); render(); if (state.offlineStart) toast('Toujours pas de réseau.'); };
+    return wrap;
+  }
   function renderAuthScreen(){
     const wrap = document.createElement('div'); wrap.id='onboarding';
     const mode = view.authMode || 'signin';
@@ -3978,7 +4127,7 @@
         view.sheet = null;
       } catch(err){
         await reloadHouseholdData();
-        showAlert("Erreur d'enregistrement : "+err.message);
+        showAlert("Pas enregistré : " + esErrText(err));
       } finally { view._saving = false; }
       render();
     };
@@ -4000,14 +4149,14 @@
         if (!await askConfirm(`Détacher « ${ev.title} » ?\n\nIl deviendra un événement normal, modifiable, et ne suivra plus les changements de « ${srcLink ? srcLink.nom : 'la source'} ».`, { ok:'Détacher' })) return;
         detach.disabled = true;
         try {
-          const { error } = await sb.from('events').update({ detache:true }).eq('id', ev.id);
+          const { error } = await esDb({ t:'events', op:'update', data:{ detache:true }, eq:[['id', ev.id]] });
           if (error) throw error;
           await logActivity(`a détaché « ${ev.title} » de son agenda lié, ${quandLabel([ev.date])}${pourQui(ev.participants)}`);
           await reloadHouseholdData();
           toast('Événement détaché : tu peux maintenant le modifier librement.');
           const fresh = state.events.find(x=>x.id===ev.id);
           if (fresh) { view.editingEvent = {...fresh, participants:[...fresh.participants]}; render(); return; }
-        } catch(err){ showAlert('Erreur : ' + ((err && err.message) || 'inconnue')); }
+        } catch(err){ showAlert('Erreur : ' + esErrText(err)); }
         view.sheet = null; render();
       };
       sheet.appendChild(detach);
@@ -4140,7 +4289,7 @@
           const data = await callLinks(body);
           await reloadHouseholdData();
           toast(okMsg ? okMsg(data) : syncSummary(data.results));
-        } catch(err){ toast('Échec : ' + err.message); }
+        } catch(err){ toast('Échec : ' + esErrText(err)); }
         view._linkBusy = null; render();
       };
       card.querySelector('[data-act="refresh"]').onclick = ()=>run({ action:'actualiser', lien_id:l.id });
@@ -4174,7 +4323,7 @@
         await reloadHouseholdData();
         const errs = (data.results||[]).filter(r=>r.error).length;
         toast(errs ? `${errs} agenda${errs>1?'s':''} en erreur — voir le détail.` : 'Tous les agendas liés sont à jour.');
-      } catch(err){ toast('Échec : ' + err.message); }
+      } catch(err){ toast('Échec : ' + esErrText(err)); }
       render();
     };
     sheet.querySelector('#links-add').onclick = ()=>{
@@ -4299,7 +4448,7 @@
         view.sheet = 'links';
         toast(syncSummary(data.results));
       } catch(err){
-        d.saving = false; d.error = "Ajout impossible : " + ((err && err.message) || 'erreur inconnue');
+        d.saving = false; d.error = "Ajout impossible : " + esErrText(err);
         await reloadHouseholdData().catch(()=>{});
       }
       render();
@@ -4426,7 +4575,7 @@
           e.stopPropagation();
           if (!await askConfirm(`Supprimer le profil « ${p.name} » ?\n\nIl sera retiré des événements où il apparaît.`, { ok:'Supprimer', danger:true })) return;
           try { await deleteGuestProfile(p); render(); }
-          catch(err){ showAlert('Erreur : '+err.message); }
+          catch(err){ showAlert('Erreur : '+ esErrText(err)); }
         };
         row.appendChild(del);
       }
@@ -4845,6 +4994,9 @@
         ? screen.orientation.type.indexOf('landscape') === 0
         : Math.abs(window.orientation || 0) === 90;
     } catch(e){ land = window.innerWidth > window.innerHeight; }
+    // 4.1.2 : on vérifie aussi la forme réelle de l'écran de l'appli. Sur Samsung, l'orientation annoncée
+    // pouvait rester « paysage » après un retour en portrait -> tout s'affichait en mode paysage, écrasé.
+    if (land && window.innerWidth <= window.innerHeight) land = false;
     const small = Math.min(screen.width || 9999, screen.height || 9999) < 600;
     return !!land && small;
   }
@@ -4881,6 +5033,10 @@
   if (screen.orientation && screen.orientation.addEventListener) {
     screen.orientation.addEventListener('change', ()=>{ updateLayout(); setTimeout(()=>{ updateLayout(); fitDayView(); }, 450); });
   }
+  // 4.1.2 : l'appli a pu être tournée pendant qu'elle était en arrière-plan (aucun événement reçu) -> on revérifie au retour
+  document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) { updateLayout(); setTimeout(updateLayout, 400); } });
+  window.addEventListener('pageshow', ()=>setTimeout(updateLayout, 50));
+  window.addEventListener('focus', ()=>setTimeout(updateLayout, 50));
   landscapePhone = detectLandscapePhone();
   document.body.classList.toggle('is-wide', window.innerWidth >= 780 || landscapePhone);
   document.body.classList.toggle('compact-h', landscapePhone);
@@ -4917,6 +5073,7 @@
              nb:Number(a.nb_coches)||0, nbJour:Number(a.nb_coches_jour)||0, jour:a.jour_coches || '' };
   }
   async function reloadArticles(){
+    if (obPending() && !(await obFlush())) return;   // 4.1.3
     if (!state.household) return;
     try {
       const { data, error } = await sb.from('articles').select('*').eq('household_id', state.household.id);
@@ -5090,7 +5247,7 @@
     lpToastTimer = setTimeout(()=>t.classList.remove('show'), action ? 5000 : 2600);
   }
   function lpFail(err){
-    lpToast('Pas enregistré : ' + ((err && err.message) || 'connexion ?'));
+    lpToast('Pas enregistré : ' + esErrText(err));
     reloadArticles();
   }
 
@@ -5103,17 +5260,17 @@
              nb_coches:a.nb || 0, nb_coches_jour:a.nbJour || 0, jour_coches:a.jour || null };
   }
   async function lpInsert(list){
-    const { error } = await sb.from('articles').insert(list.map(lpRowFor));
+    const { error } = await esDb({ t:'articles', op:'insert', data:list.map(lpRowFor) });
     if (error) lpFail(error);
   }
   async function lpUpdate(a, fields){
     const patch = Object.assign({ updated_at:new Date().toISOString() }, fields);
-    const { error } = await sb.from('articles').update(patch).eq('id', a.id);
+    const { error } = await esDb({ t:'articles', op:'update', data:patch, eq:[['id', a.id]] });
     if (error) lpFail(error);
   }
   async function lpRemove(list){
     if (!list.length) return;
-    const { error } = await sb.from('articles').delete().in('id', list.map(a=>a.id));
+    const { error } = await esDb({ t:'articles', op:'delete', inq:[['id', list.map(a=>a.id)]] });
     if (error) lpFail(error);
   }
   // 4.0.15 : un nouvel élément arrive EN HAUT de la liste
@@ -5462,7 +5619,7 @@
   // Toucher une case ouvre la fenêtre du repas sur la ligne la plus proche du doigt. Fourchette et Cas s'excluent.
   // 3.1 : un repas peut avoir plusieurs plats (« Quiche lorraine » + « Salade »), chacun gardé à part dans la banque.
   // La fenêtre vit en dehors de #app : une mise à jour de l'agenda ne ferme ni le clavier ni la fenêtre.
-  const BROOM_PATH = '<path d="M20.5 3.5l-7.2 7.2"/><path d="M12 9.6l2.4 2.4c.5.5.5 1.3 0 1.8l-.6.6c-1.6 3-4.3 5.3-7.6 6.1L3.5 17.8c.8-3.3 3.1-6 6.1-7.6l.6-.6c.5-.5 1.3-.5 1.8 0z"/><path d="M6.3 20.2l2.2-3.2M8.9 19.1l1.7-2.4"/>';   // 4.1 : balai (Ménage)
+  const BROOM_PATH = '<path d="M12 2.5v9"/><path d="M8.5 11.5h7"/><path d="M8.5 11.5L6 21.5h12l-2.5-10"/><path d="M10.3 16v5.5M13.7 16v5.5"/>';   // 4.1.3 : balai droit, en pictogramme (comme les couverts)   // 4.1 : balai (Ménage)
   const FORK_SVG = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3v6.5a2.5 2.5 0 0 0 5 0V3"/><path d="M7.5 3v18"/><path d="M18.5 21V3c-2.4.9-3.8 3.6-3.8 7v3.2c0 .9.7 1.6 1.6 1.6h2.2"/></svg>';   // 4.0.3 : couverts redessinés (fourchette à 2 dents + couteau), nets même en petit
   function forkIcon(size){ return size ? FORK_SVG.replace(/width="17" height="17"/, `width="${size}" height="${size}"`) : FORK_SVG; }
   const mnEl = {};
@@ -5519,6 +5676,7 @@
 
   async function reloadMenus(){
     if (!state.household) return;
+    if (obPending() && !(await obFlush())) return;   // 4.1.3
     const hid = state.household.id, kind = mnKind, cfg = K();
     try {
       const [{ data: rp, error: e1 }, { data: rc, error: e2 }] = await Promise.all([
@@ -5810,7 +5968,7 @@
     state.recettes = state.recettes.filter(x=>x !== r);
     mnFill();
     mnToast(`« ${r.nom} » retiré de la liste (${K().meal ? 'les repas' : 'les jours'} déjà prévus restent)`);
-    const { error } = await sb.from(K().tr).delete().eq('id', id);
+    const { error } = await esDb({ t:K().tr, op:'delete', eq:[['id', id]] });
     if (error) mnFail(error);
   }
   function mnClose(){
@@ -5887,12 +6045,12 @@
     if (!r) {   // plat pas encore dans « Mes recettes » : on l'y ajoute
       r = { id:uid(), nom, nb:0, ing:list };
       state.recettes.push(r);
-      const { error } = await sb.from('recettes').insert({ id:r.id, household_id:state.household.id, nom, nb_fois:0, ingredients:list });
+      const { error } = await esDb({ t:'recettes', op:'insert', data:{ id:r.id, household_id:state.household.id, nom, nb_fois:0, ingredients:list } });
       if (error) mnFail(error);
       return;
     }
     r.ing = list;
-    const { error } = await sb.from('recettes').update({ ingredients:list }).eq('id', r.id);
+    const { error } = await esDb({ t:'recettes', op:'update', data:{ ingredients:list }, eq:[['id', r.id]] });
     if (error) mnFail(error);
   }
   function mnIngAdd(){
@@ -5999,7 +6157,7 @@
     mnEl.toast.textContent = msg; mnEl.toast.classList.add('show');
     clearTimeout(mnToast.t); mnToast.t = setTimeout(()=>mnEl.toast.classList.remove('show'), 2600);
   }
-  function mnFail(err){ mnToast('Pas enregistré : ' + ((err && err.message) || 'connexion ?')); reloadMenus(); }
+  function mnFail(err){ mnToast('Pas enregistré : ' + esErrText(err)); reloadMenus(); }
   // Enregistre un repas ; sans plat ET avec tout le monde, il est supprimé.
   // 3.7.7 : sans plat mais avec quelqu'un de décoché, il reste (« ? » + qui mange)
   function mnAllEat(mangeurs){ return mnEaters().every(p=>(mangeurs || []).includes(p.id)); }
@@ -6018,10 +6176,10 @@
     const plat = plats.length ? plats.join(' + ').slice(0, 120) : '?';
     const row = { household_id:state.household.id, jour:ds, moment, plat, plats, mangeurs, updated_at:new Date().toISOString() };
     if (!K().meal) row.faites = faites;
-    let { error } = await sb.from(K().t).upsert(row, { onConflict:'household_id,jour,moment' });
+    let { error } = await esDb({ t:K().t, op:'upsert', data:row, opts:{ onConflict:'household_id,jour,moment' } });
     // colonne « faites » pas encore créée dans Supabase : on enregistre quand même le reste
     if (error && row.faites && /faites/.test(String(error.message || ''))) {
-      delete row.faites; ({ error } = await sb.from(K().t).upsert(row, { onConflict:'household_id,jour,moment' }));
+      delete row.faites; ({ error } = await esDb({ t:K().t, op:'upsert', data:row, opts:{ onConflict:'household_id,jour,moment' } }));
       if (!error) mnToast("Coche non enregistrée : il manque la ligne SQL « faites » dans Supabase.");
     }
     if (error) mnFail(error);
@@ -6029,7 +6187,7 @@
   async function mnDelete(ds, moment){
     delete state.repas[mnKey(ds, moment)];
     mnRecount();
-    const { error } = await sb.from(K().t).delete().eq('household_id', state.household.id).eq('jour', ds).eq('moment', moment);
+    const { error } = await esDb({ t:K().t, op:'delete', eq:[['household_id', state.household.id], ['jour', ds], ['moment', moment]] });
     if (error) mnFail(error);
   }
   // Un plat ajouté à un repas : +1 à son compteur (créé s'il est nouveau)
@@ -6038,7 +6196,7 @@
     if (!r) {
       r = { id:uid(), nom, nb:0 }; state.recettes.push(r);
       mnRecount();
-      const { error } = await sb.from(K().tr).insert({ id:r.id, household_id:state.household.id, nom, nb_fois:r.nb });
+      const { error } = await esDb({ t:K().tr, op:'insert', data:{ id:r.id, household_id:state.household.id, nom, nb_fois:r.nb } });
       if (error) mnFail(error);
     } else mnRecount();
   }
@@ -6053,7 +6211,7 @@
       clearTimeout(mnRecount.t);
       const todo = mnRecount.todo = new Map([...(mnRecount.todo || new Map()), ...fix.map(r=>[r.id, r])]);
       const tr = K().tr;
-      mnRecount.t = setTimeout(()=>{ mnRecount.todo = null; todo.forEach(r=>sb.from(tr).update({ nb_fois:r.nb }).eq('id', r.id).then(()=>{})); }, 800);
+      mnRecount.t = setTimeout(()=>{ mnRecount.todo = null; todo.forEach(r=>esDb({ t:tr, op:'update', data:{ nb_fois:r.nb }, eq:[['id', r.id]] })); }, 800);
     }
   }
   function mnAddDish(raw){
@@ -6525,7 +6683,7 @@
       toast(`« ${src.title} » collé : ${lab} — ↺ pour annuler`);
     } catch(err){
       await reloadHouseholdData().catch(()=>{});
-      showAlert('Collage impossible : ' + ((err && err.message) || 'erreur inconnue'));
+      showAlert('Collage impossible : ' + esErrText(err));
     }
     render();
   }
